@@ -1,0 +1,6 @@
+(cd ../single-spa-auth-app && npm install --verbose)
+(cd ../single-spa-layout-app && npm install --verbose)
+(cd ../single-spa-home-app && npm install --verbose)
+(cd ../single-spa-angular-app && npm install --verbose)
+(cd ../single-spa-vue-app && npm install --verbose)
+(cd ../single-spa-react-app && npm install --verbose)
