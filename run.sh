@@ -24,8 +24,8 @@ npm install
 
 # Clean all applications
 echo "🧹 Cleaning all applications..."
-#npm cache clean --force
-#npm run clean
+npm cache clean --force
+npm run clean
 
 # Install all dependencies
 echo "📦 Installing all dependencies..."

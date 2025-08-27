@@ -2,7 +2,7 @@
   "name": "single-spa-layout-app",
   "version": "0.2.5",
   "description": "Vue application with header, navbar and footer for be included in a single-spa application as registered app.",
-  "main": "dist/single-spa-layout-app.js",
+  "main": "dist/single-spa-layout-app.umd.js",
   "scripts": {
     "build": "vue-cli-service build --target lib --filename single-spa-layout-app --name single-spa-layout-app src/singleSpaEntry.js",
     "lint": "vue-cli-service lint"

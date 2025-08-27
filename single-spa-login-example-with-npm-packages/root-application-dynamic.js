@@ -82,11 +82,11 @@ switch (mode) {
     // Local development - use direct imports, no SystemJS needed
     loadApp = (name) => {
       const appUrls = {
-        'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.js',
-        'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.js',
+        'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
+        'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
         'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
         'single-spa-angular-app': 'http://localhost:4204/main.js',
-        'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.js',
+        'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.umd.js',
         'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
       };
       return import(appUrls[name]);
