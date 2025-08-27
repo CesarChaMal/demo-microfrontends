@@ -2,9 +2,9 @@
   "name": "single-spa-auth-app",
   "version": "0.2.0",
   "description": "Vue application with login form for be included in a single-spa application as registered app.",
-  "main": "dist/single-spa-auth-app.umd.js",
+  "main": "dist/single-spa-auth-app.js",
   "scripts": {
-    "build": "vue-cli-service build --target lib --formats umd --name single-spa-auth-app src/singleSpaEntry.js",
+    "build": "vue-cli-service build --target lib --filename single-spa-auth-app --name single-spa-auth-app src/singleSpaEntry.js",
     "lint": "vue-cli-service lint"
   },
   "devDependencies": {
@@ -15,10 +15,11 @@
     "core-js": "3.4.4",
     "eslint": "5.16.0",
     "eslint-config-airbnb-base": "14.0.0",
-    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-import": "2.22.1",
     "eslint-plugin-vue": "5.0.0",
     "sass-loader": "8.0.2",
     "vue-cli-plugin-single-spa": "1.1.0",
+    "vue-eslint-parser": "^6.0.0",
     "vue-template-compiler": "2.6.11",
     "webpack": "4.41.5"
   },
@@ -47,6 +48,7 @@
   "homepage": "https://github.com/jualoppaz/single-spa-auth-app#readme",
   "dependencies": {
     "sass": "^1.77.8",
+    "vue": "^2.6.11",
     "vue-google-adsense": "1.9.2",
     "vue-script2": "2.1.0"
   }

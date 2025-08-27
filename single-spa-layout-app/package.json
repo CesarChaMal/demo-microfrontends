@@ -2,9 +2,9 @@
   "name": "single-spa-layout-app",
   "version": "0.2.5",
   "description": "Vue application with header, navbar and footer for be included in a single-spa application as registered app.",
-  "main": "dist/single-spa-layout-app.umd.js",
+  "main": "dist/single-spa-layout-app.js",
   "scripts": {
-    "build": "vue-cli-service build --target lib --formats umd --name single-spa-layout-app src/singleSpaEntry.js",
+    "build": "vue-cli-service build --target lib --filename single-spa-layout-app --name single-spa-layout-app src/singleSpaEntry.js",
     "lint": "vue-cli-service lint"
   },
   "devDependencies": {
@@ -15,11 +15,12 @@
     "core-js": "3.4.4",
     "eslint": "5.16.0",
     "eslint-config-airbnb-base": "14.0.0",
-    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-import": "2.22.1",
     "eslint-plugin-vue": "5.0.0",
     "sass": "1.24.4",
     "sass-loader": "8.0.2",
     "vue-cli-plugin-single-spa": "1.1.0",
+    "vue-eslint-parser": "^6.0.0",
     "vue-template-compiler": "2.6.11",
     "webpack": "4.41.5"
   },
@@ -44,5 +45,8 @@
   "bugs": {
     "url": "https://github.com/jualoppaz/single-spa-layout-app/issues"
   },
-  "homepage": "https://github.com/jualoppaz/single-spa-layout-app#readme"
+  "homepage": "https://github.com/jualoppaz/single-spa-layout-app#readme",
+  "dependencies": {
+    "vue": "^2.6.11"
+  }
 }

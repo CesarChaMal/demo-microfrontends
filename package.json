@@ -1,0 +1,60 @@
+{
+  "name": "demo-microfrontends",
+  "version": "1.0.0",
+  "description": "Demo Microfrontends with Single-SPA",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "start": "cd single-spa-login-example-with-npm-packages && npm run serve",
+    "build": "cd single-spa-login-example-with-npm-packages && npm run build:apps && npm run build",
+    "install:all": "npm run install:root && npm run install:apps",
+    "install:root": "cd single-spa-login-example-with-npm-packages && npm install",
+    "install:apps": "npm run install:auth && npm run install:layout && npm run install:home && npm run install:angular && npm run install:vue && npm run install:react",
+    "install:auth": "cd single-spa-auth-app && npm install",
+    "install:layout": "cd single-spa-layout-app && npm install",
+    "install:home": "cd single-spa-home-app && npm install",
+    "install:angular": "cd single-spa-angular-app && npm install",
+    "install:vue": "cd single-spa-vue-app && npm install",
+    "install:react": "cd single-spa-react-app && npm install",
+    "build:all": "npm run build:auth && npm run build:layout && npm run build:home && npm run build:angular && npm run build:vue && npm run build:react",
+    "build:auth": "cd single-spa-auth-app && npm run build",
+    "build:layout": "cd single-spa-layout-app && npm run build",
+    "build:home": "cd single-spa-home-app && npm run build",
+    "build:angular": "cd single-spa-angular-app && npm run build:single-spa",
+    "build:vue": "cd single-spa-vue-app && npm run build",
+    "build:react": "cd single-spa-react-app && npm run build",
+    "serve:root": "cd single-spa-login-example-with-npm-packages && npx webpack-dev-server --hot --port 8080",
+    "dev:all": "cd single-spa-login-example-with-npm-packages && npm run serve",
+
+    "clean": "npm run clean:root && npm run clean:apps",
+    "clean:root": "npx rimraf single-spa-login-example-with-npm-packages/node_modules single-spa-login-example-with-npm-packages/package-lock.json",
+    "clean:apps": "npm run clean:auth && npm run clean:layout && npm run clean:home && npm run clean:angular && npm run clean:vue && npm run clean:react",
+    "clean:auth": "npx rimraf single-spa-auth-app/node_modules single-spa-auth-app/package-lock.json",
+    "clean:layout": "npx rimraf single-spa-layout-app/node_modules single-spa-layout-app/package-lock.json",
+    "clean:home": "npx rimraf single-spa-home-app/node_modules single-spa-home-app/package-lock.json",
+    "clean:angular": "npx rimraf single-spa-angular-app/node_modules single-spa-angular-app/package-lock.json",
+    "clean:vue": "npx rimraf single-spa-vue-app/node_modules single-spa-vue-app/package-lock.json",
+    "clean:react": "npx rimraf single-spa-react-app/node_modules single-spa-react-app/package-lock.json"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "http-server": "^14.1.1",
+    "rimraf": "^5.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/demo/microfrontends.git"
+  },
+  "keywords": [
+    "microfrontends",
+    "single-spa",
+    "angular",
+    "react",
+    "vue",
+    "javascript"
+  ],
+  "author": "Demo Team",
+  "license": "MIT"
+}

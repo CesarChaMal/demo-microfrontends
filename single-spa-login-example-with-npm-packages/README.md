@@ -39,11 +39,31 @@ nvm install 12.18.3
 nvm use 12.18.3
 ```
 
+**Important:** Avoid using `--legacy-peer-deps --force` flags. Instead, use clean install approach for proper dependency resolution.
+
 ---
 
 ## 💻 Local Development & Production Flow
 
-### Development Mode
+### Quick Start (Recommended)
+
+Use the launcher scripts for automated setup:
+
+```bash
+# Windows
+run.bat
+
+# Linux/Mac
+./run.sh
+```
+
+These scripts will:
+- Clean npm cache and lock files
+- Fresh install all dependencies
+- Build all microfrontends
+- Start the root server on port 8080
+
+### Manual Development Mode
 
 Use this when you want to run everything locally with hot reload:
 
@@ -104,6 +124,26 @@ npm start       # Run Express server serving dist/
 
 ---
 
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **ESLint Configuration Errors**: Fixed to use `airbnb-base` instead of missing `@vue/eslint-config-airbnb`
+2. **Dependency Conflicts**: Use clean install approach (cache clean + lock file removal)
+3. **Port Conflicts**: Ensure ports 8080, 4201-4206 are available
+4. **Node Version**: Must use Node.js v12.x for compatibility
+
+### Clean Install
+
+If you encounter dependency issues:
+
+```bash
+# Clear everything and reinstall
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
 ## 📌 Notes
 
 * Bootstrap & FontAwesome CSS are imported in **root-application.js** to avoid duplication.
@@ -111,3 +151,4 @@ npm start       # Run Express server serving dist/
 * `serve` script runs both the root and all microfrontends in parallel.
 * Use `lint-all` to lint all MFEs at once.
 * `bootstrap` script ensures dependencies for all MFEs are installed.
+* ESLint configs updated to use available packages (airbnb-base + vue/essential).

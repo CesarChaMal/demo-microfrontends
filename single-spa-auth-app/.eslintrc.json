@@ -1,9 +1,12 @@
 {
   "env": { "browser": true, "es6": true },
+  "parser": "vue-eslint-parser",
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "parser": "babel-eslint",
+    "ecmaVersion": 2018,
     "sourceType": "module"
   },
+  "extends": ["airbnb-base", "plugin:vue/essential"],
   "rules": {
     "linebreak-style": 0,
     "import/no-cycle": 0

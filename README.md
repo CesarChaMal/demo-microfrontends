@@ -20,8 +20,7 @@ demo-microfrontends/
 ├── single-spa-home-app/                         # AngularJS home page
 ├── single-spa-angular-app/                      # Angular 8 application
 ├── single-spa-react-app/                        # React application
-├── single-spa-vue-app/                          # Vue.js application
-└── sportRadarExercise/                          # Java backend exercise
+└── single-spa-vue-app/                          # Vue.js application
 ```
 
 ## Microfrontends
@@ -68,38 +67,96 @@ demo-microfrontends/
 - **Purpose**: Vue-based features
 - **Route**: `/vue/*`
 
-### 8. SportRadar Exercise (`sportRadarExercise`)
-- **Framework**: Java with Maven
-- **Purpose**: Backend exercise demonstrating design patterns
-- **Technologies**: Java 22, JUnit, Mockito
-
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm or yarn
-- Java 22 (for SportRadar exercise)
-- Maven (for Java project)
+- Node.js (v18.0.0 or higher)
+- npm (v8.0.0 or higher)
 
 ## Quick Start
 
-### 1. Bootstrap All Applications
+### Launcher Scripts (Recommended)
+
+#### Mode-Aware Launcher (`run.sh` / `run.bat`)
+
+**Basic Usage:**
 ```bash
-cd single-spa-login-example-with-npm-packages
-npm run bootstrap
+# Windows - Start
+run.bat [mode]
+# Windows - Stop
+stop.bat
+
+# Linux/Mac - Start
+./run.sh [mode]
+# Linux/Mac - Stop
+./stop.sh
 ```
 
-### 2. Development Mode
+**Available Modes:**
+- `local` (default) - Local development with SystemJS
+- `npm` - Uses NPM packages directly
+- `nexus` - Uses Nexus private registry packages
+- `github` - Loads from GitHub Pages
+
+**What Each Mode Launches:**
+
+| Mode | Apps Running | Ports Used | Use Case |
+|------|-------------|------------|----------|
+| `local` | All 7 apps (root + 6 microfrontends) | 8080, 4201-4206 | Full development environment |
+| `npm` | Root app only | 8080 | Test NPM package loading |
+| `nexus` | Root app only | 8080 | Test Nexus private registry |
+| `github` | Root app only | 8080 | Test remote GitHub Pages loading |
+
+**Examples:**
 ```bash
-npm run serve
+# Full development environment (all apps running)
+run.bat
+./run.sh
+
+# Lightweight NPM package testing
+run.bat npm
+./run.sh npm
+
+# Nexus private registry testing
+run.bat nexus
+./run.sh nexus
+
+# GitHub Pages remote loading
+run.bat github
+./run.sh github
 ```
 
-This command will:
-- Start the root application on port 8080
-- Build all microfrontends in development mode
-- Serve each microfrontend on its respective port
-- Enable hot reloading for development
+#### Quick Development Launcher (`dev-all.sh` / `dev-all.bat`)
 
-### 3. Production Build
+**Always launches all applications** for immediate development:
+
+```bash
+# Windows
+dev-all.bat
+
+# Linux/Mac
+./dev-all.sh
+```
+
+**Features:**
+- No setup/cleanup steps
+- Always runs all 7 applications
+- Quick start for development
+- Uses ports 8080, 4201-4206
+
+### Manual Setup
+
+```bash
+# 1. Install Dependencies
+npm run install:all
+
+# 2. Build All Applications
+npm run build:all
+
+# 3. Start Development Server
+npm run serve:root
+```
+
+### Production Build
 ```bash
 npm run build:apps
 npm run build
@@ -124,17 +181,25 @@ npm run build
 
 ## Available Scripts
 
-### Root Application Scripts
-- `npm run bootstrap` - Install dependencies for all applications
-- `npm run serve` - Start development environment
-- `npm run build:apps` - Build all microfrontends
-- `npm run build` - Build root application
-- `npm start` - Start production server
-- `npm run lint-all:strict` - Lint all applications (strict mode)
+### Mode-Specific Scripts
+- `npm run serve:local` - Start in local development mode
+- `npm run serve:npm` - Start in NPM packages mode
+- `npm run serve:nexus` - Start in Nexus private registry mode
+- `npm run serve:github` - Start in GitHub Pages mode
+
+### Root Project Scripts
+- `npm run install:all` - Install dependencies for all applications
+- `npm run build:all` - Build all microfrontends
+- `npm run serve:root` - Start root development server
+- `npm run clean` - Clean all node_modules
+- `npm start` - Start development environment
 
 ### Individual App Scripts
-- `npm run build` - Build the application
-- `npm run lint` - Lint the application code
+- `npm run install:auth` - Install auth app dependencies
+- `npm run build:auth` - Build auth application
+- `npm run install:angular` - Install Angular app dependencies
+- `npm run build:angular` - Build Angular application
+- Similar patterns for: layout, home, vue, react
 
 ## Technology Stack
 
@@ -153,32 +218,47 @@ npm run build
 - **ESLint**: Code linting
 - **Various CLI tools**: Angular CLI, Vue CLI, Create React App
 
-### Backend
-- **Java 22**: Modern Java with latest features
-- **Maven**: Build automation
-- **JUnit 4**: Testing framework
-- **Mockito**: Mocking framework
-
-## Design Patterns (Java Exercise)
-
-The SportRadar exercise demonstrates various design patterns:
-- **Abstract Factory**: Match creation
-- **Command Pattern**: Match operations
-- **Observer Pattern**: Event notifications
-- **State Pattern**: Match state management
-- **Strategy Pattern**: Scoring strategies
-- **Decorator Pattern**: Match enhancements
-
 ## Development Workflow
 
-1. **Start Development**: Run `npm run serve` from root
+### Mode Selection
+
+**URL Parameters (Temporary):**
+```
+http://localhost:8080?mode=local    # Local development
+http://localhost:8080?mode=npm      # NPM packages
+http://localhost:8080?mode=nexus    # Nexus private registry
+http://localhost:8080?mode=github   # GitHub Pages
+```
+
+**Browser Console (Persistent):**
+```javascript
+localStorage.setItem('spa-mode', 'npm');     // Switch to NPM
+localStorage.setItem('spa-mode', 'nexus');   // Switch to Nexus
+localStorage.setItem('spa-mode', 'github');  // Switch to GitHub
+localStorage.setItem('spa-mode', 'local');   // Switch to local
+// Then refresh the page
+```
+
+### Application Routes
+
+1. **Start Development**: Choose your launcher based on needs:
+   - `./run.sh` - Mode-aware with setup/cleanup
+   - `./dev-all.sh` - Quick development start
 2. **Access Application**: Open http://localhost:8080
-3. **Navigate Routes**:
+3. **Stop Development**: Run stop script to kill all processes
+4. **Navigate Routes**:
    - `/` - Home (AngularJS)
    - `/login` - Authentication (Vue)
    - `/angular/*` - Angular features
    - `/react/*` - React features
    - `/vue/*` - Vue features
+
+### Launcher Script Comparison
+
+| Script | Setup/Cleanup | Mode Support | Apps Launched | Best For |
+|--------|---------------|--------------|---------------|----------|
+| `run.sh/bat` | ✅ Full setup | ✅ All modes | Mode-dependent | Production-like testing |
+| `dev-all.sh/bat` | ❌ Minimal | ❌ Local only | Always all apps | Quick development |
 
 ## Port Configuration
 
@@ -196,6 +276,8 @@ The SportRadar exercise demonstrates various design patterns:
 
 - **Framework Agnostic**: Multiple frontend frameworks coexisting
 - **Independent Deployment**: Each microfrontend can be deployed separately
+- **Multiple Loading Strategies**: Local, NPM packages, or remote GitHub Pages
+- **Dynamic Mode Switching**: Change loading strategy without code changes
 - **Shared Dependencies**: Common libraries managed efficiently
 - **Authentication Flow**: Centralized login system
 - **Routing**: Client-side routing across applications
@@ -224,7 +306,7 @@ MIT License - see individual LICENSE files in each application directory.
 ### Common Issues
 
 1. **Port Conflicts**: Ensure all required ports are available
-2. **Node Version**: Use Node.js v14 or higher
+2. **Node Version**: Use Node.js v18 or higher
 3. **Memory Issues**: Increase Node.js memory limit if needed
 4. **CORS Issues**: Applications are configured with CORS support
 

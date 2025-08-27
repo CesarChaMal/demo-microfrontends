@@ -15,7 +15,11 @@
     "lint-all:strict": "concurrently --kill-others-on-fail -n AUTH,LAYOUT,HOME,ANG,VUE,REACT \"npm --prefix ../single-spa-auth-app run lint\" \"npm --prefix ../single-spa-layout-app run lint\" \"npm --prefix ../single-spa-home-app run lint\" \"npm --prefix ../single-spa-angular-app run lint\" \"npm --prefix ../single-spa-vue-app run lint\" \"npm --prefix ../single-spa-react-app run lint\"",
     "lint-all:loose": "concurrently -n AUTH,LAYOUT,HOME,ANG,VUE,REACT \"npm --prefix ../single-spa-auth-app run lint || exit 0\" \"npm --prefix ../single-spa-layout-app run lint || exit 0\" \"npm --prefix ../single-spa-home-app run lint || exit 0\" \"npm --prefix ../single-spa-angular-app run lint || exit 0\" \"npm --prefix ../single-spa-vue-app run lint || exit 0\" \"npm --prefix ../single-spa-react-app run lint || exit 0\"",
     "start": "npm run build:apps && npm run build && node server.js",
-    "lint": "eslint . --ext .js --fix"
+    "lint": "eslint . --ext .js --fix",
+    "serve:local": "npm run serve:root",
+    "serve:npm": "npm run serve:root -- --env.mode=npm",
+    "serve:nexus": "npm run serve:root -- --env.mode=nexus",
+    "serve:github": "npm run serve:root -- --env.mode=github"
   },
   "repository": {
     "type": "git",
@@ -37,7 +41,7 @@
     "eslint": "6.8.0",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-loader": "3.0.3",
-    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-import": "2.22.1",
     "html-webpack-plugin": "3.2.0",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10",
@@ -45,7 +49,7 @@
     "@vue/cli-plugin-babel": "4.1.0",
     "@vue/cli-plugin-eslint": "4.1.0",
     "@vue/cli-service": "4.1.0",
-    "@angular-devkit/build-angular": "^0.803.23",
+    "@angular-devkit/build-angular": "0.803.23",
     "@angular-devkit/build-ng-packagr": "0.803.23",
     "@angular/cli": "8.3.23",
     "@angular/compiler-cli": "8.2.14",
@@ -54,7 +58,7 @@
     "@types/jasmine": "3.5.0",
     "@types/jasminewd2": "2.0.8",
     "codelyzer": "5.2.1",
-    "jasmine-core": "^3.5.0",
+    "jasmine-core": "3.5.0",
     "jasmine-spec-reporter": "4.2.1",
     "karma": "4.1.0",
     "karma-chrome-launcher": "2.2.0",
@@ -64,9 +68,9 @@
     "ng-packagr": "5.7.1",
     "protractor": "5.4.2",
     "ts-node": "7.0.1",
-    "tsickle": "0.37.1",
+
     "tslint": "5.15.0",
-    "typescript": "3.6.5",
+    "typescript": "3.5.3",
     "eslint-config-react-app": "^5.2.1",
     "vue-cli-plugin-single-spa": "1.1.0",
     "eslint-config-airbnb": "18.2.1"

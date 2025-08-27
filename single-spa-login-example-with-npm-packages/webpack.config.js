@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    'root-application': 'root-application.js',
+    'root-application': 'root-application-dynamic.js',
   },
   output: {
     publicPath: '/',
