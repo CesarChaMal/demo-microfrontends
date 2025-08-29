@@ -14,10 +14,10 @@ Vue.config.productionTip = false;
 const vueLifecycles = singleSpaVue({
   Vue,
   appOptions: {
-    el: '#vue-app',
     render: (h) => h(App),
     router,
   },
+  domElementGetter: () => document.getElementById('vue-app'),
 });
 
 export const { bootstrap } = vueLifecycles;

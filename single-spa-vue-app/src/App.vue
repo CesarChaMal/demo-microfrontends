@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 20px; border: 2px solid #4fc08d; border-radius: 8px; margin: 10px 0; background: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div class="vue-app-container">
     <h2 style="color: #4fc08d; margin: 0 0 15px 0;">
       <img src="https://vuejs.org/images/logo.png" width="40" height="40" style="vertical-align: middle; margin-right: 10px;">
       Vue.js Microfrontend
@@ -7,48 +7,34 @@
     <p><strong>Framework:</strong> Vue.js 2 with Vue Router</p>
     <p><strong>Features:</strong> Reactive data binding, component system, routing</p>
     <p><strong>Mounted at:</strong> {{ mountedAt }}</p>
-    
-    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 6px;">
-      <h4 style="color: #495057; margin: 0 0 10px 0;">Reactive Counter</h4>
-      <button 
-        @click="increment"
-        style="background: #4fc08d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;"
-      >
+
+    <div class="counter-section">
+      <h4>Reactive Counter</h4>
+      <button class="btn-primary" @click="increment">
         Count: {{ count }}
       </button>
-      <button 
-        @click="reset"
-        style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;"
-      >
+      <button class="btn-secondary" @click="reset">
         Reset
       </button>
-      <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #6c757d;">Double: {{ doubleCount }}</p>
+      <p class="counter-info">Double: {{ doubleCount }}</p>
     </div>
-    
-    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 6px;">
-      <h4 style="color: #495057; margin: 0 0 10px 0;">Navigation</h4>
-      <nav style="margin-bottom: 15px;">
-        <router-link 
-          to="/" 
-          style="margin-right: 15px; color: #4fc08d; text-decoration: none; padding: 5px 10px; border-radius: 4px;"
-          active-class="active-link"
-        >
+
+    <div class="navigation-section">
+      <h4>Navigation</h4>
+      <nav class="nav-links">
+        <router-link to="/" class="nav-link" active-class="active-link">
           List
         </router-link>
-        <router-link 
-          to="/detail" 
-          style="color: #4fc08d; text-decoration: none; padding: 5px 10px; border-radius: 4px;"
-          active-class="active-link"
-        >
+        <router-link to="/detail" class="nav-link" active-class="active-link">
           Detail
         </router-link>
       </nav>
       <router-view></router-view>
     </div>
-    
-    <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
+
+    <div class="features-section">
       <strong>Vue.js Features:</strong>
-      <ul style="margin: 5px 0; padding-left: 20px;">
+      <ul>
         <li v-for="feature in features" :key="feature">{{ feature }}</li>
       </ul>
     </div>
@@ -67,30 +53,99 @@ export default {
         'Component-based Architecture',
         'Vue Router Integration',
         'Template Syntax',
-        'Computed Properties'
-      ]
+        'Computed Properties',
+      ],
     };
   },
   computed: {
     doubleCount() {
       return this.count * 2;
-    }
+    },
   },
   methods: {
     increment() {
-      this.count++;
+      this.count += 1;
     },
     reset() {
       this.count = 0;
-    }
+    },
   },
   components: {},
 };
 </script>
 
 <style lang="scss" scoped>
+.vue-app-container {
+  padding: 20px;
+  border: 2px solid #4fc08d;
+  border-radius: 8px;
+  margin: 10px 0;
+  background: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.counter-section, .navigation-section {
+  margin: 15px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+
+  h4 {
+    color: #495057;
+    margin: 0 0 10px 0;
+  }
+}
+
+.btn-primary {
+  background: #4fc08d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.counter-info {
+  margin: 10px 0 0 0;
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+.nav-links {
+  margin-bottom: 15px;
+}
+
+.nav-link {
+  margin-right: 15px;
+  color: #4fc08d;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
 .active-link {
   background-color: #4fc08d !important;
   color: white !important;
+}
+
+.features-section {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #6c757d;
+
+  ul {
+    margin: 5px 0;
+    padding-left: 20px;
+  }
 }
 </style>
