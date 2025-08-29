@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "webpack --mode development",
+    "build:dev": "webpack --mode development",
+    "build:prod": "webpack --mode production",
     "start": "webpack serve --mode development --port 4207",
     "lint": "eslint src --ext .js --fix"
   },

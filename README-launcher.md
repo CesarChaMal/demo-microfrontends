@@ -48,23 +48,99 @@ run.bat github prod
 
 | Mode | Environment | Build Command | Server Command | Description |
 |------|-------------|---------------|----------------|-------------|
-| `local` | `dev` | `npm run build:all` | `npm run dev:all` | All microfrontends running locally in dev mode |
-| `local` | `prod` | `npm run build:apps` | `npm start` | Production build served locally |
-| `npm` | `dev` | `npm run build:all` | `npm run serve:root` | Dev build, NPM packages |
-| `npm` | `prod` | `npm run build:apps` | `npm start` | Production build, NPM packages |
-| `nexus` | `dev` | `npm run build:all` | `npm run serve:root` | Dev build, Nexus registry |
-| `nexus` | `prod` | `npm run build:apps` | `npm start` | Production build, Nexus registry |
-| `github` | `dev` | `npm run build:all` | `npm run serve:root` | Dev build, GitHub Pages |
-| `github` | `prod` | `npm run build:apps` | `npm start` | Production build, GitHub Pages |
+| `local` | `dev` | `npm run build:dev` | `npm run dev:all` | All microfrontends running locally in dev mode |
+| `local` | `prod` | `npm run build:prod` | `npm start` | Production build served locally |
+| `npm` | `dev` | `npm run build:dev` | `npm run serve:root` | Dev build, NPM packages |
+| `npm` | `prod` | `npm run build:prod` | `npm start` | Production build, NPM packages |
+| `nexus` | `dev` | `npm run build:dev` | `npm run serve:root` | Dev build, Nexus registry |
+| `nexus` | `prod` | `npm run build:prod` | `npm start` | Production build, Nexus registry |
+| `github` | `dev` | `npm run build:dev` | `npm run serve:root` | Dev build, GitHub Pages |
+| `github` | `prod` | `npm run build:prod` | `npm start` | Production build, GitHub Pages |
 
-### Production vs Development
+## Environment Differences
 
-**Development (`dev`)**:
-- Uses `npm run build:all` (development builds)
-- Starts development servers with hot reload
-- Better for debugging and development
+### Development Environment (`dev`)
 
-**Production (`prod`)**:
-- Uses `npm run build:apps` (production builds)
-- Starts optimized production server
-- Minified, optimized builds for testing production-like behavior
+**Build Characteristics:**
+- **Fast builds** - Unminified code, no optimization
+- **Source maps** - For debugging
+- **Hot reload** - Live code updates
+- **Detailed error messages** - Better debugging
+- **Development dependencies** - Testing tools, dev servers
+
+**Build Command:** `npm run build:dev`
+
+**Use Cases:**
+- Active development and coding
+- Debugging and testing features
+- Hot reload for rapid iteration
+- Full microfrontend ecosystem testing
+
+### Production Environment (`prod`)
+
+**Build Characteristics:**
+- **Optimized builds** - Minified, tree-shaken, compressed
+- **No source maps** - Smaller bundle size
+- **Environment variables** - Production API endpoints
+- **Security** - Remove dev tools, console logs
+- **Performance** - Code splitting, lazy loading
+
+**Build Command:** `npm run build:prod`
+
+**Use Cases:**
+- Testing production builds locally
+- Performance testing
+- Final validation before deployment
+- CI/CD pipeline testing
+
+### Build Script Architecture
+
+**Root Level Scripts:**
+- `build:dev` - Calls individual `build:*:dev` scripts
+- `build:prod` - Calls individual `build:*:prod` scripts
+- `build:all` - Legacy script (same as `build:dev`)
+- `build:apps` - Legacy script (same as `build:all`)
+
+**Individual App Scripts:**
+- `build:auth:dev` / `build:auth:prod`
+- `build:layout:dev` / `build:layout:prod`
+- `build:vue:dev` / `build:vue:prod`
+- And so on for all 11 microfrontends...
+
+### Framework-Specific Build Modes
+
+**Vue.js Apps:**
+```bash
+# Development
+vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development
+
+# Production
+vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode production
+```
+
+**Angular Apps:**
+```bash
+# Development
+ng build --configuration development
+
+# Production
+ng build --configuration production
+```
+
+**React Apps:**
+```bash
+# Development
+REACT_APP_ENV=development npm run build
+
+# Production
+REACT_APP_ENV=production npm run build
+```
+
+**Webpack-based Apps:**
+```bash
+# Development
+webpack --mode development
+
+# Production
+webpack --mode production
+```

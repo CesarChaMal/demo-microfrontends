@@ -15,7 +15,9 @@
     "@fortawesome/react-fontawesome": "0.1.9"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js -p",
+    "build": "webpack --config webpack.config.js --mode development",
+    "build:dev": "webpack --config webpack.config.js --mode development",
+    "build:prod": "webpack --config webpack.config.js --mode production",
     "lint": "eslint . --ext .js --fix"
   },
   "repository": {

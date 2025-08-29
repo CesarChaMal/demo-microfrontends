@@ -33,10 +33,10 @@ npm run install:all
 
 if "%ENV%"=="prod" (
     echo Building all applications for production...
-    npm run build:apps
+    npm run build:prod
 ) else (
     echo Building all applications for development...
-    npm run build:all
+    npm run build:dev
 )
 
 if "%MODE%"=="local" (

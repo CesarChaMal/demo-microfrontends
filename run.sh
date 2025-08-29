@@ -43,10 +43,10 @@ npm run install:all
 # Build applications based on environment
 if [ "$ENV" = "prod" ]; then
     echo "🔨 Building all applications for production..."
-    npm run build:apps
+    npm run build:prod
 else
     echo "🔨 Building all applications for development..."
-    npm run build:all
+    npm run build:dev
 fi
 
 if [ "$MODE" = "local" ]; then

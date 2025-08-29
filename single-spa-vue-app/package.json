@@ -5,6 +5,8 @@
   "main": "dist/single-spa-vue-app.umd.js",
   "scripts": {
     "build": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
+    "build:dev": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
+    "build:prod": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode production",
     "lint": "vue-cli-service lint"
   },
   "devDependencies": {
