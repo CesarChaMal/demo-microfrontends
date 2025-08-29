@@ -4,12 +4,10 @@
   "description": "Single-spa application example which imports registered applications from NPM packages and manages authentication features as login.",
   "main": "root-application.js",
   "scripts": {
-
     "dev:build:apps": "concurrently --kill-others-on-fail -n AUTH-B,LAYOUT-B,HOME-B,ANG-B,VUE-B,REACT-B,VANILLA-B,WC-B,TS-B,JQ-B,SVELTE-B \"npm --prefix ../single-spa-auth-app run build -- --mode development\" \"npm --prefix ../single-spa-layout-app run build -- --mode development\" \"npm --prefix ../single-spa-home-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-angular-app run build:single-spa -- --watch\" \"npm --prefix ../single-spa-vue-app run build -- --mode development\" \"npm --prefix ../single-spa-react-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-vanilla-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-webcomponents-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-typescript-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-jquery-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-svelte-app run build -- --mode development --watch\"",
     "dev:serve:apps": "concurrently --kill-others-on-fail -n AUTH-S,LAYOUT-S,HOME-S,ANG-S,VUE-S,REACT-S,VANILLA-S,WC-S,TS-S,JQ-S,SVELTE-S \"npx http-server ../single-spa-auth-app/dist -p 4201 -c-1 --cors\" \"npx http-server ../single-spa-layout-app/dist -p 4202 -c-1 --cors\" \"npx http-server ../single-spa-home-app/dist -p 4203 -c-1 --cors\" \"npx http-server ../single-spa-angular-app/dist -p 4204 -c-1 --cors\" \"npx http-server ../single-spa-vue-app/dist -p 4205 -c-1 --cors\" \"npx http-server ../single-spa-react-app/dist -p 4206 -c-1 --cors\" \"npx http-server ../single-spa-vanilla-app/dist -p 4207 -c-1 --cors\" \"npx http-server ../single-spa-webcomponents-app/dist -p 4208 -c-1 --cors\" \"npx http-server ../single-spa-typescript-app/dist -p 4209 -c-1 --cors\" \"npx http-server ../single-spa-jquery-app/dist -p 4210 -c-1 --cors\" \"npx http-server ../single-spa-svelte-app/dist -p 4211 -c-1 --cors\"",
     "serve:root": "webpack-dev-server --hot --port 8080",
     "serve": "concurrently --kill-others-on-fail -n \"ROOT,BUILD,SERVE-MFES\" \"npm run serve:root\" \"npm run dev:build:apps\" \"npm run dev:serve:apps\"",
-
     "build": "webpack --config webpack.config.js -p",
     "lint-all:strict": "concurrently --kill-others-on-fail -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint\" \"npm --prefix ../single-spa-layout-app run lint\" \"npm --prefix ../single-spa-home-app run lint\" \"npm --prefix ../single-spa-angular-app run lint\" \"npm --prefix ../single-spa-vue-app run lint\" \"npm --prefix ../single-spa-react-app run lint\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "lint-all:loose": "concurrently -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint || exit 0\" \"npm --prefix ../single-spa-layout-app run lint || exit 0\" \"npm --prefix ../single-spa-home-app run lint || exit 0\" \"npm --prefix ../single-spa-angular-app run lint || exit 0\" \"npm --prefix ../single-spa-vue-app run lint || exit 0\" \"npm --prefix ../single-spa-react-app run lint || exit 0\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
@@ -67,7 +65,6 @@
     "ng-packagr": "5.7.1",
     "protractor": "5.4.2",
     "ts-node": "7.0.1",
-
     "tslint": "5.15.0",
     "typescript": "3.5.3",
     "eslint-config-react-app": "^5.2.1",
@@ -82,18 +79,7 @@
     "bootstrap": "4.4.1",
     "bootstrap-vue": "2.2.2",
     "single-spa": "4.4.2",
-    "single-spa-angular-app": "0.1.5",
-    "single-spa-auth-app": "0.2.0",
-    "single-spa-home-app": "0.1.4",
-    "single-spa-layout-app": "0.2.5",
-    "single-spa-react-app": "0.1.4",
     "single-spa-vue": "1.7.0",
-    "single-spa-vue-app": "0.1.9",
-    "single-spa-vanilla-app": "0.1.0",
-    "single-spa-webcomponents-app": "0.1.0",
-    "single-spa-typescript-app": "0.1.0",
-    "single-spa-jquery-app": "0.1.0",
-    "single-spa-svelte-app": "0.1.0",
     "vue": "2.6.11",
     "vue-router": "3.1.4",
     "vue-toastr": "2.1.2",
@@ -116,3 +102,4 @@
     "eslint-config-react-app": "^5.2.1"
   }
 }
+
