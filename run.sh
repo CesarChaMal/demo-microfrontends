@@ -56,7 +56,6 @@ if [ "$MODE" = "local" ]; then
     
     # Start all microfrontends and root app
     npm run dev:all
-#    npm run serve:root -- --env.mode=$MODE
 else
     echo "🌐 Starting development server..."
     echo "Main application: http://localhost:8080?mode=$MODE"

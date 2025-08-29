@@ -53,36 +53,36 @@ export default {
     border-bottom: 3px solid #4fc08d;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     padding: 0.75rem 1rem;
-    
+
     .brand-section {
       display: flex;
       align-items: center;
-      
+
       .brand-link {
         display: flex;
         align-items: center;
         text-decoration: none;
         color: white !important;
         margin-right: 15px;
-        
+
         &:hover {
           color: #4fc08d !important;
           text-decoration: none;
         }
-        
+
         img#logo {
           width: 45px;
           height: 45px;
           margin-right: 10px;
           filter: brightness(1.1);
         }
-        
+
         .brand-text {
           font-weight: 600;
           font-size: 1.3rem;
         }
       }
-      
+
       .demo-badge {
         background: #4fc08d;
         color: white;
@@ -94,7 +94,7 @@ export default {
         letter-spacing: 0.5px;
       }
     }
-    
+
     .navbar-nav {
       .user-info {
         .user-icon {
@@ -103,29 +103,29 @@ export default {
           margin-right: 10px;
         }
       }
-      
+
       .user-dropdown {
         .dropdown-toggle {
           background: rgba(255,255,255,0.1) !important;
           border: 1px solid rgba(255,255,255,0.2) !important;
           border-radius: 25px !important;
           padding: 8px 16px !important;
-          
+
           .username {
             color: white;
             font-weight: 500;
           }
-          
+
           &:hover {
             background: rgba(255,255,255,0.2) !important;
             transform: translateY(-1px);
           }
         }
-        
+
         .logout-item {
           color: #dc3545;
           font-weight: 500;
-          
+
           &:hover {
             background-color: #dc3545;
             color: white;
