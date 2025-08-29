@@ -62,4 +62,34 @@ singleSpa.registerApplication(
   showWhenPrefix(['/react']),
 );
 
+singleSpa.registerApplication(
+  'vanilla',
+  () => import('single-spa-vanilla-app'),
+  showWhenPrefix(['/vanilla']),
+);
+
+singleSpa.registerApplication(
+  'webcomponents',
+  () => import('single-spa-webcomponents-app'),
+  showWhenPrefix(['/webcomponents']),
+);
+
+singleSpa.registerApplication(
+  'typescript',
+  () => import('single-spa-typescript-app'),
+  showWhenPrefix(['/typescript']),
+);
+
+singleSpa.registerApplication(
+  'jquery',
+  () => import('single-spa-jquery-app'),
+  showWhenPrefix(['/jquery']),
+);
+
+singleSpa.registerApplication(
+  'svelte',
+  () => import('single-spa-svelte-app'),
+  showWhenPrefix(['/svelte']),
+);
+
 singleSpa.start();

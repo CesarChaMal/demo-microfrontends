@@ -26,18 +26,20 @@ This application is a [demo](https://single-spa-with-npm-packages.herokuapp.com/
 
 ## ⚙️ Node.js Compatibility & Setup
 
-This project uses **legacy tooling** (Angular v8, Webpack 4, etc.) and **requires Node.js v12.x**. **Do not** use Node 16+ or 18+.
+This project supports modern Node.js versions with legacy provider compatibility.
 
 **Recommended:**
 
-* **Node.js:** v12.18.3
-* **npm:** 6.x
+* **Node.js:** v18.0.0 or higher
+* **npm:** v8.0.0 or higher
 * **nvm:** for Node version management
 
 ```bash
-nvm install 12.18.3
-nvm use 12.18.3
+nvm install 18
+nvm use 18
 ```
+
+**Note:** Uses `--openssl-legacy-provider` flag for Webpack 4 compatibility.
 
 **Important:** Avoid using `--legacy-peer-deps --force` flags. Instead, use clean install approach for proper dependency resolution.
 
@@ -68,8 +70,8 @@ These scripts will:
 Use this when you want to run everything locally with hot reload:
 
 ```bash
-npm run bootstrap   # Install root + all sub-app dependencies
-npm run serve       # Start root app + all MFEs concurrently
+npm run install:all   # Install root + all sub-app dependencies
+npm run serve         # Start root app + all MFEs concurrently
 ```
 
 Open: [http://localhost:8080](http://localhost:8080)
@@ -79,48 +81,85 @@ Open: [http://localhost:8080](http://localhost:8080)
 Use this to prepare the production build and run it locally:
 
 ```bash
-npm run build   # Build root app into dist/
-npm start       # Run Express server serving dist/
+npm run build:all   # Build all microfrontends
+npm run build       # Build root app into dist/
+npm start           # Run Express server serving dist/
 ```
 
 ---
 
 ## 📜 NPM Scripts Overview
 
-```json
-"scripts": {
-  "bootstrap": "npm install && npm run bootstrap:apps",
-  "bootstrap:apps": "concurrently \"npm install --prefix ../single-spa-auth-app\" \"npm install --prefix ../single-spa-layout-app\" \"npm install --prefix ../single-spa-home-app\" \"npm install --prefix ../single-spa-angular-app\" \"npm install --prefix ../single-spa-vue-app\" \"npm install --prefix ../single-spa-react-app\"",
-  "lint-all": "concurrently \"npm run lint --prefix ../single-spa-auth-app\" \"npm run lint --prefix ../single-spa-layout-app\" \"npm run lint --prefix ../single-spa-home-app\" \"npm run lint --prefix ../single-spa-angular-app\" \"npm run lint --prefix ../single-spa-vue-app\" \"npm run lint --prefix ../single-spa-react-app\"",
-  "serve:apps": "concurrently -k -n \"AUTH,LAYOUT,HOME,ANG,VUE,REACT\" \"npm start --prefix ../single-spa-auth-app\" \"npm start --prefix ../single-spa-layout-app\" \"npm start --prefix ../single-spa-home-app\" \"npm run ng --prefix ../single-spa-angular-app -- serve --port 4204\" \"npm start --prefix ../single-spa-vue-app\" \"npm start --prefix ../single-spa-react-app\"",
-  "serve:root": "webpack-dev-server --hot --port 8080",
-  "serve": "concurrently -k -n \"ROOT,MFES\" \"npm run serve:root\" \"npm run serve:apps\"",
-  "build": "webpack --config webpack.config.js -p",
-  "start": "npm run build && node server.js",
-  "heroku-postbuild": "npm run build",
-  "lint": "eslint . --ext .js --fix",
-  "test": "echo \"Error: no test specified\" && exit 1"
-}
+### Development Scripts
+```bash
+npm run serve                    # Start root + all MFEs concurrently
+npm run serve:root              # Start only root application
+npm run dev:build:apps          # Build all MFEs in development mode
+npm run dev:serve:apps          # Serve all MFE dist folders
+```
+
+### Build Scripts
+```bash
+npm run build:all               # Build all microfrontends
+npm run build                   # Build root application
+npm start                       # Build and start production server
+```
+
+### Utility Scripts
+```bash
+npm run install:all             # Install dependencies for all apps
+npm run lint-all:strict         # Lint all apps (strict mode)
+npm run lint-all:loose          # Lint all apps (loose mode)
+npm run clean                   # Clean all node_modules
+```
+
+### Mode-Specific Scripts
+```bash
+npm run serve:local             # Local development mode
+npm run serve:npm               # NPM packages mode
+npm run serve:nexus             # Nexus private registry mode
+npm run serve:github            # GitHub Pages mode
 ```
 
 ---
 
 ## 📦 Included Microfrontends
 
-* [single-spa-auth-app](https://github.com/cesarchamal/single-spa-auth-app)
-* [single-spa-layout-app](https://github.com/cesarchamal/single-spa-layout-app)
-* [single-spa-home-app](https://github.com/cesarchamal/single-spa-home-app)
-* [single-spa-angular-app](https://github.com/cesarchamal/single-spa-angular-app)
-* [single-spa-vue-app](https://github.com/cesarchamal/single-spa-vue-app)
-* [single-spa-react-app](https://github.com/cesarchamal/single-spa-react-app)
+### Framework-Based Applications
+* **single-spa-auth-app** - Vue.js 2 authentication (Port 4201)
+* **single-spa-layout-app** - Vue.js 2 layout components (Port 4202)
+* **single-spa-home-app** - AngularJS 1.x home page (Port 4203)
+* **single-spa-angular-app** - Angular 8 application (Port 4204)
+* **single-spa-vue-app** - Vue.js 2 features (Port 4205)
+* **single-spa-react-app** - React 16 application (Port 4206)
+
+### Technology Demonstration Applications
+* **single-spa-vanilla-app** - Pure JavaScript ES2020+ (Port 4207)
+* **single-spa-webcomponents-app** - Lit + Web Components (Port 4208)
+* **single-spa-typescript-app** - TypeScript with strict typing (Port 4209)
+* **single-spa-jquery-app** - jQuery 3.6 legacy integration (Port 4210)
+* **single-spa-svelte-app** - Svelte 3 compile-time optimized (Port 4211)
+
+**Total: 12 Microfrontends** demonstrating different technologies and integration patterns.
 
 ---
 
 ## 🛠 How it works
 
-* **root-application.js:** Registers each MFE with single-spa lifecycle rules.
-* **server.js:** Express server for production mode (Heroku-ready).
-* **webpack.config.js:** Bundles root app, configures loaders & plugins.
+### Core Files
+* **root-application-dynamic.js:** Dynamic mode-aware MFE registration with single-spa lifecycle rules
+* **root-application-local.js:** Local development configuration
+* **root-application-npm.js:** NPM packages configuration
+* **root-application-nexus.js:** Nexus private registry configuration
+* **root-application-github.js:** GitHub Pages remote loading configuration
+* **server.js:** Express server for production mode
+* **webpack.config.js:** Bundles root app with TypeScript, CSS, and ESLint support
+
+### Loading Strategies
+* **Local Mode:** SystemJS imports from localhost ports
+* **NPM Mode:** Direct NPM package imports
+* **Nexus Mode:** Scoped packages from private registry
+* **GitHub Mode:** Remote loading from GitHub Pages
 
 ---
 
@@ -130,8 +169,8 @@ npm start       # Run Express server serving dist/
 
 1. **ESLint Configuration Errors**: Fixed to use `airbnb-base` instead of missing `@vue/eslint-config-airbnb`
 2. **Dependency Conflicts**: Use clean install approach (cache clean + lock file removal)
-3. **Port Conflicts**: Ensure ports 8080, 4201-4206 are available
-4. **Node Version**: Must use Node.js v12.x for compatibility
+3. **Port Conflicts**: Ensure ports 8080, 4201-4211 are available
+4. **Node Version**: Use Node.js v18+ with legacy OpenSSL provider
 
 ### Clean Install
 
@@ -146,9 +185,12 @@ npm install
 
 ## 📌 Notes
 
-* Bootstrap & FontAwesome CSS are imported in **root-application.js** to avoid duplication.
+* Bootstrap & FontAwesome CSS are imported in **root-application-dynamic.js** to avoid duplication.
+* FontAwesome dependencies added to all microfrontends with framework-specific packages.
 * Login logic is hardcoded for demo purposes.
-* `serve` script runs both the root and all microfrontends in parallel.
-* Use `lint-all` to lint all MFEs at once.
-* `bootstrap` script ensures dependencies for all MFEs are installed.
-* ESLint configs updated to use available packages (airbnb-base + vue/essential).
+* `serve` script runs both the root and all 12 microfrontends in parallel.
+* Use `lint-all:loose` or `lint-all:strict` to lint all MFEs at once.
+* `install:all` script ensures dependencies for all MFEs are installed.
+* ESLint configs added to all new microfrontends with appropriate parsers and rules.
+* Dynamic mode switching supports local, NPM, Nexus, and GitHub loading strategies.
+* All microfrontends include proper Single-SPA lifecycle methods and routing.

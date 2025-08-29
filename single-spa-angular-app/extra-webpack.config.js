@@ -3,6 +3,8 @@ const singleSpaAngularWebpack = require('single-spa-angular/lib/webpack').defaul
 module.exports = (angularWebpackConfig, options) => {
   const singleSpaWebpackConfig = singleSpaAngularWebpack(angularWebpackConfig, options)
 
-  // Feel free to modify this webpack config however you'd like to
+  // Override output filename
+  singleSpaWebpackConfig.output.filename = 'single-spa-angular-app.js'
+
   return singleSpaWebpackConfig
 }

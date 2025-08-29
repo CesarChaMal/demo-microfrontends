@@ -33,6 +33,11 @@ if "%MODE%"=="local" (
     echo   - Angular App: http://localhost:4204
     echo   - Vue App: http://localhost:4205
     echo   - React App: http://localhost:4206
+    echo   - Vanilla App: http://localhost:4207
+    echo   - Web Components App: http://localhost:4208
+    echo   - TypeScript App: http://localhost:4209
+    echo   - jQuery App: http://localhost:4210
+    echo   - Svelte App: http://localhost:4211
     echo.
     echo Press Ctrl+C to stop all services
     

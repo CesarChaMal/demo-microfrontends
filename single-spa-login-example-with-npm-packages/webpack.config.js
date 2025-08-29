@@ -58,9 +58,11 @@ module.exports = {
     }),
   ],
   devtool: 'source-map',
-  externals: [],
   devServer: {
     historyApiFallback: true,
     writeToDisk: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
   },
 };

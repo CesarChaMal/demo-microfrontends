@@ -72,6 +72,11 @@ switch (mode) {
         'single-spa-angular-app': 'https://cesarchamal.github.io/single-spa-angular-app/single-spa-angular-app.js',
         'single-spa-vue-app': 'https://cesarchamal.github.io/single-spa-vue-app/single-spa-vue-app.js',
         'single-spa-react-app': 'https://cesarchamal.github.io/single-spa-react-app/single-spa-react-app.js',
+        'single-spa-vanilla-app': 'https://cesarchamal.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': 'https://cesarchamal.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': 'https://cesarchamal.github.io/single-spa-typescript-app/single-spa-typescript-app.js',
+        'single-spa-jquery-app': 'https://cesarchamal.github.io/single-spa-jquery-app/single-spa-jquery-app.js',
+        'single-spa-svelte-app': 'https://cesarchamal.github.io/single-spa-svelte-app/single-spa-svelte-app.js',
       };
       return import(appUrls[name]);
     };
@@ -79,17 +84,24 @@ switch (mode) {
 
   case MODES.LOCAL:
   default:
-    // Local development - use direct imports, no SystemJS needed
+    // Local development - use SystemJS for external URLs
     loadApp = (name) => {
       const appUrls = {
         'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
         'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
         'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
-        'single-spa-angular-app': 'http://localhost:4204/main.js',
+        'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
         'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.umd.js',
         'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
+        'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
+        'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
+        'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
       };
-      return import(appUrls[name]);
+      const url = appUrls[name];
+      console.log(`Loading ${name} from ${url}`);
+      return window.System.import(url);
     };
     break;
 }
@@ -129,6 +141,36 @@ singleSpa.registerApplication(
   'react',
   () => loadApp('single-spa-react-app'),
   showWhenPrefix(['/react']),
+);
+
+singleSpa.registerApplication(
+  'vanilla',
+  () => loadApp('single-spa-vanilla-app'),
+  showWhenPrefix(['/vanilla']),
+);
+
+singleSpa.registerApplication(
+  'webcomponents',
+  () => loadApp('single-spa-webcomponents-app'),
+  showWhenPrefix(['/webcomponents']),
+);
+
+singleSpa.registerApplication(
+  'typescript',
+  () => loadApp('single-spa-typescript-app'),
+  showWhenPrefix(['/typescript']),
+);
+
+singleSpa.registerApplication(
+  'jquery',
+  () => loadApp('single-spa-jquery-app'),
+  showWhenPrefix(['/jquery']),
+);
+
+singleSpa.registerApplication(
+  'svelte',
+  () => loadApp('single-spa-svelte-app'),
+  showWhenPrefix(['/svelte']),
 );
 
 singleSpa.start();

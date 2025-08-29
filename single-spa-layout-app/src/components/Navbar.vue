@@ -13,6 +13,21 @@
       <b-nav-item href="/react" v-on:click.prevent="navigateTo('/react')"
         >React</b-nav-item
       >
+      <b-nav-item href="/vanilla" v-on:click.prevent="navigateTo('/vanilla')"
+        >Vanilla</b-nav-item
+      >
+      <b-nav-item href="/webcomponents" v-on:click.prevent="navigateTo('/webcomponents')"
+        >Web Components</b-nav-item
+      >
+      <b-nav-item href="/typescript" v-on:click.prevent="navigateTo('/typescript')"
+        >TypeScript</b-nav-item
+      >
+      <b-nav-item href="/jquery" v-on:click.prevent="navigateTo('/jquery')"
+        >jQuery</b-nav-item
+      >
+      <b-nav-item href="/svelte" v-on:click.prevent="navigateTo('/svelte')"
+        >Svelte</b-nav-item
+      >
     </b-nav>
   </div>
 </template>

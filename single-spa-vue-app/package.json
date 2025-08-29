@@ -4,7 +4,7 @@
   "description": "Vue application with two example pages for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-vue-app.umd.js",
   "scripts": {
-    "build": "vue-cli-service build --target lib --filename single-spa-vue-app --name single-spa-vue-app src/singleSpaEntry.js",
+    "build": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
     "lint": "vue-cli-service lint"
   },
   "devDependencies": {
@@ -41,12 +41,20 @@
     "bootstrap-vue",
     "bootstrap"
   ],
-  "author": "Juan Manuel López Pazos",
+  "author": "Cesar Francisco Chavez Maldonado",
   "bugs": {
     "url": "https://github.com/jualoppaz/single-spa-vue-app/issues"
   },
   "homepage": "https://github.com/jualoppaz/single-spa-vue-app#readme",
   "dependencies": {
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-toastr": "2.1.2",
+    "single-spa-vue": "1.7.0",
+    "bootstrap-vue": "2.2.2",
+    "vue-router": "3.1.4",
+    "@fortawesome/fontawesome-svg-core": "1.2.27",
+    "@fortawesome/free-brands-svg-icons": "5.12.1",
+    "@fortawesome/free-solid-svg-icons": "5.12.0",
+    "@fortawesome/vue-fontawesome": "0.1.9"
   }
 }

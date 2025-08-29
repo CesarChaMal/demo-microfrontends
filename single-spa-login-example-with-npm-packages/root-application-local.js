@@ -18,6 +18,11 @@ System.config({
     'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
     'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.js',
     'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
+    'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
+    'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
+    'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
+    'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
+    'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
   },
 });
 
@@ -73,6 +78,36 @@ singleSpa.registerApplication(
   'react',
   () => import('single-spa-react-app'),
   showWhenPrefix(['/react']),
+);
+
+singleSpa.registerApplication(
+  'vanilla',
+  () => import('single-spa-vanilla-app'),
+  showWhenPrefix(['/vanilla']),
+);
+
+singleSpa.registerApplication(
+  'webcomponents',
+  () => import('single-spa-webcomponents-app'),
+  showWhenPrefix(['/webcomponents']),
+);
+
+singleSpa.registerApplication(
+  'typescript',
+  () => import('single-spa-typescript-app'),
+  showWhenPrefix(['/typescript']),
+);
+
+singleSpa.registerApplication(
+  'jquery',
+  () => import('single-spa-jquery-app'),
+  showWhenPrefix(['/jquery']),
+);
+
+singleSpa.registerApplication(
+  'svelte',
+  () => import('single-spa-svelte-app'),
+  showWhenPrefix(['/svelte']),
 );
 
 singleSpa.start();

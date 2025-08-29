@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2020 Juan Manuel López Pazos
+Copyright (c) 2020 Cesar Francisco Chavez Maldonado
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

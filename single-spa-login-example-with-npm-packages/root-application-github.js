@@ -16,6 +16,11 @@ System.config({
     'single-spa-angular-app': 'https://cesarchamal.github.io/single-spa-angular-app/single-spa-angular-app.js',
     'single-spa-vue-app': 'https://cesarchamal.github.io/single-spa-vue-app/single-spa-vue-app.js',
     'single-spa-react-app': 'https://cesarchamal.github.io/single-spa-react-app/single-spa-react-app.js',
+    'single-spa-vanilla-app': 'https://cesarchamal.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js',
+    'single-spa-webcomponents-app': 'https://cesarchamal.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js',
+    'single-spa-typescript-app': 'https://cesarchamal.github.io/single-spa-typescript-app/single-spa-typescript-app.js',
+    'single-spa-jquery-app': 'https://cesarchamal.github.io/single-spa-jquery-app/single-spa-jquery-app.js',
+    'single-spa-svelte-app': 'https://cesarchamal.github.io/single-spa-svelte-app/single-spa-svelte-app.js',
   }
 });
 
@@ -37,5 +42,10 @@ singleSpa.registerApplication('home', () => System.import('single-spa-home-app')
 singleSpa.registerApplication('angular', () => System.import('single-spa-angular-app'), showWhenPrefix(['/angular']));
 singleSpa.registerApplication('vue', () => System.import('single-spa-vue-app'), showWhenPrefix(['/vue']));
 singleSpa.registerApplication('react', () => System.import('single-spa-react-app'), showWhenPrefix(['/react']));
+singleSpa.registerApplication('vanilla', () => System.import('single-spa-vanilla-app'), showWhenPrefix(['/vanilla']));
+singleSpa.registerApplication('webcomponents', () => System.import('single-spa-webcomponents-app'), showWhenPrefix(['/webcomponents']));
+singleSpa.registerApplication('typescript', () => System.import('single-spa-typescript-app'), showWhenPrefix(['/typescript']));
+singleSpa.registerApplication('jquery', () => System.import('single-spa-jquery-app'), showWhenPrefix(['/jquery']));
+singleSpa.registerApplication('svelte', () => System.import('single-spa-svelte-app'), showWhenPrefix(['/svelte']));
 
 singleSpa.start();

@@ -3,7 +3,7 @@
 echo "🛑 Stopping Demo Microfrontends Applications..."
 
 # Ports used by the microfrontends
-PORTS=(8080 4201 4202 4203 4204 4205 4206)
+PORTS=(8080 4201 4202 4203 4204 4205 4206 4207 4208 4209 4210 4211)
 
 for port in "${PORTS[@]}"; do
     echo "Checking port $port..."

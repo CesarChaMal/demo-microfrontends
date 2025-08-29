@@ -45,8 +45,12 @@ Each microfrontend needs proper package.json configuration:
 ### Step 2: Build for Production
 
 ```bash
+# Build individual microfrontend
 cd single-spa-auth-app
 npm run build
+
+# Or build all from root
+npm run build:all
 ```
 
 ### Step 3: Publish Package
@@ -71,7 +75,12 @@ Add the published package to root dependencies:
     "@your-org/single-spa-home-app": "^1.0.0",
     "@your-org/single-spa-angular-app": "^1.0.0",
     "@your-org/single-spa-vue-app": "^1.0.0",
-    "@your-org/single-spa-react-app": "^1.0.0"
+    "@your-org/single-spa-react-app": "^1.0.0",
+    "@your-org/single-spa-vanilla-app": "^1.0.0",
+    "@your-org/single-spa-webcomponents-app": "^1.0.0",
+    "@your-org/single-spa-typescript-app": "^1.0.0",
+    "@your-org/single-spa-jquery-app": "^1.0.0",
+    "@your-org/single-spa-svelte-app": "^1.0.0"
   }
 }
 ```
@@ -245,6 +254,8 @@ jobs:
 - [ ] Include `files` array
 - [ ] Set `publishConfig` if needed
 - [ ] Add relevant `keywords`
+- [ ] Framework-specific dependencies (Vue, React, Angular, etc.)
+- [ ] FontAwesome dependencies if using icons
 
 ### Security Considerations
 

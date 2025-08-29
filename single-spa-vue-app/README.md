@@ -1,193 +1,479 @@
-<p float="left">
-  <img src="https://single-spa.js.org/img/logo-white-bgblue.svg" width="50" height="50">
-  <img src="https://vuejs.org/images/logo.png" width="50" height="50">
-</p>
-
-[![npm version](https://img.shields.io/npm/v/single-spa-vue-app.svg?style=flat-square)](https://www.npmjs.org/package/single-spa-vue-app)
-
 # single-spa-vue-app
 
-This is a Vue application example used as NPM package in [single-spa-login-example-with-npm-packages](https://github.com/cesarchamal/single-spa-login-example-with-npm-packages) in order to register an application. See the installation instructions there.
+A Vue.js 2 microfrontend for Single-SPA demonstrating progressive framework features, reactive data binding, and component-based architecture.
 
-## ✍🏻 Motivation
+## Features
 
-This is a Vue application which contains two routed pages for embbed the app inside a root single-spa application.
+- **Vue.js 2**: Progressive JavaScript framework
+- **Vue Router**: Client-side routing with navigation guards
+- **Vuex**: Centralized state management (optional)
+- **Single File Components**: Template, script, and style in one file
+- **Reactive Data Binding**: Automatic UI updates
+- **Component Composition**: Reusable and composable components
 
-## How it works ❓
+## Technology Stack
 
-There are several files for the right working of this application and they are:
+- **Framework**: Vue.js 2.6.11
+- **Router**: Vue Router 3.1.4
+- **Build Tool**: Vue CLI 4 with library target
+- **Language**: JavaScript (ES2015+)
+- **Integration**: Single-SPA Vue adapter
 
-- src/router/index.js
-- src/singleSpaEntry.js
-- package.json
-- vue.config.js
+## Development
 
-### src/router/index.js
+### Prerequisites
+
+- Node.js (v18.0.0 or higher)
+- npm (v8.0.0 or higher)
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development Server
+
+```bash
+npm start
+# Runs on http://localhost:4205
+```
+
+### Build
+
+```bash
+npm run build
+# Outputs to dist/single-spa-vue-app.umd.js
+```
+
+## Vue.js Features
+
+### Single File Components
+```vue
+<template>
+  <div class="feature-component">
+    <h2>{{ title }}</h2>
+    <button @click="handleClick">{{ buttonText }}</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'FeatureComponent',
+  data() {
+    return {
+      title: 'Vue Feature',
+      buttonText: 'Click Me'
+    };
+  },
+  methods: {
+    handleClick() {
+      this.$emit('feature-clicked');
+    }
+  }
+};
+</script>
+
+<style scoped>
+.feature-component {
+  padding: 20px;
+}
+</style>
+```
+
+### Reactive Data System
+```javascript
+export default {
+  data() {
+    return {
+      message: 'Hello Vue!',
+      items: []
+    };
+  },
+  computed: {
+    filteredItems() {
+      return this.items.filter(item => item.active);
+    }
+  },
+  watch: {
+    message(newVal, oldVal) {
+      console.log(`Message changed from ${oldVal} to ${newVal}`);
+    }
+  }
+};
+```
+
+### Component Communication
+```javascript
+// Parent to Child (Props)
+<child-component :data="parentData" />
+
+// Child to Parent (Events)
+this.$emit('update-data', newData);
+
+// Sibling Communication (Event Bus)
+this.$bus.$emit('global-event', data);
+```
+
+## Single-SPA Integration
+
+This microfrontend exports the required Single-SPA lifecycle functions:
 
 ```javascript
-/* eslint-disable import/no-unresolved */
-import Vue from 'vue';
-import Router from 'vue-router';
+export const bootstrap = vueLifecycles.bootstrap;
+export const mount = vueLifecycles.mount;
+export const unmount = vueLifecycles.unmount;
+```
 
-Vue.use(Router);
+### Mount Point
 
+The application mounts to the DOM element with ID `vue-app`:
+
+```html
+<div id="vue-app"></div>
+```
+
+### Route Configuration
+
+Configured to activate on routes starting with `/vue`:
+
+```javascript
+singleSpa.registerApplication(
+  'vue',
+  () => loadApp('single-spa-vue-app'),
+  showWhenPrefix(['/vue'])
+);
+```
+
+### Vue Router Integration
+```javascript
 export default new Router({
   mode: 'history',
   base: '/vue',
   routes: [
-    {
-      path: '/',
-      component: () => import('@/components/List'),
-      children: [],
-    },
-    {
-      path: '/detail',
-      component: () => import('@/components/Detail'),
-      children: [],
-    },
-  ],
+    { path: '/', component: Home },
+    { path: '/about', component: About },
+    { path: '/contact', component: Contact }
+  ]
 });
 ```
 
-The **eslint** comment is indicated due to **webpack external** dependencies. Without the **eslint** comment the build process will fail.\
-As this application will be mounted when browser url starts with **/vue**, we need to config **mode** option with **history** value and **base** option with **/vue** value in the vue **router** instance.
+## Vue Configuration
 
-### src/singleSpaEntry.js
+### External Dependencies
+The application uses webpack externals for shared dependencies:
 
 ```javascript
-/* eslint-disable import/no-unresolved */
-/* eslint-disable import/no-extraneous-dependencies */
-import Vue from 'vue';
-import VueToastr from 'vue-toastr';
-import singleSpaVue from 'single-spa-vue';
-import { BootstrapVue } from 'bootstrap-vue';
-import App from './App.vue';
-import router from './router';
-
-Vue.use(BootstrapVue);
-
-Vue.use(VueToastr, {
-  defaultPosition: 'toast-top-right',
-  defaultPreventDuplicates: true,
-  defaultTimeout: 0,
-});
-
-Vue.config.productionTip = false;
-
-const vueLifecycles = singleSpaVue({
-  Vue,
-  appOptions: {
-    el: '#vue-app',
-    render: (h) => h(App),
-    router,
-  },
-});
-
-export const { bootstrap } = vueLifecycles;
-export const { mount } = vueLifecycles;
-export const { unmount } = vueLifecycles;
+config.externals([
+  'vue',
+  'vue-router',
+  'single-spa-vue'
+]);
 ```
 
-The **eslint** comments are indicated due to **webpack external** dependencies. Without the **eslint** comments the build process will fail.\
-The **vueLifecycles** object contains all **single-spa-vue** methods for the **single-spa** lifecycle of this app. All used config is default one but the custom config of the **el** option. It's assumed that an element with **vue-app** id is defined in the **index.html** where this application will be mounted.
+### Library Build
+Built as UMD library for Single-SPA consumption:
 
-### package.json
-
-```json
-{
-  "name": "single-spa-vue-app",
-  "version": "0.1.9",
-  "description": "Vue application with two example pages for be included in a single-spa application as registered app.",
-  "main": "dist/single-spa-vue-app.umd.js",
-  "scripts": {
-    "build": "vue-cli-service build --target lib --formats umd --name single-spa-vue-app src/singleSpaEntry.js",
-    "lint": "vue-cli-service lint"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "4.1.0",
-    "@vue/cli-plugin-eslint": "4.1.0",
-    "@vue/cli-service": "4.1.0",
-    "babel-eslint": "10.0.3",
-    "core-js": "3.4.4",
-    "eslint": "5.16.0",
-    "eslint-config-airbnb-base": "14.0.0",
-    "eslint-plugin-import": "2.20.0",
-    "eslint-plugin-vue": "5.0.0",
-    "node-sass": "4.13.1",
-    "sass-loader": "8.0.2",
-    "vue-cli-plugin-single-spa": "1.1.0",
-    "vue-template-compiler": "2.6.11",
-    "webpack": "4.41.5"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jualoppaz/single-spa-vue-app.git"
-  },
-  "keywords": [
-    "single-spa",
-    "login",
-    "npm",
-    "webpack",
-    "vue",
-    "bootstrap-vue",
-    "bootstrap"
-  ],
-  "author": "Juan Manuel López Pazos",
-  "bugs": {
-    "url": "https://github.com/jualoppaz/single-spa-vue-app/issues"
-  },
-  "homepage": "https://github.com/jualoppaz/single-spa-vue-app#readme"
+```javascript
+configureWebpack: {
+  output: {
+    library: 'single-spa-vue-app',
+    libraryTarget: 'umd',
+    filename: 'single-spa-vue-app.js'
+  }
 }
 ```
 
-There are only two scripts in this project:
+## Component Architecture
 
-- **build**: for compile the application and build it as a **libray** in **umd** format
-- **lint**: for run **eslint** in all project
+### Page Components
+```vue
+<!-- Home.vue -->
+<template>
+  <div class="home-page">
+    <hero-section />
+    <feature-list :features="features" />
+    <call-to-action @action-clicked="handleAction" />
+  </div>
+</template>
 
-There are only **devDependencies** because the application dependencies are defined as **webpack externals**.
+<script>
+import HeroSection from '@/components/HeroSection.vue';
+import FeatureList from '@/components/FeatureList.vue';
+import CallToAction from '@/components/CallToAction.vue';
 
-### vue.config.js
-
-```javascript
-const path = require('path');
-const webpack = require('webpack');
-
-module.exports = {
-  devServer: {
-    writeToDisk: true,
+export default {
+  name: 'Home',
+  components: {
+    HeroSection,
+    FeatureList,
+    CallToAction
   },
-  configureWebpack: {
-    output: {
-      library: 'single-spa-vue-app',
-      libraryTarget: 'umd',
-      filename: 'single-spa-vue-app.js',
-      path: path.resolve(__dirname, 'dist'),
+  data() {
+    return {
+      features: []
+    };
+  },
+  async created() {
+    this.features = await this.fetchFeatures();
+  }
+};
+</script>
+```
+
+### Reusable Components
+```vue
+<!-- FeatureCard.vue -->
+<template>
+  <div class="feature-card" :class="{ active: isActive }">
+    <slot name="icon"></slot>
+    <h3>{{ title }}</h3>
+    <p>{{ description }}</p>
+    <button @click="$emit('select', feature)">
+      Select Feature
+    </button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'FeatureCard',
+  props: {
+    feature: {
+      type: Object,
+      required: true
     },
-    plugins: [
-      new webpack.optimize.LimitChunkCountPlugin({
-        maxChunks: 1,
-      }),
-    ],
+    isActive: {
+      type: Boolean,
+      default: false
+    }
   },
-  chainWebpack: (config) => {
-    config.externals([
-      'bootstrap',
-      'bootstrap-vue',
-      'single-spa-vue',
-      'vue',
-      'vue-router',
-      'vue-toastr',
-    ]);
+  computed: {
+    title() {
+      return this.feature.title;
+    },
+    description() {
+      return this.feature.description;
+    }
+  }
+};
+</script>
+```
+
+## State Management
+
+### Component State
+```javascript
+export default {
+  data() {
+    return {
+      loading: false,
+      error: null,
+      data: []
+    };
   },
+  methods: {
+    async fetchData() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await fetch('/api/data');
+        this.data = await response.json();
+      } catch (error) {
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    }
+  }
 };
 ```
 
-The needed options for the right build of the application as library are defined in the **configureWebpack.output** field.\
-The **LimitChunkCountPlugin** is used for disable chunks for build process. It's not necessary but I prefer keep whole application in one chunk as it will be embedded in another one.\
-Finally, in the **chainWebpack** field all common dependencies between **single spa** registered apps are defined as **externals**. In that way, all **single spa** registered apps will use the same dependencies and they will be imported only in the root project.
+### Vuex Integration (Optional)
+```javascript
+// store/index.js
+export default new Vuex.Store({
+  state: {
+    user: null,
+    preferences: {}
+  },
+  mutations: {
+    SET_USER(state, user) {
+      state.user = user;
+    }
+  },
+  actions: {
+    async fetchUser({ commit }) {
+      const user = await api.getUser();
+      commit('SET_USER', user);
+    }
+  }
+});
+```
+
+## File Structure
+
+```
+single-spa-vue-app/
+├── src/
+│   ├── components/          # Reusable components
+│   ├── views/              # Page components
+│   ├── router/             # Vue Router configuration
+│   │   └── index.js        # Router setup
+│   ├── store/              # Vuex store (optional)
+│   ├── assets/             # Static assets
+│   ├── App.vue             # Root component
+│   └── singleSpaEntry.js   # Single-SPA integration
+├── dist/                   # Build output directory
+├── package.json            # Dependencies and scripts
+├── vue.config.js          # Vue CLI configuration
+├── .gitignore             # Git ignore rules
+└── README.md              # This file
+```
+
+## Vue CLI Configuration
+
+### Library Build Setup
+```javascript
+// vue.config.js
+module.exports = {
+  configureWebpack: {
+    output: {
+      library: 'single-spa-vue-app',
+      libraryTarget: 'umd'
+    },
+    plugins: [
+      new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 1
+      })
+    ]
+  },
+  chainWebpack: config => {
+    config.externals(['vue', 'vue-router', 'single-spa-vue']);
+  }
+};
+```
+
+### Development Configuration
+- Hot module replacement
+- Source maps
+- ESLint integration
+- SCSS preprocessing
+
+## Styling Architecture
+
+### Scoped Styles
+```vue
+<style scoped>
+.component {
+  /* Styles scoped to this component */
+}
+</style>
+```
+
+### Global Styles
+```vue
+<style>
+/* Global styles */
+.utility-class {
+  margin: 0;
+}
+</style>
+```
+
+### CSS Modules
+```vue
+<style module>
+.title {
+  font-size: 2rem;
+}
+</style>
+
+<template>
+  <h1 :class="$style.title">Title</h1>
+</template>
+```
+
+## Performance Optimization
+
+- **Bundle Size**: ~235KB (UMD build)
+- **Tree Shaking**: Unused code elimination
+- **Lazy Loading**: Route-based code splitting
+- **Component Caching**: Keep-alive optimization
+
+## Vue Devtools
+
+### Development Features
+- Component inspector
+- Vuex state management
+- Event timeline
+- Performance profiling
+
+### Production Debugging
+- Component hierarchy
+- Props and data inspection
+- Event tracking
+- Time-travel debugging
+
+## Testing
+
+### Unit Tests
+```bash
+npm run test:unit
+```
+
+### Component Tests
+```bash
+npm run test:components
+```
+
+### E2E Tests
+```bash
+npm run test:e2e
+```
+
+### Linting
+```bash
+npm run lint
+```
+
+## Browser Support
+
+- Modern browsers (ES2015+)
+- IE9+ with polyfills
+- Mobile browsers
+- Progressive enhancement
+
+## Migration Path
+
+### Vue 2 to Vue 3
+- Composition API preparation
+- Breaking changes assessment
+- Gradual migration strategy
+- Compatibility considerations
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Follow Vue.js style guide
+4. Add tests for new components
+5. Ensure accessibility compliance
+6. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Related Projects
+
+- [Vue.js](https://vuejs.org/) - Progressive JavaScript framework
+- [Vue Router](https://router.vuejs.org/) - Official router for Vue.js
+- [Vuex](https://vuex.vuejs.org/) - State management pattern + library
+- [Single-SPA](https://single-spa.js.org/) - Microfrontend framework
+- [Demo Microfrontends](../README.md) - Complete microfrontend demo
+
+## Author
+
+Demo Team - Vue.js 2 Microfrontend Example

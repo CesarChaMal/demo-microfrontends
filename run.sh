@@ -24,8 +24,8 @@ npm install
 
 # Clean all applications
 echo "🧹 Cleaning all applications..."
-npm cache clean --force
-npm run clean
+#npm cache clean --force
+#npm run clean
 
 # Install all dependencies
 echo "📦 Installing all dependencies..."
@@ -42,20 +42,26 @@ if [ "$MODE" = "local" ]; then
     echo "Microfrontend ports:"
     echo "  - Auth App: http://localhost:4201"
     echo "  - Layout App: http://localhost:4202"
-    echo "  - Home App: http://localhost:4203"\
+    echo "  - Home App: http://localhost:4203"
     echo "  - Angular App: http://localhost:4204"
     echo "  - Vue App: http://localhost:4205"
     echo "  - React App: http://localhost:4206"
+    echo "  - Vanilla App: http://localhost:4207"
+    echo "  - Web Components App: http://localhost:4208"
+    echo "  - TypeScript App: http://localhost:4209"
+    echo "  - jQuery App: http://localhost:4210"
+    echo "  - Svelte App: http://localhost:4211"
     echo ""
     echo "Press Ctrl+C to stop all services"
     
     # Start all microfrontends and root app
     npm run dev:all
+#    npm run serve:root -- --env.mode=$MODE
 else
     echo "🌐 Starting development server..."
     echo "Main application: http://localhost:8080?mode=$MODE"
     echo ""
-    
+
     if [ "$MODE" = "npm" ]; then
         echo "Using NPM packages for microfrontends"
     elif [ "$MODE" = "nexus" ]; then
@@ -63,10 +69,10 @@ else
     elif [ "$MODE" = "github" ]; then
         echo "Using GitHub Pages for microfrontends"
     fi
-    
+
     echo ""
     echo "Press Ctrl+C to stop"
-    
+
     # Start with mode parameter
     npm run serve:root -- --env.mode=$MODE
 fi

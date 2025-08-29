@@ -21,18 +21,11 @@ module.exports = {
         maxChunks: 1,
       }),
     ],
-  },
-  chainWebpack: (config) => {
-    config.externals([
-      '@fortawesome/fontawesome-svg-core',
-      '@fortawesome/free-brands-svg-icons',
-      '@fortawesome/vue-fontawesome',
-      'bootstrap',
-      'bootstrap-vue',
-      'single-spa-vue',
-      'vue',
-      'vue-router',
-      'vue-toastr',
-    ]);
+    externals: {
+      'vue': 'Vue',
+      'single-spa-vue': 'singleSpaVue',
+      'bootstrap-vue': 'BootstrapVue',
+      'vue-router': 'VueRouter'
+    },
   },
 };

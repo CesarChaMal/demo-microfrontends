@@ -20,7 +20,12 @@ demo-microfrontends/
 ├── single-spa-home-app/                         # AngularJS home page
 ├── single-spa-angular-app/                      # Angular 8 application
 ├── single-spa-react-app/                        # React application
-└── single-spa-vue-app/                          # Vue.js application
+├── single-spa-vue-app/                          # Vue.js application
+├── single-spa-vanilla-app/                      # Vanilla JavaScript ES Module
+├── single-spa-webcomponents-app/                # Web Components (Lit)
+├── single-spa-typescript-app/                   # TypeScript application
+├── single-spa-jquery-app/                       # jQuery legacy integration
+└── single-spa-svelte-app/                       # Svelte application
 ```
 
 ## Microfrontends
@@ -67,6 +72,36 @@ demo-microfrontends/
 - **Purpose**: Vue-based features
 - **Route**: `/vue/*`
 
+### 8. Vanilla App (`single-spa-vanilla-app`)
+- **Framework**: Pure JavaScript (ES2020+)
+- **Port**: 4207
+- **Purpose**: Modern vanilla JS with native APIs
+- **Route**: `/vanilla/*`
+
+### 9. Web Components App (`single-spa-webcomponents-app`)
+- **Framework**: Lit + Web Components
+- **Port**: 4208
+- **Purpose**: Browser-native components with Shadow DOM
+- **Route**: `/webcomponents/*`
+
+### 10. TypeScript App (`single-spa-typescript-app`)
+- **Framework**: TypeScript with strict typing
+- **Port**: 4209
+- **Purpose**: Type-safe development and compile-time validation
+- **Route**: `/typescript/*`
+
+### 11. jQuery App (`single-spa-jquery-app`)
+- **Framework**: jQuery 3.6.0 (Legacy library)
+- **Port**: 4210
+- **Purpose**: Legacy library integration and migration strategies
+- **Route**: `/jquery/*`
+
+### 12. Svelte App (`single-spa-svelte-app`)
+- **Framework**: Svelte 3 (Compile-time optimized)
+- **Port**: 4211
+- **Purpose**: Reactive programming with minimal runtime overhead
+- **Route**: `/svelte/*`
+
 ## Prerequisites
 
 - Node.js (v18.0.0 or higher)
@@ -101,7 +136,7 @@ stop.bat
 
 | Mode | Apps Running | Ports Used | Use Case |
 |------|-------------|------------|----------|
-| `local` | All 7 apps (root + 6 microfrontends) | 8080, 4201-4206 | Full development environment |
+| `local` | All 12 apps (root + 11 microfrontends) | 8080, 4201-4211 | Full development environment |
 | `npm` | Root app only | 8080 | Test NPM package loading |
 | `nexus` | Root app only | 8080 | Test Nexus private registry |
 | `github` | Root app only | 8080 | Test remote GitHub Pages loading |
@@ -139,9 +174,9 @@ dev-all.bat
 
 **Features:**
 - No setup/cleanup steps
-- Always runs all 7 applications
+- Always runs all 12 applications
 - Quick start for development
-- Uses ports 8080, 4201-4206
+- Uses ports 8080, 4201-4211
 
 ### Manual Setup
 
@@ -199,7 +234,7 @@ npm run build
 - `npm run build:auth` - Build auth application
 - `npm run install:angular` - Install Angular app dependencies
 - `npm run build:angular` - Build Angular application
-- Similar patterns for: layout, home, vue, react
+- Similar patterns for: layout, home, vue, react, vanilla, webcomponents, typescript, jquery, svelte
 
 ## Technology Stack
 
@@ -209,13 +244,21 @@ npm run build
 - **React 16**: React library with hooks
 - **Vue.js 2**: Progressive JavaScript framework
 - **AngularJS 1.x**: Legacy Angular for comparison
+- **Vanilla JavaScript**: ES2020+ with native APIs
+- **Web Components**: Lit framework with Shadow DOM
+- **TypeScript**: Strict typing and compile-time validation
+- **jQuery 3.6**: Legacy library integration
+- **Svelte 3**: Compile-time optimized reactive framework
 - **Bootstrap 4**: CSS framework
+- **FontAwesome**: Icon library across all apps
 - **SystemJS**: Module loader
 
 ### Build Tools
 - **Webpack 4**: Module bundler
 - **Babel**: JavaScript transpiler
-- **ESLint**: Code linting
+- **ESLint**: Code linting with framework-specific configurations
+- **TypeScript Compiler**: Type checking and transpilation
+- **Svelte Compiler**: Compile-time optimization
 - **Various CLI tools**: Angular CLI, Vue CLI, Create React App
 
 ## Development Workflow
@@ -252,6 +295,11 @@ localStorage.setItem('spa-mode', 'local');   // Switch to local
    - `/angular/*` - Angular features
    - `/react/*` - React features
    - `/vue/*` - Vue features
+   - `/vanilla/*` - Vanilla JavaScript features
+   - `/webcomponents/*` - Web Components features
+   - `/typescript/*` - TypeScript features
+   - `/jquery/*` - jQuery features
+   - `/svelte/*` - Svelte features
 
 ### Launcher Script Comparison
 
@@ -271,6 +319,14 @@ localStorage.setItem('spa-mode', 'local');   // Switch to local
 | Angular | 4204 | http://localhost:4204 |
 | Vue | 4205 | http://localhost:4205 |
 | React | 4206 | http://localhost:4206 |
+| Vanilla | 4207 | http://localhost:4207 |
+| Web Components | 4208 | http://localhost:4208 |
+| TypeScript | 4209 | http://localhost:4209 |
+| jQuery | 4210 | http://localhost:4210 |
+| Svelte | 4211 | http://localhost:4211 |calhost:4208 |
+| TypeScript | 4209 | http://localhost:4209 |
+| jQuery | 4210 | http://localhost:4210 |
+| Svelte | 4211 | http://localhost:4211 |
 
 ## Features
 
@@ -298,7 +354,7 @@ MIT License - see individual LICENSE files in each application directory.
 
 ## Authors
 
-- Juan Manuel López Pazos (Original author)
+- Cesar Francisco Chavez Maldonado (Original author)
 - Various contributors
 
 ## Troubleshooting
