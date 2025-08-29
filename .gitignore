@@ -223,7 +223,7 @@ junit.xml
 *.hprof
 
 # Application specific ignores
-single-spa-login-example-with-npm-packages/dist/
+single-spa-root/dist/
 single-spa-auth-app/dist/
 single-spa-layout-app/dist/
 single-spa-home-app/dist/

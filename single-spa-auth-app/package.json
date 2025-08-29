@@ -32,7 +32,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jualoppaz/single-spa-auth-app.git"
+    "url": "https://github.com/cesarchamal/single-spa-auth-app.git"
   },
   "keywords": [
     "single-spa",
@@ -45,9 +45,9 @@
   ],
   "author": "Cesar Francisco Chavez Maldonado",
   "bugs": {
-    "url": "https://github.com/jualoppaz/single-spa-auth-app/issues"
+    "url": "https://github.com/cesarchamal/single-spa-auth-app/issues"
   },
-  "homepage": "https://github.com/jualoppaz/single-spa-auth-app#readme",
+  "homepage": "https://github.com/cesarchamal/single-spa-auth-app#readme",
   "dependencies": {
     "sass": "^1.77.8",
     "vue": "^2.6.11",

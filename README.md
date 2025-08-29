@@ -14,7 +14,7 @@ This project demonstrates a microfrontend architecture with:
 
 ```
 demo-microfrontends/
-├── single-spa-login-example-with-npm-packages/  # Root application
+├── single-spa-login/  # Root application
 ├── single-spa-auth-app/                         # Vue.js authentication app
 ├── single-spa-layout-app/                       # Vue.js layout components
 ├── single-spa-home-app/                         # AngularJS home page
@@ -30,7 +30,7 @@ demo-microfrontends/
 
 ## Microfrontends
 
-### 1. Root Application (`single-spa-login-example-with-npm-packages`)
+### 1. Root Application (`single-spa-root`)
 - **Framework**: Single-SPA orchestrator
 - **Port**: 8080
 - **Purpose**: Manages routing and application lifecycle
@@ -211,7 +211,7 @@ run.bat local prod
 
 ### Root Application
 ```bash
-cd single-spa-login-example-with-npm-packages
+cd single-spa-root
 npm install
 npm run serve:root
 ```

@@ -22,14 +22,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jualoppaz/single-spa-react-app.git"
+    "url": "git+https://github.com/cesarchamal/single-spa-react-app.git"
   },
   "author": "Cesar Francisco Chavez Maldonado",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jualoppaz/single-spa-react-app/issues"
+    "url": "https://github.com/cesarchamal/single-spa-react-app/issues"
   },
-  "homepage": "https://github.com/jualoppaz/single-spa-react-app#readme",
+  "homepage": "https://github.com/cesarchamal/single-spa-react-app#readme",
   "browserslist": {
     "production": [
       ">0.2%",

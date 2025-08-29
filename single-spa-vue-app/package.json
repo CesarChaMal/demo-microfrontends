@@ -32,7 +32,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jualoppaz/single-spa-vue-app.git"
+    "url": "https://github.com/cesarchamal/single-spa-vue-app.git"
   },
   "keywords": [
     "single-spa",
@@ -45,9 +45,9 @@
   ],
   "author": "Cesar Francisco Chavez Maldonado",
   "bugs": {
-    "url": "https://github.com/jualoppaz/single-spa-vue-app/issues"
+    "url": "https://github.com/cesarchamal/single-spa-vue-app/issues"
   },
-  "homepage": "https://github.com/jualoppaz/single-spa-vue-app#readme",
+  "homepage": "https://github.com/cesarchamal/single-spa-vue-app#readme",
   "dependencies": {
     "vue": "^2.6.11",
     "vue-toastr": "2.1.2",

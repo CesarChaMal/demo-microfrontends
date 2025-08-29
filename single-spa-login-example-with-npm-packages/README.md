@@ -1,7 +1,7 @@
-# single-spa-login-example-with-npm-packages
+# single-spa-root
 
 <img src="https://single-spa.js.org/img/logo-white-bgblue.svg" width="50" height="50">
-[![npm version](https://img.shields.io/npm/v/single-spa-login-example-with-npm-packages.svg?style=flat-square)](https://www.npmjs.org/package/single-spa-login-example-with-npm-packages)
+[![npm version](https://img.shields.io/npm/v/single-spa-root.svg?style=flat-square)](https://www.npmjs.org/package/single-spa-root)
 
 Single-spa application example which imports registered applications from NPM packages and manages authentication features such as login.
 
