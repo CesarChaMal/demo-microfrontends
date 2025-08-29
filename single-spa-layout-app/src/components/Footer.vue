@@ -7,7 +7,9 @@
             <font-awesome-icon :icon="['fas', 'cube']" class="footer-icon" />
             Microfrontends Demo
           </h6>
-          <p class="footer-description">Showcasing Single-SPA architecture with multiple frameworks</p>
+          <p class="footer-description">
+            Showcasing Single-SPA architecture with multiple frameworks
+          </p>
         </div>
         <div class="footer-section">
           <h6 class="footer-title">Technologies</h6>
@@ -16,6 +18,10 @@
             <span class="tech-badge">React</span>
             <span class="tech-badge">Angular</span>
             <span class="tech-badge">TypeScript</span>
+            <span class="tech-badge">Vanilla JS</span>
+            <span class="tech-badge">Web Components</span>
+            <span class="tech-badge">jQuery</span>
+            <span class="tech-badge">Svelte</span>
           </div>
         </div>
         <div class="footer-section">

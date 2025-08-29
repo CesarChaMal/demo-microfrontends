@@ -21,5 +21,11 @@ const vueLifecycles = singleSpaVue({
 });
 
 export const { bootstrap } = vueLifecycles;
-export const { mount } = vueLifecycles;
-export const { unmount } = vueLifecycles;
+export const mount = (props) => {
+  console.log('💚 Vue App mounted');
+  return vueLifecycles.mount(props);
+};
+export const unmount = (props) => {
+  console.log('💚 Vue App unmounted');
+  return vueLifecycles.unmount(props);
+};

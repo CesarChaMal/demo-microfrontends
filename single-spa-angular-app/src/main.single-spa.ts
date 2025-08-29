@@ -24,5 +24,11 @@ const lifecycles = singleSpaAngular({
 });
 
 export const bootstrap = lifecycles.bootstrap;
-export const mount = lifecycles.mount;
-export const unmount = lifecycles.unmount;
+export const mount = (props: any) => {
+  console.log('🅰️ Angular App mounted');
+  return lifecycles.mount(props);
+};
+export const unmount = (props: any) => {
+  console.log('🅰️ Angular App unmounted');
+  return lifecycles.unmount(props);
+};

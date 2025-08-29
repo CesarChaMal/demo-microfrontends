@@ -18,5 +18,11 @@ const ngLifecycles = singleSpaAngularJS({
 });
 
 export const { bootstrap } = ngLifecycles;
-export const { mount } = ngLifecycles;
-export const { unmount } = ngLifecycles;
+export const mount = (props) => {
+  console.log('🏠 Home App (AngularJS) mounted');
+  return ngLifecycles.mount(props);
+};
+export const unmount = (props) => {
+  console.log('🏠 Home App (AngularJS) unmounted');
+  return ngLifecycles.unmount(props);
+};

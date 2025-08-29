@@ -11,5 +11,11 @@ const reactLifecycles = singleSpaReact({
   domElementGetter: () => document.getElementById('react-app'),
 });
 export const { bootstrap } = reactLifecycles;
-export const { mount } = reactLifecycles;
-export const { unmount } = reactLifecycles;
+export const mount = (props) => {
+  console.log('⚛️ React App mounted');
+  return reactLifecycles.mount(props);
+};
+export const unmount = (props) => {
+  console.log('⚛️ React App unmounted');
+  return reactLifecycles.unmount(props);
+};

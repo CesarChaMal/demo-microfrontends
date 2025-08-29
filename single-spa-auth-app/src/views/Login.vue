@@ -68,12 +68,12 @@ export default {
       if (user === 'admin' && password === '12345') {
         sessionStorage.setItem('user', JSON.stringify({ username: user }));
         sessionStorage.setItem('token', `vue-auth-token-${Date.now()}`);
-        this.$toastr.s('Login successful! Welcome to the microfrontend demo.');
+        alert('Login successful! Welcome to the microfrontend demo.');
         setTimeout(() => {
           window.history.pushState(null, null, '/');
         }, 1000);
       } else {
-        this.$toastr.e('Invalid credentials. Please use admin/12345');
+        alert('Invalid credentials. Please use admin/12345');
       }
     },
   },

@@ -30,5 +30,11 @@ const vueLifecycles = singleSpaVue({
 });
 
 export const { bootstrap } = vueLifecycles;
-export const { mount } = vueLifecycles;
-export const { unmount } = vueLifecycles;
+export const mount = (props) => {
+  console.log('🔐 Auth App mounted');
+  return vueLifecycles.mount(props);
+};
+export const unmount = (props) => {
+  console.log('🔐 Auth App unmounted');
+  return vueLifecycles.unmount(props);
+};

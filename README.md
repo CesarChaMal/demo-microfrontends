@@ -111,53 +111,57 @@ demo-microfrontends/
 
 ### Launcher Scripts (Recommended)
 
-#### Mode-Aware Launcher (`run.sh` / `run.bat`)
+#### Enhanced Mode-Aware Launcher (`run.sh` / `run.bat`)
 
 **Basic Usage:**
 ```bash
-# Windows - Start
-run.bat [mode]
-# Windows - Stop
-stop.bat
-
-# Linux/Mac - Start
-./run.sh [mode]
-# Linux/Mac - Stop
-./stop.sh
+# Linux/Mac
+./run.sh [mode] [environment]
+# Windows
+run.bat [mode] [environment]
 ```
 
+**Parameters:**
+- **Mode** (first parameter): `local` (default), `npm`, `nexus`, `github`
+- **Environment** (second parameter): `dev` (default), `prod`
+
 **Available Modes:**
-- `local` (default) - Local development with SystemJS
+- `local` - Local development with SystemJS
 - `npm` - Uses NPM packages directly
 - `nexus` - Uses Nexus private registry packages
 - `github` - Loads from GitHub Pages
 
-**What Each Mode Launches:**
+**Available Environments:**
+- `dev` - Development build with hot reload
+- `prod` - Production build with optimizations
 
-| Mode | Apps Running | Ports Used | Use Case |
-|------|-------------|------------|----------|
-| `local` | All 12 apps (root + 11 microfrontends) | 8080, 4201-4211 | Full development environment |
-| `npm` | Root app only | 8080 | Test NPM package loading |
-| `nexus` | Root app only | 8080 | Test Nexus private registry |
-| `github` | Root app only | 8080 | Test remote GitHub Pages loading |
+**What Each Combination Launches:**
+
+| Mode | Environment | Apps Running | Build Type | Use Case |
+|------|-------------|-------------|------------|----------|
+| `local` | `dev` | All 12 apps | Development | Full development environment |
+| `local` | `prod` | Root app only | Production | Test production build locally |
+| `npm` | `dev` | Root app only | Development | Test NPM package loading |
+| `npm` | `prod` | Root app only | Production | Test NPM packages in production |
+| `nexus` | `dev` | Root app only | Development | Test Nexus private registry |
+| `nexus` | `prod` | Root app only | Production | Test Nexus in production |
+| `github` | `dev` | Root app only | Development | Test GitHub Pages loading |
+| `github` | `prod` | Root app only | Production | Test GitHub Pages in production |
 
 **Examples:**
 ```bash
-# Full development environment (all apps running)
-run.bat
-./run.sh
+# Development (default)
+./run.sh local dev
+./run.sh local        # dev is default
 
-# Lightweight NPM package testing
-run.bat npm
-./run.sh npm
+# Production builds
+./run.sh local prod   # Local production build
+./run.sh npm prod     # NPM production build
+./run.sh github prod  # GitHub production build
 
-# Nexus private registry testing
-run.bat nexus
-./run.sh nexus
-
-# GitHub Pages remote loading
-run.bat github
-./run.sh github
+# Windows examples
+run.bat local prod
+run.bat npm dev
 ```
 
 #### Quick Development Launcher (`dev-all.sh` / `dev-all.bat`)
@@ -193,9 +197,14 @@ npm run serve:root
 
 ### Production Build
 ```bash
+# Manual production build
 npm run build:apps
 npm run build
 npm start
+
+# Or use launcher script
+./run.sh local prod
+run.bat local prod
 ```
 
 ## Individual Application Setup
@@ -301,6 +310,21 @@ localStorage.setItem('spa-mode', 'local');   // Switch to local
    - `/jquery/*` - jQuery features
    - `/svelte/*` - Svelte features
 
+### Debug Console Messages
+
+Each microfrontend logs mount/unmount events to the browser console:
+- 🔐 Auth App mounted/unmounted
+- 🎨 Layout App mounted/unmounted
+- 🏠 Home App (AngularJS) mounted/unmounted
+- 🅰️ Angular App mounted/unmounted
+- 💚 Vue App mounted/unmounted
+- ⚛️ React App mounted/unmounted
+- 🍦 Vanilla JS App mounted/unmounted
+- 🧩 Web Components App mounted/unmounted
+- 📘 TypeScript App mounted/unmounted
+- 💎 jQuery App mounted/unmounted
+- 🔥 Svelte App mounted/unmounted
+
 ### Launcher Script Comparison
 
 | Script | Setup/Cleanup | Mode Support | Apps Launched | Best For |
@@ -375,8 +399,24 @@ DEBUG=single-spa:* npm run serve
 
 ## Additional Resources
 
+### Framework Documentation
 - [Single-SPA Documentation](https://single-spa.js.org/)
-- [Microfrontends.info](https://microfrontends.info/)
 - [Angular Documentation](https://angular.io/)
 - [React Documentation](https://reactjs.org/)
 - [Vue.js Documentation](https://vuejs.org/)
+- [Svelte Documentation](https://svelte.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
+- [Lit Documentation](https://lit.dev/)
+- [jQuery Documentation](https://jquery.com/)
+
+### Microfrontends Resources
+- [Microfrontends.info](https://microfrontends.info/)
+- [Micro Frontends by Martin Fowler](https://martinfowler.com/articles/micro-frontends.html)
+- [Building Micro-Frontends Book](https://www.buildingmicrofrontends.com/)
+
+### Build Tools & Libraries
+- [Webpack Documentation](https://webpack.js.org/)
+- [Babel Documentation](https://babeljs.io/)
+- [SystemJS Documentation](https://github.com/systemjs/systemjs)
+- [FontAwesome Documentation](https://fontawesome.com/)
+- [Bootstrap Documentation](https://getbootstrap.com/)
