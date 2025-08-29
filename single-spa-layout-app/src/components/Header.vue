@@ -1,19 +1,25 @@
 <template>
   <div id="header" class="clearfix">
-    <b-navbar type="light" variant="light" fixed="top">
-      <b-navbar-brand>
-        <a href="https://single-spa.js.org" target="_blank">
+    <b-navbar type="light" variant="light" fixed="top" class="enhanced-navbar">
+      <b-navbar-brand class="brand-section">
+        <a href="https://single-spa.js.org" target="_blank" class="brand-link">
           <img id="logo" src="../assets/logo.svg" />
-          Single spa
+          <span class="brand-text">Single-SPA Demo</span>
         </a>
+        <span class="demo-badge">Microfrontends</span>
       </b-navbar-brand>
 
       <b-navbar-nav class="ml-auto">
-        <b-nav-item-dropdown right>
+        <b-nav-item class="user-info">
+          <font-awesome-icon :icon="['fas', 'user-circle']" class="user-icon" />
+        </b-nav-item>
+        <b-nav-item-dropdown right class="user-dropdown">
           <template v-slot:button-content>
-            <em> {{ username }}</em>
+            <span class="username">{{ username }}</span>
           </template>
-          <b-dropdown-item v-on:click="logout">Sign Out</b-dropdown-item>
+          <b-dropdown-item v-on:click="logout" class="logout-item">
+            <font-awesome-icon :icon="['fas', 'sign-out-alt']" /> Sign Out
+          </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-navbar>
@@ -41,28 +47,92 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-
 #header {
-  nav.navbar {
-    border-bottom: 1px solid #eee;
-  }
-
-  img#logo {
-    width: 50px;
+  .enhanced-navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-bottom: 3px solid #4fc08d;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 0.75rem 1rem;
+    
+    .brand-section {
+      display: flex;
+      align-items: center;
+      
+      .brand-link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: white !important;
+        margin-right: 15px;
+        
+        &:hover {
+          color: #4fc08d !important;
+          text-decoration: none;
+        }
+        
+        img#logo {
+          width: 45px;
+          height: 45px;
+          margin-right: 10px;
+          filter: brightness(1.1);
+        }
+        
+        .brand-text {
+          font-weight: 600;
+          font-size: 1.3rem;
+        }
+      }
+      
+      .demo-badge {
+        background: #4fc08d;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+    
+    .navbar-nav {
+      .user-info {
+        .user-icon {
+          color: white;
+          font-size: 1.5rem;
+          margin-right: 10px;
+        }
+      }
+      
+      .user-dropdown {
+        .dropdown-toggle {
+          background: rgba(255,255,255,0.1) !important;
+          border: 1px solid rgba(255,255,255,0.2) !important;
+          border-radius: 25px !important;
+          padding: 8px 16px !important;
+          
+          .username {
+            color: white;
+            font-weight: 500;
+          }
+          
+          &:hover {
+            background: rgba(255,255,255,0.2) !important;
+            transform: translateY(-1px);
+          }
+        }
+        
+        .logout-item {
+          color: #dc3545;
+          font-weight: 500;
+          
+          &:hover {
+            background-color: #dc3545;
+            color: white;
+          }
+        }
+      }
+    }
   }
 }
 </style>
