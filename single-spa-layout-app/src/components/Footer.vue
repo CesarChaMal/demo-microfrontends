@@ -61,31 +61,31 @@ export default {
   padding: 30px 0;
   min-height: 180px;
   border-top: 3px solid #4fc08d;
-  
+
   @media screen and (min-width: 768px) {
     min-height: 140px;
   }
-  
+
   .container {
     height: 100%;
   }
-  
+
   .footer-content {
     display: flex;
     flex-direction: column;
     gap: 20px;
     color: #ecf0f1;
-    
+
     @media screen and (min-width: 768px) {
       flex-direction: row;
       justify-content: space-between;
       align-items: flex-start;
       gap: 30px;
     }
-    
+
     .footer-section {
       flex: 1;
-      
+
       .footer-title {
         color: #4fc08d;
         font-size: 1rem;
@@ -93,24 +93,24 @@ export default {
         margin-bottom: 10px;
         display: flex;
         align-items: center;
-        
+
         .footer-icon {
           margin-right: 8px;
         }
       }
-      
+
       .footer-description {
         font-size: 0.9rem;
         color: #bdc3c7;
         margin-bottom: 0;
         line-height: 1.4;
       }
-      
+
       .tech-badges {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        
+
         .tech-badge {
           background: rgba(79, 192, 141, 0.2);
           color: #4fc08d;
@@ -121,31 +121,31 @@ export default {
           border: 1px solid rgba(79, 192, 141, 0.3);
         }
       }
-      
+
       .copyright-section {
         text-align: center;
-        
+
         @media screen and (min-width: 768px) {
           text-align: right;
         }
-        
+
         .copyright-text {
           font-size: 0.9rem;
           margin-bottom: 10px;
           line-height: 1.5;
-          
+
           a#personal-page-link {
             color: #4fc08d;
             text-decoration: none;
             font-weight: 500;
-            
+
             &:hover {
               color: #42b883;
               text-decoration: underline;
             }
           }
         }
-        
+
         .social-links {
           .social-link {
             display: inline-flex;
@@ -156,13 +156,13 @@ export default {
             padding: 8px 12px;
             border-radius: 20px;
             transition: all 0.3s ease;
-            
+
             &:hover {
               background: #4fc08d;
               color: white;
               transform: translateY(-2px);
             }
-            
+
             span {
               margin-left: 8px;
               font-size: 0.9rem;
