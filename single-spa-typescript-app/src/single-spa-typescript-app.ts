@@ -64,7 +64,7 @@ class TypeScriptApp {
     this.container.innerHTML = `
       <div style="padding: 20px; border: 2px solid #007bff; border-radius: 8px; margin: 10px 0; background: #f8f9fa;">
         <h2 style="color: #007bff; margin: 0 0 15px 0;">
-          <img src="https://raw.githubusercontent.com/microsoft/TypeScript/main/doc/logo.svg" width="40" height="40" style="vertical-align: middle; margin-right: 10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg" width="40" height="40" style="vertical-align: middle; margin-right: 10px;">
           TypeScript Microfrontend
         </h2>
         <p><strong>Language:</strong> TypeScript with strict type checking</p>

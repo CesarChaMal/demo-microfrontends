@@ -43,7 +43,7 @@ class JQueryApp {
     this.$container.html(`
       <div style="padding: 20px; border: 2px solid #ffc107; border-radius: 8px; margin: 10px 0; background: #f8f9fa;">
         <h2 style="color: #ffc107; margin: 0 0 15px 0;">
-          <img src="https://jquery.com/jquery-wp-content/themes/jquery/images/logo-jquery.png" width="80" height="40" style="vertical-align: middle; margin-right: 10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/JQuery-Logo.svg" width="80" height="40" style="vertical-align: middle; margin-right: 10px;">
           jQuery Legacy Integration
         </h2>
         <p><strong>Library:</strong> jQuery 3.6.0 (Legacy Library)</p>
@@ -261,7 +261,7 @@ class JQueryApp {
   }
 
   deleteTodo(id) {
-    const $todoItem = this.$container.find(\`[data-id="\${id}"]\`);
+    const $todoItem = this.$container.find(`[data-id="${id}"]`);
     
     // Animate removal
     $todoItem.slideUp(300, () => {
