@@ -4,7 +4,7 @@
   "description": "Vue application with login form for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-auth-app.umd.js",
   "scripts": {
-    "build": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
+    "build": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js",
     "build:dev": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
     "build:prod": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode production",
     "lint": "vue-cli-service lint"

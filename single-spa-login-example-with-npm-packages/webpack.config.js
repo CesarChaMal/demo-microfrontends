@@ -3,7 +3,10 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
+module.exports = (env, argv) => {
+  const isProduction = argv.mode === 'production';
+  
+  return {
   entry: {
     'root-application': 'root-application-dynamic.js',
   },
@@ -57,7 +60,7 @@ module.exports = {
       inject: false,
     }),
   ],
-  devtool: 'source-map',
+  devtool: isProduction ? false : 'source-map',
   devServer: {
     historyApiFallback: true,
     writeToDisk: true,
@@ -65,4 +68,5 @@ module.exports = {
       'Access-Control-Allow-Origin': '*',
     },
   },
+  };
 };
