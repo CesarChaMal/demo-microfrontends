@@ -36,6 +36,18 @@
             }
           },
           "configurations": {
+            "development": {
+              "optimization": false,
+              "outputHashing": "none",
+              "sourceMap": false,
+              "extractCss": false,
+              "namedChunks": true,
+              "aot": false,
+              "extractLicenses": false,
+              "vendorChunk": true,
+              "buildOptimizer": false,
+              "es5BrowserSupport": false
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -74,6 +86,9 @@
 			"port": 4204
           },
           "configurations": {
+            "development": {
+              "browserTarget": "single-spa-angular-app:build:development"
+            },
             "production": {
               "browserTarget": "single-spa-angular-app:build:production"
             }
