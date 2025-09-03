@@ -118,8 +118,8 @@ export default {
   .enhanced-nav {
     background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%) !important;
     border-bottom: 2px solid #4fc08d;
-    padding: 15px 0;
-    margin-top: 76px;
+    padding: 8px 0;
+    margin-top: 60px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     display: flex;
     justify-content: center;
