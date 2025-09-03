@@ -63,13 +63,6 @@ module.exports = (env, argv) => {
         from: path.resolve(__dirname, 'public'),
         to: path.resolve(__dirname, 'dist'),
       },
-      {
-        from: path.resolve(
-            __dirname,
-            'node_modules/single-spa-layout-app/dist/img',
-        ),
-        to: path.resolve(__dirname, 'dist/img'),
-      },
     ]),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'index.html'),

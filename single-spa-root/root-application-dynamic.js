@@ -308,10 +308,7 @@ switch (mode) {
 singleSpa.registerApplication(
   'login',
   () => loadApp('single-spa-auth-app'),
-  (location) => {
-    // Show login if not authenticated OR explicitly at /login
-    return !isAuthenticated() || location.pathname === '/login';
-  },
+  (location) => !isAuthenticated() || location.pathname === '/login',
 );
 
 singleSpa.registerApplication(
