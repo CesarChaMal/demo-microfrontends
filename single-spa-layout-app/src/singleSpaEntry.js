@@ -31,7 +31,6 @@ const vueLifecycles = singleSpaVue({
   },
 });
 
-/*
 // Add debug logging to original functions
 const originalBootstrap = vueLifecycles.bootstrap;
 const originalMount = vueLifecycles.mount;
@@ -51,11 +50,19 @@ vueLifecycles.unmount = function (props) {
   console.log('🎨 Layout App unmounting');
   return originalUnmount.call(this, props);
 };
-*/
 
 export const bootstrap = vueLifecycles.bootstrap;
-export const mount = vueLifecycles.mount;
-export const unmount = vueLifecycles.unmount;
+export const mount = (props) => {
+  console.log('🎨 Layout App mounting with props:', props);
+  return vueLifecycles.mount(props);
+};
+export const unmount = (props) => {
+  console.log('🎨 Layout App unmounting');
+  return vueLifecycles.unmount(props);
+};
+
+// export const mount = vueLifecycles.mount;
+// export const unmount = vueLifecycles.unmount;
 
 // For UMD builds, expose on window
 if (typeof window !== 'undefined') {

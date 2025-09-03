@@ -84,8 +84,29 @@ function showExcept(routes) {
   };
 }
 
-// Simplified authentication - just show apps based on routes, not auth state
-// This removes the complex authentication logic that was causing issues
+// Authentication helper function
+function isAuthenticated() {
+  return sessionStorage.getItem('token') !== null;
+}
+
+// Protected route helper - requires authentication
+function showWhenAuthenticatedAndPrefix(routes) {
+  return function (location) {
+    return isAuthenticated() && routes.some((route) => location.pathname.startsWith(route));
+  };
+}
+
+function showWhenAuthenticatedAndAnyOf(routes) {
+  return function (location) {
+    return isAuthenticated() && routes.some((route) => location.pathname === route);
+  };
+}
+
+function showWhenAuthenticatedExcept(routes) {
+  return function (location) {
+    return isAuthenticated() && routes.every((route) => location.pathname !== route);
+  };
+}
 
 // AWS S3 import map configuration from webpack template (environment variables)
 const { AWS_CONFIG } = window;
@@ -254,12 +275,13 @@ switch (mode) {
           lifecycles = module;
         } else if (module.default && module.default.bootstrap) {
           lifecycles = module.default;
-        } else if (window['single-spa-layout-app']) {
-          // Check if it's exposed on window (UMD)
-          lifecycles = window['single-spa-layout-app'];
+        // } else if (window['single-spa-layout-app']) {
+        //   // Check if it's exposed on window (UMD)
+        //   lifecycles = window['single-spa-layout-app'];
         } else if (window[name.replace(/-/g, '')]) {
           // Check if it's exposed on window (UMD)
           const globalName = name.replace(/-/g, '');
+          console.log('globalName: ', globalName);
           lifecycles = window[globalName];
         } else {
           console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
@@ -286,67 +308,70 @@ switch (mode) {
 singleSpa.registerApplication(
   'login',
   () => loadApp('single-spa-auth-app'),
-  showWhenAnyOf(['/login']),
+  (location) => {
+    // Show login if not authenticated OR explicitly at /login
+    return !isAuthenticated() || location.pathname === '/login';
+  },
 );
 
 singleSpa.registerApplication(
   'layout',
   () => loadApp('single-spa-layout-app'),
-  showExcept(['/login']),
+  showWhenAuthenticatedExcept(['/login']),
 );
 
 singleSpa.registerApplication(
   'home',
   () => loadApp('single-spa-home-app'),
-  showWhenAnyOf(['/']),
+  showWhenAuthenticatedAndAnyOf(['/']),
 );
 
 singleSpa.registerApplication(
   'angular',
   () => loadApp('single-spa-angular-app'),
-  showWhenPrefix(['/angular']),
+  showWhenAuthenticatedAndPrefix(['/angular']),
 );
 
 singleSpa.registerApplication(
   'vue',
   () => loadApp('single-spa-vue-app'),
-  showWhenPrefix(['/vue']),
+  showWhenAuthenticatedAndPrefix(['/vue']),
 );
 
 singleSpa.registerApplication(
   'react',
   () => loadApp('single-spa-react-app'),
-  showWhenPrefix(['/react']),
+  showWhenAuthenticatedAndPrefix(['/react']),
 );
 
 singleSpa.registerApplication(
   'vanilla',
   () => loadApp('single-spa-vanilla-app'),
-  showWhenPrefix(['/vanilla']),
+  showWhenAuthenticatedAndPrefix(['/vanilla']),
 );
 
 singleSpa.registerApplication(
   'webcomponents',
   () => loadApp('single-spa-webcomponents-app'),
-  showWhenPrefix(['/webcomponents']),
+  showWhenAuthenticatedAndPrefix(['/webcomponents']),
 );
 
 singleSpa.registerApplication(
   'typescript',
   () => loadApp('single-spa-typescript-app'),
-  showWhenPrefix(['/typescript']),
+  showWhenAuthenticatedAndPrefix(['/typescript']),
 );
 
 singleSpa.registerApplication(
   'jquery',
   () => loadApp('single-spa-jquery-app'),
-  showWhenPrefix(['/jquery']),
+  showWhenAuthenticatedAndPrefix(['/jquery']),
 );
 
 singleSpa.registerApplication(
   'svelte',
   () => loadApp('single-spa-svelte-app'),
-  showWhenPrefix(['/svelte']),
+  showWhenAuthenticatedAndPrefix(['/svelte']),
 );
 
 // Add event listeners to debug Single-SPA lifecycle
