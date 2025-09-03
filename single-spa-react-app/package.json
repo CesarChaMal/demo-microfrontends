@@ -18,6 +18,7 @@
     "build": "webpack --config webpack.config.js --mode development",
     "build:dev": "webpack --config webpack.config.js --mode development",
     "build:prod": "webpack --config webpack.config.js --mode production",
+    "serve": "npm run build && npx http-server dist -p 4206 --cors",
     "lint": "eslint . --ext .js --fix"
   },
   "repository": {

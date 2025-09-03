@@ -82,7 +82,7 @@ echo "🧹 Cleaning all applications..."
 
 # Install all dependencies
 echo "📦 Installing all dependencies..."
-#exec_npm npm run install:all
+#exec_npm npm run install
 
 # Build applications based on environment
 if [ "$ENV" = "prod" ]; then

@@ -12,7 +12,8 @@
     "build:prod": "ng build --configuration production",
     "build:single-spa": "ng build --prod",
     "build:single-spa:dev": "ng build --configuration development",
-    "build:single-spa:prod": "ng build --configuration production"
+    "build:single-spa:prod": "ng build --configuration production",
+    "serve": "npm run build && npx http-server dist -p 4204 --cors"
   },
   "dependencies": {
     "@angular-builders/custom-webpack": "8.4.1",

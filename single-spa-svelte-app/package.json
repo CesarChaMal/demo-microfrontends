@@ -8,6 +8,8 @@
     "build:dev": "webpack --mode development",
     "build:prod": "webpack --mode production",
     "start": "webpack serve --mode development --port 4211",
+    "dev": "npm run start",
+    "serve": "npm run build && npx http-server dist -p 4211 --cors",
     "lint": "eslint src --ext .js,.svelte --fix"
   },
   "devDependencies": {
