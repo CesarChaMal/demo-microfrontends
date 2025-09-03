@@ -234,9 +234,26 @@ switch (mode) {
 
   case MODES.LOCAL:
   default:
-    // Local development - use SystemJS for external URLs
+    // Local mode - detect if production build (files served from root) or development (individual ports)
     loadApp = (name) => {
-      const appUrls = {
+      // Check if we're in production mode by looking for built files in root
+      const isProduction = window.location.hostname === 'localhost' && window.location.port === '8080' && !window.location.search.includes('dev');
+      
+      const appUrls = isProduction ? {
+        // Production: Load from root server static files
+        'single-spa-auth-app': '/single-spa-auth-app.umd.js',
+        'single-spa-layout-app': '/single-spa-layout-app.umd.js',
+        'single-spa-home-app': '/single-spa-home-app.js',
+        'single-spa-angular-app': '/single-spa-angular-app.js',
+        'single-spa-vue-app': '/single-spa-vue-app.umd.js',
+        'single-spa-react-app': '/single-spa-react-app.js',
+        'single-spa-vanilla-app': '/single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': '/single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': '/single-spa-typescript-app.js',
+        'single-spa-jquery-app': '/single-spa-jquery-app.js',
+        'single-spa-svelte-app': '/single-spa-svelte-app.js',
+      } : {
+        // Development: Load from individual ports
         'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
         'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
         'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
