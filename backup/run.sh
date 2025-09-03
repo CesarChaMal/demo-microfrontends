@@ -5,11 +5,22 @@
 # Mode: local (default), npm, nexus, github, aws
 # Environment: dev (default), prod
 # Examples:
-#   ./run.sh local dev    # Full development environment
-#   ./run.sh local prod   # Production build locally
-#   ./run.sh npm prod     # NPM packages with production build
-#   ./run.sh github dev   # GitHub Pages with development build
-#   ./run.sh aws prod     # AWS S3 with production build
+#   ./run.sh                    # Default: local dev (all 12 apps)
+#   ./run.sh local              # Local dev (all 12 apps)
+#   ./run.sh local dev          # Local dev (all 12 apps)
+#   ./run.sh local prod         # Local prod (root only)
+#   ./run.sh npm                # NPM dev (root only)
+#   ./run.sh npm dev            # NPM dev (root only)
+#   ./run.sh npm prod           # NPM prod (root only)
+#   ./run.sh nexus              # Nexus dev (root only)
+#   ./run.sh nexus dev          # Nexus dev (root only)
+#   ./run.sh nexus prod         # Nexus prod (root only)
+#   ./run.sh github             # GitHub dev - read existing pages (root only)
+#   ./run.sh github dev         # GitHub dev - read existing pages (root only)
+#   ./run.sh github prod        # GitHub prod - create repos + deploy (root only)
+#   ./run.sh aws                # AWS dev (root only)
+#   ./run.sh aws dev            # AWS dev (root only)
+#   ./run.sh aws prod           # AWS prod (root only)
 set -e
 
 # Parse arguments

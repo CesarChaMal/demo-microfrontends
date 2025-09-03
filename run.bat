@@ -3,6 +3,23 @@ REM Demo Microfrontends Launcher Script for Windows
 REM Usage: run.bat [mode] [environment]
 REM Mode: local (default), npm, nexus, github, aws
 REM Environment: dev (default), prod
+REM Examples:
+REM   run.bat                     Default: local dev (all 12 apps)
+REM   run.bat local               Local dev (all 12 apps)
+REM   run.bat local dev           Local dev (all 12 apps)
+REM   run.bat local prod          Local prod (root only)
+REM   run.bat npm                 NPM dev (root only)
+REM   run.bat npm dev             NPM dev (root only)
+REM   run.bat npm prod            NPM prod (root only)
+REM   run.bat nexus               Nexus dev (root only)
+REM   run.bat nexus dev           Nexus dev (root only)
+REM   run.bat nexus prod          Nexus prod (root only)
+REM   run.bat github              GitHub dev - read existing pages (root only)
+REM   run.bat github dev          GitHub dev - read existing pages (root only)
+REM   run.bat github prod         GitHub prod - create repos + deploy (root only)
+REM   run.bat aws                 AWS dev (root only)
+REM   run.bat aws dev             AWS dev (root only)
+REM   run.bat aws prod            AWS prod (root only)
 
 setlocal enabledelayedexpansion
 
