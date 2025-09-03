@@ -1,0 +1,28 @@
+{
+  "root": true,
+  "env": { "browser": true, "es6": true },
+  "extends": ["eslint:recommended", "airbnb-base"],
+  "plugins": ["svelte3"],
+  "overrides": [
+    {
+      "files": ["*.svelte"],
+      "processor": "svelte3/svelte3"
+    }
+  ],
+  "rules": {
+    "linebreak-style": 0,
+    "import/no-cycle": 0,
+    "import/extensions": 0,
+    "import/no-mutable-exports": 0,
+    "import/prefer-default-export": 0
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "allowImportExportEverywhere": true
+  },
+  "settings": {
+    "svelte3/ignore-styles": () => true
+  }
+}

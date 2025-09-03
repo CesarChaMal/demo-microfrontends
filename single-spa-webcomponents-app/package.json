@@ -1,0 +1,31 @@
+{
+  "name": "single-spa-webcomponents-app",
+  "version": "0.1.0",
+  "description": "Web Components microfrontend using Lit for Single-SPA",
+  "main": "dist/single-spa-webcomponents-app.js",
+  "type": "module",
+  "scripts": {
+    "build": "webpack --mode development",
+    "start": "webpack serve --mode development --port 4208",
+    "lint": "eslint src --ext .js --fix"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
+    "babel-loader": "^8.0.6",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "babel-eslint": "^10.0.3"
+  },
+  "dependencies": {
+    "lit": "^2.8.0",
+    "single-spa": "^5.9.0",
+    "@fortawesome/fontawesome-svg-core": "1.2.27",
+    "@fortawesome/free-brands-svg-icons": "5.12.1",
+    "@fortawesome/free-solid-svg-icons": "5.12.0"
+  }
+}
