@@ -275,9 +275,9 @@ switch (mode) {
           lifecycles = module;
         } else if (module.default && module.default.bootstrap) {
           lifecycles = module.default;
-        // } else if (window['single-spa-layout-app']) {
-        //   // Check if it's exposed on window (UMD)
-        //   lifecycles = window['single-spa-layout-app'];
+        } else if (window['single-spa-layout-app']) {
+          // Check if it's exposed on window (UMD)
+          lifecycles = window['single-spa-layout-app'];
         } else if (window[name.replace(/-/g, '')]) {
           // Check if it's exposed on window (UMD)
           const globalName = name.replace(/-/g, '');

@@ -41,6 +41,7 @@ function createGitHubRepos() {
     'single-spa-typescript-app',
     'single-spa-jquery-app',
     'single-spa-svelte-app',
+    'single-spa-root',
   ];
 
   console.log('📦 Creating and deploying GitHub repositories for all microfrontends...');
@@ -51,22 +52,18 @@ function createGitHubRepos() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ apps }),
   })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        console.log('✅ All repositories created and deployed successfully');
-        console.log('🔄 Repositories will be available at GitHub Pages shortly...');
-      } else {
-        console.log(`⚠️ Repository creation/deployment failed: ${data.error}`);
-      }
-    })
-    .catch((error) => {
-      console.log('⚠️ Could not create/deploy repos - API unavailable:', error);
-    });
-}
-
-function isAuthenticated() {
-  return sessionStorage.getItem('token') !== null;
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          console.log('✅ All repositories created and deployed successfully');
+          console.log('🔄 Repositories will be available at GitHub Pages shortly...');
+        } else {
+          console.log(`⚠️ Repository creation/deployment failed: ${data.error}`);
+        }
+      })
+      .catch((error) => {
+        console.log('⚠️ Could not create/deploy repos - API unavailable:', error);
+      });
 }
 
 function showWhenAnyOf(routes) {
@@ -87,8 +84,29 @@ function showExcept(routes) {
   };
 }
 
-// Simplified authentication - just show apps based on routes, not auth state
-// This removes the complex authentication logic that was causing issues
+// Authentication helper function
+function isAuthenticated() {
+  return sessionStorage.getItem('token') !== null;
+}
+
+// Protected route helper - requires authentication
+function showWhenAuthenticatedAndPrefix(routes) {
+  return function (location) {
+    return isAuthenticated() && routes.some((route) => location.pathname.startsWith(route));
+  };
+}
+
+function showWhenAuthenticatedAndAnyOf(routes) {
+  return function (location) {
+    return isAuthenticated() && routes.some((route) => location.pathname === route);
+  };
+}
+
+function showWhenAuthenticatedExcept(routes) {
+  return function (location) {
+    return isAuthenticated() && routes.every((route) => location.pathname !== route);
+  };
+}
 
 // AWS S3 import map configuration from webpack template (environment variables)
 const { AWS_CONFIG } = window;
@@ -177,11 +195,11 @@ switch (mode) {
     console.log(`📦 Loading import map from: ${IMPORTMAP_URL}`);
     console.log('🔧 AWS Config:', AWS_CONFIG);
     importMapPromise = fetch(IMPORTMAP_URL)
-      .then((response) => response.json())
-      .catch((error) => {
-        console.error('Failed to load import map from S3:', error);
-        return { imports: {} };
-      });
+        .then((response) => response.json())
+        .catch((error) => {
+          console.error('Failed to load import map from S3:', error);
+          return { imports: {} };
+        });
 
     loadApp = async (name) => {
       const importMap = await importMapPromise;
@@ -219,11 +237,11 @@ switch (mode) {
     // Local development - use SystemJS for external URLs
     loadApp = (name) => {
       const appUrls = {
-        'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.js',
-        'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.js',
+        'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
+        'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
         'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
         'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
-        'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.js',
+        'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.umd.js',
         'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
         'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
         'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
@@ -233,16 +251,51 @@ switch (mode) {
       };
       const url = appUrls[name];
       console.log(`🚀 Loading ${name} from ${url}`);
+
       return window.System.import(url).then((module) => {
         console.log(`✅ Successfully loaded ${name}:`, module);
-        if (name === 'single-spa-layout-app') {
-          console.log('🎨 Layout module exports:', Object.keys(module));
-          console.log('🎨 Layout bootstrap:', typeof module.bootstrap);
-          console.log('🎨 Layout mount:', typeof module.mount);
-          console.log('🎨 Layout unmount:', typeof module.unmount);
-          console.log('🎨 Layout default:', module.default);
+        /*
+          return window.System.import(url).then((module) => {
+            console.log(`✅ Successfully loaded ${name}:`, module);
+            if (name === 'single-spa-layout-app') {
+              console.log('🎨 Layout module exports:', Object.keys(module));
+              console.log('🎨 Layout bootstrap:', typeof module.bootstrap);
+              console.log('🎨 Layout mount:', typeof module.mount);
+              console.log('🎨 Layout unmount:', typeof module.unmount);
+              console.log('🎨 Layout default:', module.default);
+            }
+            return module;
+    */
+
+        // Handle different module formats
+        let lifecycles;
+
+        // Check if it's a proper single-spa app with lifecycle functions
+        if (module.bootstrap && module.mount && module.unmount) {
+          lifecycles = module;
+        } else if (module.default && module.default.bootstrap) {
+          lifecycles = module.default;
+        } else if (window['single-spa-layout-app']) {
+          // Check if it's exposed on window (UMD)
+          lifecycles = window['single-spa-layout-app'];
+        } else if (window[name.replace(/-/g, '')]) {
+          // Check if it's exposed on window (UMD)
+          const globalName = name.replace(/-/g, '');
+          console.log('globalName: ', globalName);
+          lifecycles = window[globalName];
+        } else {
+          console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
+          console.log('Module structure:', module);
+          throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
         }
-        return module;
+
+        console.log(`✅ ${name} lifecycles resolved:`, {
+          bootstrap: typeof lifecycles.bootstrap,
+          mount: typeof lifecycles.mount,
+          unmount: typeof lifecycles.unmount,
+        });
+
+        return lifecycles;
       }).catch((error) => {
         console.error(`❌ Failed to load ${name} locally:`, error);
         throw error;
@@ -253,113 +306,72 @@ switch (mode) {
 
 // Register applications using the selected loading strategy
 singleSpa.registerApplication(
-  'login',
-  () => loadApp('single-spa-auth-app'),
-  (location) => {
-    const shouldShow = location.pathname === '/login';
-    console.log('🔐 Auth App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'login',
+    () => loadApp('single-spa-auth-app'),
+    (location) => {
+      // Show login if not authenticated OR explicitly at /login
+      return !isAuthenticated() || location.pathname === '/login';
+    },
 );
 
 singleSpa.registerApplication(
-  'layout',
-  () => loadApp('single-spa-layout-app'),
-  (location) => {
-    const shouldShow = location.pathname !== '/login';
-    console.log('🎨 Layout App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'layout',
+    () => loadApp('single-spa-layout-app'),
+    showWhenAuthenticatedExcept(['/login']),
 );
 
 singleSpa.registerApplication(
-  'home',
-  () => loadApp('single-spa-home-app'),
-  (location) => {
-    const shouldShow = location.pathname === '/';
-    console.log('🏠 Home App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'home',
+    () => loadApp('single-spa-home-app'),
+    showWhenAuthenticatedAndAnyOf(['/']),
 );
 
 singleSpa.registerApplication(
-  'angular',
-  () => loadApp('single-spa-angular-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/angular');
-    console.log('🅰️ Angular App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'angular',
+    () => loadApp('single-spa-angular-app'),
+    showWhenAuthenticatedAndPrefix(['/angular']),
 );
 
 singleSpa.registerApplication(
-  'vue',
-  () => loadApp('single-spa-vue-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/vue');
-    console.log('💚 Vue App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'vue',
+    () => loadApp('single-spa-vue-app'),
+    showWhenAuthenticatedAndPrefix(['/vue']),
 );
 
 singleSpa.registerApplication(
-  'react',
-  () => loadApp('single-spa-react-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/react');
-    console.log('⚛️ React App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'react',
+    () => loadApp('single-spa-react-app'),
+    showWhenAuthenticatedAndPrefix(['/react']),
 );
 
 singleSpa.registerApplication(
-  'vanilla',
-  () => loadApp('single-spa-vanilla-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/vanilla');
-    console.log('🍦 Vanilla App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'vanilla',
+    () => loadApp('single-spa-vanilla-app'),
+    showWhenAuthenticatedAndPrefix(['/vanilla']),
 );
 
 singleSpa.registerApplication(
-  'webcomponents',
-  () => loadApp('single-spa-webcomponents-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/webcomponents');
-    console.log('🧩 WebComponents App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'webcomponents',
+    () => loadApp('single-spa-webcomponents-app'),
+    showWhenAuthenticatedAndPrefix(['/webcomponents']),
 );
 
 singleSpa.registerApplication(
-  'typescript',
-  () => loadApp('single-spa-typescript-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/typescript');
-    console.log('📘 TypeScript App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'typescript',
+    () => loadApp('single-spa-typescript-app'),
+    showWhenAuthenticatedAndPrefix(['/typescript']),
 );
 
 singleSpa.registerApplication(
-  'jquery',
-  () => loadApp('single-spa-jquery-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/jquery');
-    console.log('💎 jQuery App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'jquery',
+    () => loadApp('single-spa-jquery-app'),
+    showWhenAuthenticatedAndPrefix(['/jquery']),
 );
 
 singleSpa.registerApplication(
-  'svelte',
-  () => loadApp('single-spa-svelte-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/svelte');
-    console.log('🔥 Svelte App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+    'svelte',
+    () => loadApp('single-spa-svelte-app'),
+    showWhenAuthenticatedAndPrefix(['/svelte']),
 );
 
 // Add event listeners to debug Single-SPA lifecycle
@@ -381,4 +393,3 @@ console.log('✅ Single-SPA started');
 
 // Log current location
 console.log('📍 Current location:', window.location.pathname);
-
