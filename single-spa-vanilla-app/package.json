@@ -1,0 +1,33 @@
+{
+  "name": "single-spa-vanilla-app",
+  "version": "0.1.0", "_trigger": "1756836062",
+  "description": "Vanilla JavaScript ES Module microfrontend for Single-SPA",
+  "main": "dist/single-spa-vanilla-app.js",
+  "type": "module",
+  "scripts": {
+    "build": "webpack --config webpack.config.cjs",
+    "build:dev": "webpack --config webpack.config.cjs --mode development",
+    "build:prod": "webpack --config webpack.config.cjs --mode production",
+    "start": "webpack serve --config webpack.config.cjs --mode development --port 4207",
+    "lint": "eslint src --ext .js --fix"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "babel-eslint": "^10.0.3",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
+    "babel-loader": "^8.0.6"
+  },
+  "dependencies": {
+    "single-spa": "^5.9.0",
+    "@fortawesome/fontawesome-svg-core": "1.2.27",
+    "@fortawesome/free-brands-svg-icons": "5.12.1",
+    "@fortawesome/free-solid-svg-icons": "5.12.0"
+  }
+}

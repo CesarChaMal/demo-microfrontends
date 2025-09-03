@@ -1,0 +1,163 @@
+name: Deploy to GitHub Pages (Manual)
+
+on:
+  workflow_dispatch:
+
+env:
+  GITHUB_USERNAME: ${{ github.repository_owner }}
+  ORG_NAME: ${{ secrets.ORG_NAME || github.repository_owner }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--openssl-legacy-provider"
+    strategy:
+      matrix:
+        app:
+          - { name: "single-spa-auth-app", bundle: "single-spa-auth-app.umd.js" }
+          - { name: "single-spa-layout-app", bundle: "single-spa-layout-app.umd.js" }
+          - { name: "single-spa-home-app", bundle: "single-spa-home-app.js" }
+          - { name: "single-spa-angular-app", bundle: "single-spa-angular-app.js" }
+          - { name: "single-spa-vue-app", bundle: "single-spa-vue-app.umd.js" }
+          - { name: "single-spa-react-app", bundle: "single-spa-react-app.js" }
+          - { name: "single-spa-vanilla-app", bundle: "single-spa-vanilla-app.js" }
+          - { name: "single-spa-webcomponents-app", bundle: "single-spa-webcomponents-app.js" }
+          - { name: "single-spa-typescript-app", bundle: "single-spa-typescript-app.js" }
+          - { name: "single-spa-jquery-app", bundle: "single-spa-jquery-app.js" }
+          - { name: "single-spa-svelte-app", bundle: "single-spa-svelte-app.js" }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.20.8'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.app.name }}/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd ${{ matrix.app.name }}
+          npm install --legacy-peer-deps
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
+
+      - name: Build application
+        run: |
+          cd ${{ matrix.app.name }}
+          export NODE_OPTIONS="--openssl-legacy-provider"
+          npm run build:prod
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
+
+      - name: Deploy to GitHub Pages
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
+          APP_NAME: ${{ matrix.app.name }}
+          BUNDLE_FILE: ${{ matrix.app.bundle }}
+        run: |
+          # Debug: Check if token is available
+          echo "🔍 Debug: GITHUB_API_TOKEN length: ${#GITHUB_API_TOKEN}"
+          if [ -z "$GITHUB_API_TOKEN" ]; then
+            echo "❌ GH_API_TOKEN secret is empty or not set"
+            echo "📝 Please check: https://github.com/${{ github.repository_owner }}/demo-microfrontends/settings/secrets/actions"
+            exit 1
+          fi
+          
+          cd ${{ matrix.app.name }}
+          
+          # Configure git
+          git config --global user.name "Cesar Francisco Chavez Maldonado - GitHub Actions"
+          git config --global user.email "cesarchamal@gmail.com"
+          
+          # Initialize repo if needed
+          if [ ! -d ".git" ]; then
+            git init
+            git branch -M main
+          fi
+          
+          # Set up remote with token
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "https://x-access-token:${{ secrets.GH_API_TOKEN }}@github.com/${{ github.repository_owner }}/${{ matrix.app.name }}.git"
+          
+          # Copy dist to root for GitHub Pages
+          cp -r dist/* .
+          git add .
+          git commit -m "Deploy to GitHub Pages" || echo "No changes"
+          
+          # Push to main branch
+          git push -u origin main --force
+
+      - name: Update import map
+        env:
+          APP_NAME: ${{ matrix.app.name }}
+          BUNDLE_FILE: ${{ matrix.app.bundle }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+          ORG_NAME: ${{ env.ORG_NAME }}
+        run: |
+          node scripts/update-importmap-github.mjs
+
+  deploy-root:
+    needs: deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.20.8'
+          cache: 'npm'
+          cache-dependency-path: single-spa-root/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd single-spa-root
+          npm install --legacy-peer-deps
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
+
+      - name: Build root application
+        run: |
+          cd single-spa-root
+          export NODE_OPTIONS="--openssl-legacy-provider"
+          npm run build
+        env:
+          NODE_OPTIONS: "--openssl-legacy-provider"
+
+      - name: Deploy root to GitHub Pages
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
+        run: |
+          # Debug: Check if token is available
+          echo "🔍 Debug: GITHUB_API_TOKEN length: ${#GITHUB_API_TOKEN}"
+          if [ -z "$GITHUB_API_TOKEN" ]; then
+            echo "❌ GH_API_TOKEN secret is empty or not set"
+            echo "📝 Please check: https://github.com/${{ github.repository_owner }}/demo-microfrontends/settings/secrets/actions"
+            exit 1
+          fi
+          
+          cd single-spa-root
+          
+          # Configure git
+          git config --global user.name "Cesar Francisco Chavez Maldonado - GitHub Actions"
+          git config --global user.email "cesarchamal@gmail.com"
+          
+          # Set up remote with token
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "https://x-access-token:${{ secrets.GH_API_TOKEN }}@github.com/${{ github.repository_owner }}/demo-microfrontends.git"
+          
+          # Deploy to gh-pages branch
+          git checkout -B gh-pages
+          cp -r dist/* .
+          cp ../importmap.json .
+          git add .
+          git commit -m "Deploy root app to GitHub Pages" || echo "No changes"
+          
+          # Push to gh-pages branch
+          git push -u origin gh-pages --force

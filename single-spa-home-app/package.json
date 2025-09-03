@@ -1,0 +1,52 @@
+{
+  "name": "single-spa-home-app",
+  "version": "0.1.4", "_trigger": "1756836062",
+  "description": "AngularJS application with home page for be included in a single-spa application as registered app.",
+  "main": "dist/single-spa-home-app.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "build:dev": "webpack --config webpack.config.js --mode development",
+    "build:prod": "webpack --config webpack.config.js --mode production",
+    "lint": "eslint . --ext .js --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cesarchamal/single-spa-home-app.git"
+  },
+  "author": "Cesar Francisco Chavez Maldonado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-home-app/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-home-app#readme",
+  "dependencies": {
+    "angular": "1.8.0",
+    "angular-ui-router": "1.0.25",
+    "single-spa-angularjs": "3.1.0",
+    "@fortawesome/fontawesome-svg-core": "1.2.27",
+    "@fortawesome/free-brands-svg-icons": "5.12.1",
+    "@fortawesome/free-solid-svg-icons": "5.12.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.8.4",
+    "babel-eslint": "10.0.3",
+    "babel-loader": "8.0.6",
+    "clean-webpack-plugin": "3.0.0",
+    "copy-webpack-plugin": "5.1.1",
+    "eslint": "6.8.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-loader": "3.0.3",
+    "eslint-plugin-import": "2.22.1",
+    "html-loader": "0.5.5",
+    "html-webpack-plugin": "3.2.0",
+    "webpack": "4.41.5",
+    "webpack-cli": "3.3.10",
+    "webpack-dev-server": "3.11.0"
+  },
+  "keywords": [
+    "single-spa",
+    "angularjs",
+    "npm",
+    "webpack"
+  ]
+}
