@@ -3,10 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
-  
-  return {
+module.exports = {
   entry: {
     'root-application': 'root-application-dynamic.js',
   },
@@ -49,8 +46,8 @@ module.exports = (env, argv) => {
     new CopyWebpackPlugin([
       {
         from: path.resolve(
-          __dirname,
-          'node_modules/single-spa-layout-app/dist/img',
+            __dirname,
+            'node_modules/single-spa-layout-app/dist/img',
         ),
         to: path.resolve(__dirname, 'dist/img'),
       },
@@ -60,7 +57,7 @@ module.exports = (env, argv) => {
       inject: false,
     }),
   ],
-  devtool: isProduction ? false : 'source-map',
+  devtool: 'source-map',
   devServer: {
     historyApiFallback: true,
     writeToDisk: true,
@@ -68,5 +65,4 @@ module.exports = (env, argv) => {
       'Access-Control-Allow-Origin': '*',
     },
   },
-  };
 };

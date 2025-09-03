@@ -22,8 +22,7 @@ module.exports = {
       }),
     ],
     externals: {
-      vue: 'Vue',
-      'vue-router': 'VueRouter',
+      'vue': 'Vue',
       'single-spa-vue': 'singleSpaVue',
       'bootstrap-vue': 'BootstrapVue'
     },

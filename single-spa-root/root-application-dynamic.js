@@ -66,11 +66,6 @@ function createGitHubRepos() {
     });
 }
 
-/*
-function isAuthenticated() {
-  return sessionStorage.getItem('token') !== null;
-}
-
 function showWhenAnyOf(routes) {
   return function (location) {
     return routes.some((route) => location.pathname === route);
@@ -88,7 +83,6 @@ function showExcept(routes) {
     return routes.every((route) => location.pathname !== route);
   };
 }
-*/
 
 // Simplified authentication - just show apps based on routes, not auth state
 // This removes the complex authentication logic that was causing issues
@@ -260,6 +254,9 @@ switch (mode) {
           lifecycles = module;
         } else if (module.default && module.default.bootstrap) {
           lifecycles = module.default;
+        } else if (window['single-spa-layout-app']) {
+          // Check if it's exposed on window (UMD)
+          lifecycles = window['single-spa-layout-app'];
         } else if (window[name.replace(/-/g, '')]) {
           // Check if it's exposed on window (UMD)
           const globalName = name.replace(/-/g, '');
@@ -289,111 +286,67 @@ switch (mode) {
 singleSpa.registerApplication(
   'login',
   () => loadApp('single-spa-auth-app'),
-  (location) => {
-    const shouldShow = location.pathname === '/login';
-    console.log('🔐 Auth App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenAnyOf(['/login']),
 );
 
 singleSpa.registerApplication(
   'layout',
   () => loadApp('single-spa-layout-app'),
-  (location) => {
-    const shouldShow = location.pathname !== '/login';
-    console.log('🎨 Layout App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showExcept(['/login']),
 );
 
 singleSpa.registerApplication(
   'home',
   () => loadApp('single-spa-home-app'),
-  (location) => {
-    const shouldShow = location.pathname === '/';
-    console.log('🏠 Home App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenAnyOf(['/']),
 );
 
 singleSpa.registerApplication(
   'angular',
   () => loadApp('single-spa-angular-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/angular');
-    console.log('🅰️ Angular App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/angular']),
 );
 
 singleSpa.registerApplication(
   'vue',
   () => loadApp('single-spa-vue-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/vue');
-    console.log('💚 Vue App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/vue']),
 );
 
 singleSpa.registerApplication(
   'react',
   () => loadApp('single-spa-react-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/react');
-    console.log('⚛️ React App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/react']),
 );
 
 singleSpa.registerApplication(
   'vanilla',
   () => loadApp('single-spa-vanilla-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/vanilla');
-    console.log('🍦 Vanilla App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/vanilla']),
 );
 
 singleSpa.registerApplication(
   'webcomponents',
   () => loadApp('single-spa-webcomponents-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/webcomponents');
-    console.log('🧩 WebComponents App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/webcomponents']),
 );
 
 singleSpa.registerApplication(
   'typescript',
   () => loadApp('single-spa-typescript-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/typescript');
-    console.log('📘 TypeScript App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/typescript']),
 );
 
 singleSpa.registerApplication(
   'jquery',
   () => loadApp('single-spa-jquery-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/jquery');
-    console.log('💎 jQuery App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/jquery']),
 );
 
 singleSpa.registerApplication(
   'svelte',
   () => loadApp('single-spa-svelte-app'),
-  (location) => {
-    const shouldShow = location.pathname.startsWith('/svelte');
-    console.log('🔥 Svelte App - Location:', location.pathname, 'Should show:', shouldShow);
-    return shouldShow;
-  },
+  showWhenPrefix(['/svelte']),
 );
 
 // Add event listeners to debug Single-SPA lifecycle

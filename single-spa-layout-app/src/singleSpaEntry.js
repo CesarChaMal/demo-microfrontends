@@ -31,46 +31,31 @@ const vueLifecycles = singleSpaVue({
   },
 });
 
-// Wrap lifecycle functions with debug logging
 /*
-const debugBootstrap = (props) => {
+// Add debug logging to original functions
+const originalBootstrap = vueLifecycles.bootstrap;
+const originalMount = vueLifecycles.mount;
+const originalUnmount = vueLifecycles.unmount;
+
+vueLifecycles.bootstrap = function (props) {
   console.log('🎨 Layout App bootstrapping with props:', props);
-  return vueLifecycles.bootstrap(props);
+  return originalBootstrap.call(this, props);
 };
-const debugMount = (props) => {
+
+vueLifecycles.mount = function (props) {
   console.log('🎨 Layout App mounting with props:', props);
-  return vueLifecycles.mount(props);
+  return originalMount.call(this, props);
 };
-const debugUnmount = (props) => {
+
+vueLifecycles.unmount = function (props) {
   console.log('🎨 Layout App unmounting');
-  return vueLifecycles.unmount(props);
-};
-
-// Export lifecycle functions as named exports
-export const bootstrap = debugBootstrap;
-export const mount = debugMount;
-export const unmount = debugUnmount;
-
-// For UMD builds, expose on window
-if (typeof window !== 'undefined') {
-  window['single-spa-layout-app'] = {
-    bootstrap: debugBootstrap,
-    mount: debugMount,
-    unmount: debugUnmount,
-  };
-}
-
-// Default export for UMD builds
-export default {
-  bootstrap: debugBootstrap,
-  mount: debugMount,
-  unmount: debugUnmount,
+  return originalUnmount.call(this, props);
 };
 */
 
-export const { bootstrap } = vueLifecycles;
-export const { mount } = vueLifecycles;
-export const { unmount } = vueLifecycles;
+export const bootstrap = vueLifecycles.bootstrap;
+export const mount = vueLifecycles.mount;
+export const unmount = vueLifecycles.unmount;
 
 // For UMD builds, expose on window
 if (typeof window !== 'undefined') {
