@@ -98,9 +98,9 @@ exec_npm npm run install:all
 if [ "$ENV" = "prod" ]; then
     echo "🔨 Building all applications for production..."
     exec_npm npm run build:prod
-#else
-#    echo "🔨 Building all applications for development..."
-#    exec_npm npm run build:dev
+else
+    echo "🔨 Building all applications for development..."
+    exec_npm npm run build:dev
 fi
 
 # Define startup behavior based on mode and environment
@@ -132,129 +132,162 @@ start_local() {
 start_github() {
     echo "🔍 DEBUG: GitHub mode - ENV=$ENV, GITHUB_TOKEN=${GITHUB_TOKEN:+SET}, GITHUB_USERNAME=${GITHUB_USERNAME:-NOT_SET}"
     
-    if [ "$ENV" = "prod" ]; then
-        echo "🔧 GitHub production: Deploying all microfrontends to GitHub Pages"
-        
-        # Check prerequisites
-        if [ -z "$GITHUB_TOKEN" ]; then
-            echo "❌ Error: GITHUB_TOKEN not set in .env"
-            exit 1
-        fi
-        
-        # Deploy each microfrontend using existing scripts
-        APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
-        
-        for app in "${APPS[@]}"; do
-            echo "📤 Deploying $app app to GitHub Pages..."
-            echo "🔍 DEBUG: Running ./scripts/deploy-github.sh single-spa-${app}-app"
-            if ./scripts/deploy-github.sh single-spa-${app}-app; then
-                echo "✅ $app deployment successful"
-            else
-                echo "❌ $app deployment failed"
-                exit 1
-            fi
-        done
-        
-        # Deploy root application
-        echo "📤 Deploying root application to GitHub Pages..."
-        echo "🔍 DEBUG: Running ./scripts/deploy-github.sh root"
-        if ./scripts/deploy-github.sh root; then
-            echo "✅ Root deployment successful"
-        else
-            echo "❌ Root deployment failed"
-            exit 1
-        fi
-        
-        echo "✅ All deployments complete!"
-        echo "🌐 Main application: http://localhost:8080?mode=github"
-        exec_npm npm run serve:root -- --env.mode=github
-    else
-        echo "📖 GitHub development: Reading from existing GitHub Pages"
-        echo "🔍 DEBUG: GitHub username: ${GITHUB_USERNAME:-cesarchamal}"
-        echo "🌐 Main application: http://localhost:8080?mode=github"
-        exec_npm npm run serve:root -- --env.mode=github
+    # Check prerequisites for both dev and prod
+    if [ -z "$GITHUB_TOKEN" ]; then
+        echo "❌ Error: GITHUB_TOKEN not set in .env"
+        exit 1
     fi
+    
+    # Deploy all microfrontends to GitHub Pages in both dev and prod
+    echo "🚀 GitHub mode: Deploying all microfrontends to GitHub Pages"
+    
+    # Deploy each microfrontend using existing scripts
+    APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
+    
+    for app in "${APPS[@]}"; do
+        echo "📤 Deploying $app app to GitHub Pages..."
+        echo "🔍 DEBUG: Running npm run deploy:github:$app"
+        if npm run deploy:github:$app; then
+            echo "✅ $app deployment successful"
+        else
+            echo "❌ $app deployment failed"
+            exit 1
+        fi
+    done
+    
+    # Deploy root application
+    echo "📤 Deploying root application to GitHub Pages..."
+    echo "🔍 DEBUG: Running npm run deploy:github:root"
+    if npm run deploy:github:root; then
+        echo "✅ Root deployment successful"
+    else
+        echo "❌ Root deployment failed"
+        exit 1
+    fi
+    
+    echo "✅ All deployments complete!"
+    echo "🌐 Main application: http://localhost:8080?mode=github"
+    
+    if [ "$ENV" = "prod" ]; then
+        echo "🌍 Public GitHub Pages: https://${GITHUB_USERNAME:-cesarchamal}.github.io/single-spa-root/"
+        echo "🌐 Production: Both local server AND public GitHub Pages available"
+    else
+        echo "📖 Development: Local server with GitHub Pages deployment"
+    fi
+    
+    echo "🔍 DEBUG: GitHub username: ${GITHUB_USERNAME:-cesarchamal}"
+    exec_npm npm run serve:root -- --env.mode=github
 }
 
 start_aws() {
     echo "🔍 DEBUG: AWS mode - ENV=$ENV, S3_BUCKET=${S3_BUCKET:-NOT_SET}, AWS_REGION=${AWS_REGION:-NOT_SET}, ORG_NAME=${ORG_NAME:-NOT_SET}"
     
-    if [ "$ENV" = "prod" ]; then
-        echo "🚀 AWS production: Deploying all microfrontends to S3"
-        
-        # Check prerequisites
-        if [ -z "$S3_BUCKET" ]; then
-            echo "❌ Error: S3_BUCKET not set in .env"
-            exit 1
-        fi
-        if [ -z "$AWS_REGION" ]; then
-            echo "❌ Error: AWS_REGION not set in .env"
-            exit 1
-        fi
-        
-        # Deploy all microfrontends to S3 using existing script
-        echo "🔍 DEBUG: Running ./scripts/deploy-s3.sh prod"
-        if ./scripts/deploy-s3.sh prod; then
-            echo "✅ S3 deployment successful"
-        else
-            echo "❌ S3 deployment failed"
-            exit 1
-        fi
-        
-        echo "✅ S3 deployment complete!"
-        echo "🌐 Main application: http://localhost:8080?mode=aws"
-        echo "🌍 Public S3 Website: ${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com}"
-        exec_npm npm run serve:root -- --env.mode=aws
-    else
-        echo "☁️ AWS development: Reading from S3"
-        echo "🔍 DEBUG: Import map URL: https://${S3_BUCKET:-single-spa-demo-774145483743}.s3.${AWS_REGION:-eu-central-1}.amazonaws.com/@${ORG_NAME:-cesarchamal}/importmap.json"
-        echo "🌐 Main application: http://localhost:8080?mode=aws"
-        [ -n "$S3_WEBSITE_URL" ] && echo "🌍 Public S3 Website: $S3_WEBSITE_URL"
-        exec_npm npm run serve:root -- --env.mode=aws
+    # Check prerequisites for both dev and prod
+    if [ -z "$S3_BUCKET" ]; then
+        echo "❌ Error: S3_BUCKET not set in .env"
+        exit 1
     fi
+    if [ -z "$AWS_REGION" ]; then
+        echo "❌ Error: AWS_REGION not set in .env"
+        exit 1
+    fi
+    
+    # Deploy all microfrontends to S3 in both dev and prod
+    echo "🚀 AWS mode: Deploying all microfrontends to S3"
+    echo "🔍 DEBUG: Running npm run deploy:s3:$ENV"
+    if npm run deploy:s3:$ENV; then
+        echo "✅ S3 deployment successful"
+    else
+        echo "❌ S3 deployment failed"
+        exit 1
+    fi
+    
+    echo "✅ S3 deployment complete!"
+    echo "🌐 Main application: http://localhost:8080?mode=aws"
+    
+    if [ "$ENV" = "prod" ]; then
+        echo "🌍 Public S3 Website: ${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com}"
+        echo "🌐 Production: Both local server AND public website available"
+    else
+        echo "📖 Development: Local server with S3 deployment"
+    fi
+    
+    echo "🔍 DEBUG: Import map URL: https://${S3_BUCKET:-single-spa-demo-774145483743}.s3.${AWS_REGION:-eu-central-1}.amazonaws.com/@${ORG_NAME:-cesarchamal}/importmap.json"
+    exec_npm npm run serve:root -- --env.mode=aws
 }
 
 start_npm() {
     echo "🔍 DEBUG: NPM mode - ENV=$ENV, NPM_TOKEN=${NPM_TOKEN:+SET}"
     
+    # Check if user is logged in to NPM for both dev and prod
+    if ! npm whoami >/dev/null 2>&1; then
+        echo "❌ Error: Not logged in to NPM. Run 'npm login' first"
+        exit 1
+    fi
+    
+    echo "🔍 DEBUG: NPM user: $(npm whoami)"
+    
+    # Publish packages (microfrontends + root app in prod)
+    echo "📦 NPM mode: Publishing packages to NPM"
     if [ "$ENV" = "prod" ]; then
-        echo "📦 NPM production: Publishing all packages to NPM"
-        
-        # Check if user is logged in to NPM
-        if ! npm whoami >/dev/null 2>&1; then
-            echo "❌ Error: Not logged in to NPM. Run 'npm login' first"
-            exit 1
-        fi
-        
-        echo "🔍 DEBUG: NPM user: $(npm whoami)"
-        
-        # Publish all packages using existing script
-        echo "🔍 DEBUG: Running ./scripts/publish-all.sh patch"
-        if ./scripts/publish-all.sh patch; then
+        echo "🔍 DEBUG: Running npm run publish:npm:prod"
+        if npm run publish:npm:prod; then
             echo "✅ NPM publishing successful"
+            echo "🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root"
+            echo "🌐 Production: Local server + root app available on NPM registry"
         else
             echo "❌ NPM publishing failed"
             exit 1
         fi
-        
-        echo "✅ NPM publishing complete!"
-        echo "📦 Switching to NPM mode and starting server..."
-        npm run mode:npm
-        echo "🌐 Main application: http://localhost:8080?mode=npm"
-        exec_npm npm run serve:npm
     else
-        echo "📦 NPM development: Using existing NPM packages"
-        echo "🔍 DEBUG: Switching to NPM mode"
-        npm run mode:npm
-        echo "🌐 Main application: http://localhost:8080?mode=npm"
-        exec_npm npm run serve:npm
+        echo "🔍 DEBUG: Running npm run publish:npm:dev"
+        if npm run publish:npm:dev; then
+            echo "✅ NPM publishing successful"
+            echo "📖 Development: Local server loading microfrontends from NPM registry"
+        else
+            echo "❌ NPM publishing failed"
+            exit 1
+        fi
     fi
+    
+    # Switch to NPM mode and start server for both dev and prod
+    echo "📦 Switching to NPM mode and starting server..."
+    echo "🔍 DEBUG: Switching to NPM mode"
+    npm run mode:npm
+    
+    echo "✅ NPM mode setup complete!"
+    echo "🌐 Main application: http://localhost:8080?mode=npm"
+    echo "🔍 DEBUG: Loading microfrontends from NPM: @cesarchamal/single-spa-*"
+    exec_npm npm run serve:npm
 }
 
 start_nexus() {
     echo "🔍 DEBUG: Nexus mode - ENV=$ENV, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
     echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
     echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
+    
+    # Publish packages (microfrontends + root app in prod)
+    echo "📦 Nexus mode: Publishing packages to Nexus registry"
+    if [ "$ENV" = "prod" ]; then
+        echo "🔍 DEBUG: Running npm run publish:nexus:prod"
+        if npm run publish:nexus:prod; then
+            echo "✅ Nexus publishing successful"
+            echo "🌍 Public Nexus Package: Available on Nexus registry"
+            echo "🌐 Production: Local server + root app available on Nexus registry"
+        else
+            echo "❌ Nexus publishing failed"
+            exit 1
+        fi
+    else
+        echo "🔍 DEBUG: Running npm run publish:nexus:dev"
+        if npm run publish:nexus:dev; then
+            echo "✅ Nexus publishing successful"
+            echo "📖 Development: Local server loading microfrontends from Nexus registry"
+        else
+            echo "❌ Nexus publishing failed"
+            exit 1
+        fi
+    fi
     
     echo "📦 Using Nexus packages for microfrontends"
     echo "🔍 DEBUG: Loading @cesarchamal scoped packages from Nexus registry"

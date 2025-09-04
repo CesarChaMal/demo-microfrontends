@@ -121,32 +121,90 @@ if "%MODE%"=="local" (
         echo.
         if "%MODE%"=="npm" (
             echo 🔍 DEBUG: NPM mode - ENV=%ENV%
-            npm whoami >nul 2>&1 && echo 🔍 DEBUG: NPM user logged in || echo 🔍 DEBUG: NPM user not logged in
+            echo 📦 NPM mode: Publishing packages to NPM registry
+            if "%ENV%"=="prod" (
+                echo 🔍 DEBUG: Running npm run publish:npm:prod
+                call npm run publish:npm:prod
+            ) else (
+                echo 🔍 DEBUG: Running npm run publish:npm:dev
+                call npm run publish:npm:dev
+            )
+            if errorlevel 1 (
+                echo ❌ NPM publishing failed
+                exit /b 1
+            )
+            echo ✅ NPM publishing successful
+            if "%ENV%"=="prod" (
+                echo 🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root
+                echo 🌐 Production: Local server + root app available on NPM registry
+            ) else (
+                echo 📖 Development: Local server loading microfrontends from NPM registry
+            )
             echo 📦 Switching to NPM mode and starting server...
             call npm run mode:npm
             if errorlevel 1 exit /b 1
-            echo Using NPM packages for microfrontends
         )
         if "%MODE%"=="nexus" (
             echo 🔍 DEBUG: Nexus mode - ENV=%ENV%
-            echo 🔍 DEBUG: Loading @cesarchamal scoped packages from Nexus registry
-            echo Using Nexus private registry for microfrontends
+            echo 📦 Nexus mode: Publishing packages to Nexus registry
+            if "%ENV%"=="prod" (
+                echo 🔍 DEBUG: Running npm run publish:nexus:prod
+                call npm run publish:nexus:prod
+            ) else (
+                echo 🔍 DEBUG: Running npm run publish:nexus:dev
+                call npm run publish:nexus:dev
+            )
+            if errorlevel 1 (
+                echo ❌ Nexus publishing failed
+                exit /b 1
+            )
+            echo ✅ Nexus publishing successful
+            if "%ENV%"=="prod" (
+                echo 🌍 Public Nexus Package: Available on Nexus registry
+                echo 🌐 Production: Local server + root app available on Nexus registry
+            ) else (
+                echo 📖 Development: Local server loading microfrontends from Nexus registry
+            )
         )
         if "%MODE%"=="github" (
             echo 🔍 DEBUG: GitHub mode - ENV=%ENV%, GITHUB_USERNAME=%GITHUB_USERNAME%
-            echo Using GitHub Pages for microfrontends
+            echo 🚀 GitHub mode: Deploying all microfrontends to GitHub Pages
+            echo 🔍 DEBUG: Running GitHub deployment via npm scripts
+            REM Deploy each microfrontend using npm scripts
+            call npm run deploy:github:auth
+            call npm run deploy:github:layout
+            call npm run deploy:github:home
+            call npm run deploy:github:angular
+            call npm run deploy:github:vue
+            call npm run deploy:github:react
+            call npm run deploy:github:vanilla
+            call npm run deploy:github:webcomponents
+            call npm run deploy:github:typescript
+            call npm run deploy:github:jquery
+            call npm run deploy:github:svelte
+            call npm run deploy:github:root
+            if errorlevel 1 (
+                echo ❌ GitHub deployment failed
+                exit /b 1
+            )
+            echo ✅ GitHub deployment complete!
             if "%ENV%"=="prod" (
-                echo 🔧 Starting GitHub repository creation server for production...
-                start /b npm run serve:github
-                echo 📡 GitHub API server: http://localhost:3001
-                timeout /t 2 /nobreak >nul
-            ) else (
-                echo 📖 Development mode: Reading from existing GitHub Pages
+                echo 🌍 Public GitHub Pages available
             )
         )
         if "%MODE%"=="aws" (
             echo 🔍 DEBUG: AWS mode - ENV=%ENV%, S3_BUCKET=%S3_BUCKET%, AWS_REGION=%AWS_REGION%
-            echo Using AWS S3 for microfrontends
+            echo 🚀 AWS mode: Deploying all microfrontends to S3
+            echo 🔍 DEBUG: Running npm run deploy:s3:%ENV%
+            call npm run deploy:s3:%ENV%
+            if errorlevel 1 (
+                echo ❌ S3 deployment failed
+                exit /b 1
+            )
+            echo ✅ S3 deployment complete!
+            if "%ENV%"=="prod" (
+                echo 🌍 Public S3 Website available
+            )
         )
         echo.
         echo Press Ctrl+C to stop

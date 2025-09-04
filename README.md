@@ -227,7 +227,8 @@ run.bat local prod
 - `github-repo-server.js` - GitHub API server for repository management
 - `switch-mode.js` - Mode switching utility (local/npm/github/aws)
 - `version-manager.js` - Centralized version management
-- `publish-all.sh` / `publish-all.bat` - NPM publishing automation
+- `publish-npm.sh` / `publish-npm.bat` - NPM publishing automation
+- `publish-nexus.sh` / `publish-nexus.bat` - Nexus publishing automation
 - `setup-s3.sh` / `setup-s3.bat` - S3 bucket setup and configuration
 - `trigger-*.sh` / `trigger-*.bat` - GitHub Actions deployment triggers
 - `update-importmap.mjs` - Import map management for deployments
@@ -275,10 +276,28 @@ npm run build
 - `npm run version:clean` - Remove _trigger fields from packages
 
 ### Publishing Scripts
-- `npm run publish:patch` - Bump patch version and publish all packages
-- `npm run publish:minor` - Bump minor version and publish all packages
-- `npm run publish:major` - Bump major version and publish all packages
-- `npm run publish:all` - Publish all packages (no version bump)
+
+#### NPM Registry Publishing
+- `npm run publish:npm` - Publish to NPM (default: patch version, dev environment)
+- `npm run publish:npm:patch` - Publish to NPM with patch version bump
+- `npm run publish:npm:minor` - Publish to NPM with minor version bump
+- `npm run publish:npm:major` - Publish to NPM with major version bump
+- `npm run publish:npm:dev` - Publish to NPM in dev mode (microfrontends only)
+- `npm run publish:npm:prod` - Publish to NPM in prod mode (microfrontends + root app)
+
+#### Nexus Registry Publishing
+- `npm run publish:nexus` - Publish to Nexus (default: patch version, dev environment)
+- `npm run publish:nexus:patch` - Publish to Nexus with patch version bump
+- `npm run publish:nexus:minor` - Publish to Nexus with minor version bump
+- `npm run publish:nexus:major` - Publish to Nexus with major version bump
+- `npm run publish:nexus:dev` - Publish to Nexus in dev mode (microfrontends only)
+- `npm run publish:nexus:prod` - Publish to Nexus in prod mode (microfrontends + root app)
+
+#### Backward-Compatible Aliases
+- `npm run publish:all` - Publish all packages to NPM (alias for publish:npm)
+- `npm run publish:patch` - Bump patch version and publish to NPM
+- `npm run publish:minor` - Bump minor version and publish to NPM
+- `npm run publish:major` - Bump major version and publish to NPM
 
 ### Root Project Scripts
 - `npm run install:all` - Install dependencies for all applications
@@ -568,14 +587,23 @@ This project supports publishing all microfrontends as NPM packages for distribu
 # 1. Login to NPM
 npm login
 
-# 2. Publish all packages with version bump
-npm run publish:patch    # Bug fixes (0.1.0 → 0.1.1)
-npm run publish:minor    # New features (0.1.0 → 0.2.0)
-npm run publish:major    # Breaking changes (0.1.0 → 1.0.0)
+# 2. Publish packages with version bump
+# NPM Registry
+npm run publish:npm:patch    # Bug fixes (0.1.0 → 0.1.1)
+npm run publish:npm:minor    # New features (0.1.0 → 0.2.0)
+npm run publish:npm:major    # Breaking changes (0.1.0 → 1.0.0)
 
-# 3. Switch to NPM mode to test published packages
-npm run mode:npm
+# Nexus Registry (requires Nexus configuration)
+npm run publish:nexus:patch  # Bug fixes to Nexus
+npm run publish:nexus:minor  # New features to Nexus
+npm run publish:nexus:major  # Breaking changes to Nexus
+
+# 3. Switch to registry mode to test published packages
+npm run mode:npm      # Test NPM packages
 npm run serve:npm
+# OR
+npm run mode:nexus    # Test Nexus packages
+npm run serve:nexus
 ```
 
 ### Published Packages
@@ -608,7 +636,11 @@ npm run version:bump:patch
 npm run version:set 2.0.0
 
 # Publishing automatically handles versioning
-npm run publish:minor  # Bumps version + publishes
+npm run publish:npm:minor    # Bumps version + publishes to NPM
+npm run publish:nexus:minor  # Bumps version + publishes to Nexus
+
+# Backward-compatible aliases (default to NPM)
+npm run publish:minor        # Bumps version + publishes to NPM
 ```
 
 ### Mode Switching

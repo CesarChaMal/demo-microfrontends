@@ -62,22 +62,26 @@ version-manager.bat clean
 The publishing scripts automatically handle version management:
 
 ```bash
-# Publish with patch version bump
-npm run publish:patch
-./publish-all.sh patch
+# NPM Registry Publishing
+npm run publish:npm:patch    # Patch version to NPM
+npm run publish:npm:minor    # Minor version to NPM
+npm run publish:npm:major    # Major version to NPM
+./scripts/publish-npm.sh patch
 
-# Publish with minor version bump
-npm run publish:minor
-./publish-all.sh minor
-
-# Publish with major version bump
-npm run publish:major
-./publish-all.sh major
+# Nexus Registry Publishing
+npm run publish:nexus:patch  # Patch version to Nexus
+npm run publish:nexus:minor  # Minor version to Nexus
+npm run publish:nexus:major  # Major version to Nexus
+./scripts/publish-nexus.sh patch
 
 # Windows
-publish-all.bat patch
-publish-all.bat minor
-publish-all.bat major
+scripts\publish-npm.bat patch
+scripts\publish-nexus.bat patch
+
+# Backward-compatible aliases (default to NPM)
+npm run publish:patch        # Alias for publish:npm:patch
+npm run publish:minor        # Alias for publish:npm:minor
+npm run publish:major        # Alias for publish:npm:major
 ```
 
 ## 🔄 How It Works
@@ -126,12 +130,18 @@ git commit -m "feat: add new feature"
 
 ### 2. Version & Publish
 ```bash
-# Bump version and publish (all in one)
+# NPM Registry (all in one)
+npm run publish:npm:patch
+
+# Nexus Registry (all in one)
+npm run publish:nexus:patch
+
+# Backward-compatible (defaults to NPM)
 npm run publish:patch
 
 # Or step by step
 npm run version:bump:patch
-npm run publish:all
+npm run publish:npm  # or publish:nexus
 ```
 
 ### 3. Git Tagging (Optional)

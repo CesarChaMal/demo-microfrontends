@@ -1,27 +1,36 @@
 #!/bin/bash
 
-# NPM Publishing Script for All Microfrontends
-# Usage: ./publish-all.sh [version-type]
+# Nexus Publishing Script for All Microfrontends
+# Usage: ./publish-nexus.sh [version-type] [environment]
 # version-type: patch (default), minor, major
+# environment: dev (default), prod
 
-echo "🔍 DEBUG: NPM publish script started"
+echo "🔍 DEBUG: Nexus publish script started"
 echo "🔍 DEBUG: Arguments: $@"
 echo "🔍 DEBUG: Current directory: $(pwd)"
 echo "🔍 DEBUG: NPM version: $(npm --version)"
 echo "🔍 DEBUG: Node version: $(node --version)"
+echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
 echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
 
 VERSION_TYPE=${1:-patch}
+ENVIRONMENT=${2:-dev}
 
-echo "🚀 Publishing all microfrontends to NPM..."
+echo "🚀 Publishing to Nexus..."
 echo "📦 Version bump type: $VERSION_TYPE"
+echo "🌐 Environment: $ENVIRONMENT"
 echo ""
 echo "🔄 Publishing Workflow:"
-echo "  1. 📈 Bump version for all 13 packages"
+echo "  1. 📈 Bump version for all packages"
 echo "  2. 🔄 Sync cross-package dependencies"
 echo "  3. 🔨 Build each microfrontend"
-echo "  4. 📦 Publish to NPM registry"
-echo "  5. ✅ Verify successful publishing"
+echo "  4. 📦 Publish microfrontends to Nexus registry"
+if [ "$ENVIRONMENT" = "prod" ]; then
+    echo "  5. 📦 Publish root app to Nexus registry (prod only)"
+    echo "  6. ✅ Verify successful publishing"
+else
+    echo "  5. ✅ Verify successful publishing"
+fi
 echo ""
 
 # Centralized version management
@@ -36,7 +45,7 @@ fi
 NEW_VERSION=$(node -e "console.log(require('./package.json').version)")
 echo "📋 New version: $NEW_VERSION"
 
-# Array of all microfrontend directories
+# Array of microfrontend directories (excluding root app)
 APPS=(
   "single-spa-auth-app"
   "single-spa-layout-app"
@@ -49,11 +58,10 @@ APPS=(
   "single-spa-typescript-app"
   "single-spa-jquery-app"
   "single-spa-svelte-app"
-  "single-spa-root"
 )
 
-# Main package (commented out for now)
-# MAIN_PACKAGE="."
+# Main package (root app) - handled separately in prod mode
+# MAIN_PACKAGE="single-spa-root"
 
 # Function to publish a single app
 publish_app() {
@@ -93,8 +101,8 @@ publish_app() {
     return 1
   fi
   
-  # Actual publish
-  echo "🚀 Publishing $app_dir to NPM..."
+  # Actual publish to Nexus
+  echo "🚀 Publishing $app_dir to Nexus..."
   npm publish
   
   if [ $? -eq 0 ]; then
@@ -109,25 +117,31 @@ publish_app() {
 }
 
 # Main execution
-echo "🔍 Checking NPM authentication..."
+echo "🔍 Checking Nexus authentication..."
 npm whoami
 if [ $? -ne 0 ]; then
-  echo "❌ Not logged in to NPM. Please run 'npm login' first."
+  echo "❌ Not logged in to Nexus. Please configure NPM registry and authenticate first."
+  echo "💡 Example: npm config set registry https://your-nexus-registry.com/repository/npm-group/"
   exit 1
 fi
 
 echo ""
-echo "📋 Apps to publish (13 packages):"
-echo "  📦 Main Package:"
-echo "    - demo-microfrontends (main package - commented out)"
-echo "  🏠 Root Application:"
-echo "    - @cesarchamal/single-spa-root"
-echo "  📦 Microfrontend Applications:"
-for app in "${APPS[@]}"; do
-  if [ "$app" != "single-spa-root" ]; then
-    echo "    - @cesarchamal/$app"
-  fi
-done
+if [ "$ENVIRONMENT" = "prod" ]; then
+    echo "📋 Packages to publish (12 packages):"
+    echo "  📦 Microfrontend Applications (11):"
+    for app in "${APPS[@]}"; do
+        echo "    - @cesarchamal/$app"
+    done
+    echo "  📦 Root Application (1) - Main Package:"
+    echo "    - @cesarchamal/single-spa-root"
+else
+    echo "📋 Microfrontends to publish (11 packages):"
+    echo "  📦 Microfrontend Applications:"
+    for app in "${APPS[@]}"; do
+        echo "    - @cesarchamal/$app"
+    done
+    echo "  📝 Note: Main package (root app) not published in dev mode"
+fi
 echo ""
 echo "🔄 Version Synchronization:"
 echo "  - All packages will use the same version: $NEW_VERSION"
@@ -173,12 +187,47 @@ if [ ${#FAILED_APPS[@]} -gt 0 ]; then
     echo "  - @cesarchamal/$app"
   done
   exit 1
-else
-  echo ""
-  echo "🎉 All packages published successfully!"
-  echo ""
-  echo "📝 Next steps:"
-  echo "1. Update root application to use NPM mode"
-  echo "2. Test loading from NPM packages"
-  echo "3. Update documentation"
+fi
+
+# Publish root app in production mode
+if [ "$ENVIRONMENT" = "prod" ]; then
+    echo ""
+    echo "📦 Production mode: Publishing root app to Nexus for public access"
+    cd single-spa-root
+    echo "🔍 DEBUG: Publishing root app from $(pwd)"
+    
+    # Dry run first
+    echo "🧪 Dry run for root app..."
+    npm publish --dry-run
+    
+    if [ $? -ne 0 ]; then
+        echo "❌ Root app dry run failed"
+        cd ..
+        exit 1
+    fi
+    
+    # Actual publish
+    echo "🚀 Publishing root app to Nexus..."
+    npm publish
+    
+    if [ $? -eq 0 ]; then
+        echo "✅ Successfully published root app"
+        echo "🌍 Public Nexus Package: Available on Nexus registry"
+    else
+        echo "❌ Failed to publish root app"
+        cd ..
+        exit 1
+    fi
+    
+    cd ..
+fi
+
+echo ""
+echo "🎉 All packages published successfully!"
+echo ""
+echo "📝 Next steps:"
+echo "1. Switch to Nexus mode to test loading from Nexus packages"
+echo "2. Use 'npm run mode:nexus' to load microfrontends from registry"
+if [ "$ENVIRONMENT" = "prod" ]; then
+    echo "3. Root app is now publicly available on Nexus registry"
 fi

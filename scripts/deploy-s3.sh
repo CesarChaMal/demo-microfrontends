@@ -6,18 +6,45 @@
 
 set -euo pipefail
 
+echo "🔍 DEBUG: deploy-s3.sh script started"
+echo "🔍 DEBUG: Script path: $0"
+echo "🔍 DEBUG: Arguments: $@"
+echo "🔍 DEBUG: Current working directory: $(pwd)"
+echo "🔍 DEBUG: Script directory: $(dirname $0)"
+echo "🔍 DEBUG: User: $(whoami)"
+echo "🔍 DEBUG: Date: $(date)"
+
 # Load environment variables
+echo "🔍 DEBUG: Looking for .env file in current directory: $(pwd)"
 if [ -f ".env" ]; then
     echo "📄 Loading environment variables from .env..."
+    echo "🔍 DEBUG: .env file found, first 5 lines:"
+    grep -v '^#' ".env" | head -5
     export $(grep -v '^#' ".env" | xargs)
+    echo "🔍 DEBUG: Environment variables loaded"
+else
+    echo "🔍 DEBUG: .env file not found in $(pwd)"
+    echo "🔍 DEBUG: Checking parent directory for .env"
+    if [ -f "../.env" ]; then
+        echo "📄 Loading environment variables from ../.env..."
+        export $(grep -v '^#' "../.env" | xargs)
+    else
+        echo "⚠️ Warning: No .env file found"
+    fi
 fi
 
 ENV=${1:-dev}
 BUCKET_NAME=${S3_BUCKET}
 REGION=${AWS_REGION:-eu-central-1}
 
+echo "🔍 DEBUG: Parsed arguments - ENV=$ENV"
+echo "🔍 DEBUG: Environment variables - S3_BUCKET=${S3_BUCKET:-NOT_SET}, AWS_REGION=${AWS_REGION:-NOT_SET}, ORG_NAME=${ORG_NAME:-NOT_SET}"
+echo "🔍 DEBUG: Computed values - BUCKET_NAME=$BUCKET_NAME, REGION=$REGION"
+
 if [ -z "$BUCKET_NAME" ]; then
     echo "❌ Error: S3_BUCKET not set in .env"
+    echo "🔍 DEBUG: Available environment variables:"
+    env | grep -E '^(S3_|AWS_|ORG_)' || echo "No S3/AWS/ORG variables found"
     exit 1
 fi
 
@@ -79,17 +106,26 @@ fi
 
 # Build all applications
 echo "🔨 Building all applications for $ENV..."
+echo "🔍 DEBUG: About to run build command"
 if [ "$ENV" = "prod" ]; then
+    echo "🔍 DEBUG: Running npm run build:prod"
     npm run build:prod
 else
+    echo "🔍 DEBUG: Running npm run build:dev"
     npm run build:dev
 fi
+echo "🔍 DEBUG: Build command completed"
 
 # Build root application
 echo "🔨 Building root application..."
+echo "🔍 DEBUG: Changing to single-spa-root directory"
 cd single-spa-root
+echo "🔍 DEBUG: Current directory: $(pwd)"
+echo "🔍 DEBUG: Running npm run build in root app"
 npm run build
+echo "🔍 DEBUG: Root build completed, returning to parent directory"
 cd ..
+echo "🔍 DEBUG: Back in directory: $(pwd)"
 
 # Deploy root application to S3
 echo "📤 Deploying root application to S3..."
