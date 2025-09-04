@@ -230,7 +230,7 @@ switch (mode) {
     const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
     if (envEnvironment === 'prod') {
       // Production: Deploy everything to S3 + show public URL
-      console.log('🔧 AWS prod mode: Deploying all microfrontends to S3...');
+      console.log('🔧 AWS prod mode: Use ./scripts/deploy-s3.sh prod to deploy');
       console.log('🌍 Public S3 Website will be available at:');
       console.log(`   ${publicUrl}`);
       deployToAWS();

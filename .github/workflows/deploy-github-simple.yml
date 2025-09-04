@@ -44,21 +44,21 @@ jobs:
           fi
           
           # Make scripts executable
-          chmod +x ./deploy-github.sh
-          chmod +x ./create-github-repo.sh
+          chmod +x ./scripts/deploy-github.sh
+          chmod +x ./scripts/create-github-repo.sh
           
           # Deploy each microfrontend
-          ./deploy-github.sh single-spa-auth-app
-          ./deploy-github.sh single-spa-layout-app
-          ./deploy-github.sh single-spa-home-app
-          ./deploy-github.sh single-spa-angular-app
-          ./deploy-github.sh single-spa-vue-app
-          ./deploy-github.sh single-spa-react-app
-          ./deploy-github.sh single-spa-vanilla-app
-          ./deploy-github.sh single-spa-webcomponents-app
-          ./deploy-github.sh single-spa-typescript-app
-          ./deploy-github.sh single-spa-jquery-app
-          ./deploy-github.sh single-spa-svelte-app
+          ./scripts/deploy-github.sh single-spa-auth-app
+          ./scripts/deploy-github.sh single-spa-layout-app
+          ./scripts/deploy-github.sh single-spa-home-app
+          ./scripts/deploy-github.sh single-spa-angular-app
+          ./scripts/deploy-github.sh single-spa-vue-app
+          ./scripts/deploy-github.sh single-spa-react-app
+          ./scripts/deploy-github.sh single-spa-vanilla-app
+          ./scripts/deploy-github.sh single-spa-webcomponents-app
+          ./scripts/deploy-github.sh single-spa-typescript-app
+          ./scripts/deploy-github.sh single-spa-jquery-app
+          ./scripts/deploy-github.sh single-spa-svelte-app
           
           # Deploy root application
-          ./deploy-github.sh root
+          ./scripts/deploy-github.sh root
