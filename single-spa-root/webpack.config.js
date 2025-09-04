@@ -61,7 +61,7 @@ module.exports = (env, argv) => {
       'process.env.SPA_MODE': JSON.stringify(process.env.SPA_MODE || 'local'),
       'process.env.SPA_ENV': JSON.stringify(process.env.SPA_ENV || 'dev'),
       AWS_CONFIG: JSON.stringify({
-        bucket: process.env.S3_BUCKET,
+        s3Bucket: process.env.S3_BUCKET,
         region: process.env.AWS_REGION,
         orgName: process.env.ORG_NAME,
       }),

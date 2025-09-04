@@ -227,7 +227,7 @@ switch (mode) {
 
     // AWS - different behavior for dev vs prod
     const { S3_WEBSITE_URL } = window;
-    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
+    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
     if (envEnvironment === 'prod') {
       // Production: Deploy everything to S3 + show public URL
       console.log('🔧 AWS prod mode: Deploying all microfrontends to S3...');
