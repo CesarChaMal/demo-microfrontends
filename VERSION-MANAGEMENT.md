@@ -190,6 +190,6 @@ npm publish --dry-run
 ```bash
 # Clean and rebuild
 npm run clean
-npm run install
+npm run install:all
 npm run build:prod
 ```

@@ -70,7 +70,7 @@ These scripts will:
 Use this when you want to run everything locally with hot reload:
 
 ```bash
-npm run install:all   # Install root + all sub-app dependencies
+npm run install   # Install root + all sub-app dependencies
 npm run serve         # Start root app + all MFEs concurrently
 ```
 
@@ -105,7 +105,7 @@ npm start                       # Build and start production server
 
 ### Utility Scripts
 ```bash
-npm run install:all             # Install dependencies for all apps
+npm run install             # Install dependencies
 npm run lint-all:strict         # Lint all apps (strict mode)
 npm run lint-all:loose          # Lint all apps (loose mode)
 npm run clean                   # Clean all node_modules

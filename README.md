@@ -262,7 +262,7 @@ npm run build
 - `npm run publish:all` - Publish all packages (no version bump)
 
 ### Root Project Scripts
-- `npm run install` - Install dependencies for all applications
+- `npm run install:all` - Install dependencies for all applications
 - `npm run build` - Build all microfrontends
 - `npm run build:dev` - Build all microfrontends for development
 - `npm run build:prod` - Build all microfrontends for production
