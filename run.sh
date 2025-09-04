@@ -73,7 +73,7 @@ fi
 
 # Install root dependencies first (needed for rimraf)
 echo "📦 Installing root dependencies..."
-#exec_npm npm install
+exec_npm npm install
 
 # Clean all applications
 echo "🧹 Cleaning all applications..."
@@ -82,14 +82,14 @@ echo "🧹 Cleaning all applications..."
 
 # Install all dependencies
 echo "📦 Installing all dependencies..."
-#exec_npm npm run install
+exec_npm npm run install
 
 # Build applications based on environment
 if [ "$ENV" = "prod" ]; then
     echo "🔨 Building all applications for production..."
     exec_npm npm run build:prod
-else
-    echo "🔨 Building all applications for development..."
+#else
+#    echo "🔨 Building all applications for development..."
 #    exec_npm npm run build:dev
 fi
 
