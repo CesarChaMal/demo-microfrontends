@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-vue-app",
-  "version": "0.1.9", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-vue-app",
+  "version": "0.1.0",
   "description": "Vue application with two example pages for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-vue-app.umd.js",
   "scripts": {
@@ -49,6 +49,12 @@
     "url": "https://github.com/cesarchamal/single-spa-vue-app/issues"
   },
   "homepage": "https://github.com/cesarchamal/single-spa-vue-app#readme",
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "vue": "^2.6.11",
     "vue-toastr": "2.1.2",

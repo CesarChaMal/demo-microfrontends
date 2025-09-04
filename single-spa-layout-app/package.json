@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-layout-app",
-  "version": "0.2.5", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-layout-app",
+  "version": "0.1.0",
   "description": "Vue application with header, navbar and footer for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-layout-app.umd.js",
   "scripts": {
@@ -49,6 +49,12 @@
     "url": "https://github.com/cesarchamal/single-spa-layout-app/issues"
   },
   "homepage": "https://github.com/cesarchamal/single-spa-layout-app#readme",
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.27",
     "@fortawesome/free-brands-svg-icons": "5.12.1",

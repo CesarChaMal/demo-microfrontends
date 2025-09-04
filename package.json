@@ -1,6 +1,6 @@
 {
   "name": "demo-microfrontends",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Demo Microfrontends with Single-SPA",
   "engines": {
     "node": ">=18.0.0",
@@ -87,7 +87,18 @@
     "clean:webcomponents": "npx rimraf single-spa-webcomponents-app/node_modules single-spa-webcomponents-app/package-lock.json",
     "clean:typescript": "npx rimraf single-spa-typescript-app/node_modules single-spa-typescript-app/package-lock.json",
     "clean:jquery": "npx rimraf single-spa-jquery-app/node_modules single-spa-jquery-app/package-lock.json",
-    "clean:svelte": "npx rimraf single-spa-svelte-app/node_modules single-spa-svelte-app/package-lock.json"
+    "clean:svelte": "npx rimraf single-spa-svelte-app/node_modules single-spa-svelte-app/package-lock.json",
+    "version:bump": "node version-manager.js bump",
+    "version:bump:patch": "node version-manager.js bump patch",
+    "version:bump:minor": "node version-manager.js bump minor",
+    "version:bump:major": "node version-manager.js bump major",
+    "version:set": "node version-manager.js set",
+    "version:current": "node version-manager.js current",
+    "version:clean": "node version-manager.js clean",
+    "publish:all": "./publish-all.sh",
+    "publish:patch": "./publish-all.sh patch",
+    "publish:minor": "./publish-all.sh minor",
+    "publish:major": "./publish-all.sh major"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

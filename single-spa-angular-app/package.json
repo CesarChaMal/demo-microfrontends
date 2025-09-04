@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-angular-app",
-  "version": "0.1.5", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-angular-app",
+  "version": "0.1.0",
   "description": "Angular v8 application with two example pages for be included in a single-spa application as registered app.",
   "main": "dist/main-es2015.js",
   "scripts": {
@@ -58,5 +58,27 @@
 
     "tslint": "5.15.0",
     "typescript": "3.5.3"
-  }
+  },
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarchamal/single-spa-angular-app.git"
+  },
+  "keywords": [
+    "single-spa",
+    "angular",
+    "npm",
+    "webpack"
+  ],
+  "author": "Cesar Francisco Chavez Maldonado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-angular-app/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-angular-app#readme"
 }

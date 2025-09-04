@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-login",
-  "version": "0.2.5", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-root",
+  "version": "0.1.0",
   "description": "Single-spa application example which imports registered applications from NPM packages and manages authentication features as login.",
   "main": "root-application.js",
   "scripts": {
@@ -99,6 +99,41 @@
     "vue-cli-plugin-single-spa": "1.1.0",
     "vue-router": "3.1.4",
     "vue-toastr": "2.1.2",
-    "zone.js": "0.9.1"
-  }
+    "zone.js": "0.9.1",
+    "@cesarchamal/single-spa-auth-app": "^0.1.0",
+    "@cesarchamal/single-spa-layout-app": "^0.1.0",
+    "@cesarchamal/single-spa-home-app": "^0.1.0",
+    "@cesarchamal/single-spa-angular-app": "^0.1.0",
+    "@cesarchamal/single-spa-vue-app": "^0.1.0",
+    "@cesarchamal/single-spa-react-app": "^0.1.0",
+    "@cesarchamal/single-spa-vanilla-app": "^0.1.0",
+    "@cesarchamal/single-spa-webcomponents-app": "^0.1.0",
+    "@cesarchamal/single-spa-typescript-app": "^0.1.0",
+    "@cesarchamal/single-spa-jquery-app": "^0.1.0",
+    "@cesarchamal/single-spa-svelte-app": "^0.1.0"
+  },
+  "files": [
+    "dist/",
+    "server.js",
+    "index.html"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarchamal/single-spa-root.git"
+  },
+  "keywords": [
+    "single-spa",
+    "microfrontends",
+    "root",
+    "orchestrator",
+    "npm",
+    "webpack"
+  ],
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-root/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-root#readme"
 }

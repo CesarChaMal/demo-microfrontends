@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-webcomponents-app",
-  "version": "0.1.0", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-webcomponents-app",
+  "version": "0.1.0",
   "description": "Web Components microfrontend using Lit for Single-SPA",
   "main": "dist/single-spa-webcomponents-app.js",
   "type": "module",
@@ -30,5 +30,28 @@
     "@fortawesome/fontawesome-svg-core": "1.2.27",
     "@fortawesome/free-brands-svg-icons": "5.12.1",
     "@fortawesome/free-solid-svg-icons": "5.12.0"
-  }
+  },
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarchamal/single-spa-webcomponents-app.git"
+  },
+  "keywords": [
+    "single-spa",
+    "webcomponents",
+    "lit",
+    "npm",
+    "webpack"
+  ],
+  "author": "Cesar Francisco Chavez Maldonado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-webcomponents-app/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-webcomponents-app#readme"
 }

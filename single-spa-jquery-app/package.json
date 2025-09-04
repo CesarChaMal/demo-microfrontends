@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-jquery-app",
-  "version": "0.1.0", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-jquery-app",
+  "version": "0.1.0",
   "description": "jQuery microfrontend for Single-SPA demonstrating legacy library integration",
   "main": "dist/single-spa-jquery-app.js",
   "scripts": {
@@ -29,5 +29,28 @@
     "@fortawesome/fontawesome-svg-core": "1.2.27",
     "@fortawesome/free-brands-svg-icons": "5.12.1",
     "@fortawesome/free-solid-svg-icons": "5.12.0"
-  }
+  },
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarchamal/single-spa-jquery-app.git"
+  },
+  "keywords": [
+    "single-spa",
+    "jquery",
+    "legacy",
+    "npm",
+    "webpack"
+  ],
+  "author": "Cesar Francisco Chavez Maldonado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-jquery-app/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-jquery-app#readme"
 }

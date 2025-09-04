@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-typescript-app",
-  "version": "0.1.0", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-typescript-app",
+  "version": "0.1.0",
  
   "description": "TypeScript microfrontend for Single-SPA demonstrating type safety",
   "main": "dist/single-spa-typescript-app.js",
@@ -31,5 +31,27 @@
     "@fortawesome/free-brands-svg-icons": "5.12.1",
     "@fortawesome/free-solid-svg-icons": "5.12.0",
     "single-spa": "^5.9.0"
-  }
+  },
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarchamal/single-spa-typescript-app.git"
+  },
+  "keywords": [
+    "single-spa",
+    "typescript",
+    "npm",
+    "webpack"
+  ],
+  "author": "Cesar Francisco Chavez Maldonado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-typescript-app/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-typescript-app#readme"
 }

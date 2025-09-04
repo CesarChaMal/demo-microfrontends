@@ -237,10 +237,11 @@ switch (mode) {
     // Local mode - detect if production build (files served from root)
     // or development (individual ports)
     loadApp = (name) => {
-      // Check if we're in production mode by looking for built files in root
-      const isProduction = window.location.hostname === 'localhost'
-        && window.location.port === '8080'
-        && !window.location.search.includes('dev');
+      // Check if we're in production mode
+      // Production: explicit prod param OR running on port 8080 without dev servers
+      const hasDevServers = window.location.search.includes('dev');
+      const hasProdParam = window.location.search.includes('prod');
+      const isProduction = hasProdParam || (window.location.port === '8080' && !hasDevServers);
 
       const appUrls = isProduction ? {
         // Production: Load from root server static files

@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-auth-app",
-  "version": "0.2.0", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-auth-app",
+  "version": "0.1.0",
   "description": "Vue application with login form for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-auth-app.umd.js",
   "scripts": {
@@ -49,6 +49,12 @@
     "url": "https://github.com/cesarchamal/single-spa-auth-app/issues"
   },
   "homepage": "https://github.com/cesarchamal/single-spa-auth-app#readme",
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "sass": "^1.77.8",
     "vue": "^2.6.11",

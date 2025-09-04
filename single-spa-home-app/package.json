@@ -1,6 +1,6 @@
 {
-  "name": "single-spa-home-app",
-  "version": "0.1.4", "_trigger": "1756836062",
+  "name": "@cesarchamal/single-spa-home-app",
+  "version": "0.1.0",
   "description": "AngularJS application with home page for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-home-app.js",
   "scripts": {
@@ -20,6 +20,12 @@
     "url": "https://github.com/cesarchamal/single-spa-home-app/issues"
   },
   "homepage": "https://github.com/cesarchamal/single-spa-home-app#readme",
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "angular": "1.8.0",
     "angular-ui-router": "1.0.25",
