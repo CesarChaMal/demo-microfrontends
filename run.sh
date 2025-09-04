@@ -26,7 +26,23 @@ echo "🔍 DEBUG: Script execution started at $(date)"
 echo "🔍 DEBUG: Working directory: $(pwd)"
 echo "🔍 DEBUG: User: $(whoami)"
 echo "🔍 DEBUG: Shell: $SHELL"
-echo "🔍 DEBUG: Platform: $(uname -s 2>/dev/null || echo 'Windows')"
+# Enhanced platform detection
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+    PLATFORM="Windows Git Bash"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if grep -q Microsoft /proc/version 2>/dev/null; then
+        PLATFORM="WSL Ubuntu"
+    elif grep -q "Pop" /etc/os-release 2>/dev/null; then
+        PLATFORM="Pop!_OS"
+    else
+        PLATFORM="Linux"
+    fi
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    PLATFORM="macOS"
+else
+    PLATFORM="Unknown"
+fi
+echo "🔍 DEBUG: Platform: $PLATFORM"
 
 # Set Node.js version using nvm
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
@@ -59,27 +75,44 @@ load_env() {
 load_env
 
 # Cross-platform npm wrapper that handles Node.js 22 + Webpack compatibility
-# Windows: Runs npm directly (NODE_OPTIONS restricted by security policy)
-# Linux/macOS: Sets NODE_OPTIONS=--openssl-legacy-provider for OpenSSL 3.0 compatibility
+# Windows Git Bash: NODE_OPTIONS restricted by security policy
+# Linux/Pop!_OS/WSL: Sets NODE_OPTIONS=--openssl-legacy-provider for OpenSSL 3.0 compatibility
 exec_npm() {
     if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
         # Windows Git Bash - NODE_OPTIONS not allowed, run npm directly
         "$@"
     else
-        # Linux/macOS/WSL - export NODE_OPTIONS to enable legacy OpenSSL provider
+        # Linux/Pop!_OS/WSL/macOS - export NODE_OPTIONS to enable legacy OpenSSL provider
         # This allows older Webpack versions to work with Node.js 22's OpenSSL 3.0
         export NODE_OPTIONS="--openssl-legacy-provider"
         "$@"
     fi
 }
 
-# Set OpenSSL legacy provider for Node.js 22 compatibility with older Webpack
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
-    echo "⚠️  Windows Git Bash detected - NODE_OPTIONS disabled (not supported)"
-    echo "📝 Note: You may encounter OpenSSL errors on Windows with Node.js 22"
-else
-    echo "⚠️  Linux/macOS detected - using exported NODE_OPTIONS"
-fi
+# Platform-specific setup messages
+case "$PLATFORM" in
+    "Windows Git Bash")
+        echo "⚠️  $PLATFORM detected - NODE_OPTIONS disabled (security policy)"
+        echo "📝 Note: You may encounter OpenSSL errors with Node.js 22"
+        ;;
+    "WSL Ubuntu")
+        echo "⚠️  $PLATFORM detected - using NODE_OPTIONS for OpenSSL compatibility"
+        echo "📝 Note: WSL provides Linux compatibility layer"
+        ;;
+    "Pop!_OS")
+        echo "⚠️  $PLATFORM detected - using NODE_OPTIONS for OpenSSL compatibility"
+        echo "📝 Note: Ubuntu-based distribution with enhanced compatibility"
+        ;;
+    "Linux")
+        echo "⚠️  $PLATFORM detected - using NODE_OPTIONS for OpenSSL compatibility"
+        ;;
+    "macOS")
+        echo "⚠️  $PLATFORM detected - using NODE_OPTIONS for OpenSSL compatibility"
+        ;;
+    *)
+        echo "⚠️  Unknown platform - attempting Linux/Unix compatibility"
+        ;;
+esac
 
 # Install root dependencies first (needed for rimraf)
 echo "📦 Installing root dependencies..."
@@ -108,10 +141,23 @@ start_local() {
     echo "🔍 DEBUG: Local mode - ENV=$ENV, NODE_VERSION=$(node --version), NPM_VERSION=$(npm --version)"
     echo "🔍 DEBUG: Available ports check:"
     for port in 8080 4201 4202 4203 4204 4205 4206 4207 4208 4209 4210 4211; do
-        if lsof -i :$port >/dev/null 2>&1; then
-            echo "🔍 DEBUG: Port $port is in use"
+        # Cross-platform port checking
+        if command -v lsof >/dev/null 2>&1; then
+            # Linux/macOS/WSL with lsof
+            if lsof -i :$port >/dev/null 2>&1; then
+                echo "🔍 DEBUG: Port $port is in use"
+            else
+                echo "🔍 DEBUG: Port $port is available"
+            fi
+        elif command -v netstat >/dev/null 2>&1; then
+            # Windows Git Bash with netstat
+            if netstat -an | grep ":$port " >/dev/null 2>&1; then
+                echo "🔍 DEBUG: Port $port is in use"
+            else
+                echo "🔍 DEBUG: Port $port is available"
+            fi
         else
-            echo "🔍 DEBUG: Port $port is available"
+            echo "🔍 DEBUG: Port $port - unable to check (no lsof/netstat)"
         fi
     done
     
@@ -289,10 +335,15 @@ start_nexus() {
         fi
     fi
     
-    echo "📦 Using Nexus packages for microfrontends"
-    echo "🔍 DEBUG: Loading @cesarchamal scoped packages from Nexus registry"
+    # Switch to Nexus mode and start server for both dev and prod
+    echo "📦 Switching to Nexus mode and starting server..."
+    echo "🔍 DEBUG: Switching to Nexus mode"
+    npm run mode:nexus
+    
+    echo "✅ Nexus mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=nexus"
-    exec_npm npm run serve:root -- --env.mode=nexus
+    echo "🔍 DEBUG: Loading microfrontends from Nexus: @cesarchamal/single-spa-*"
+    exec_npm npm run serve:nexus
 }
 
 start_other() {
