@@ -241,7 +241,17 @@ switch (mode) {
       // Production: explicit prod param OR running on port 8080 without dev servers
       const hasDevServers = window.location.search.includes('dev');
       const hasProdParam = window.location.search.includes('prod');
-      const isProduction = hasProdParam || (window.location.port === '8080' && !hasDevServers);
+      const isProduction = hasProdParam && !hasDevServers;
+      
+      // Debug information
+      console.log('🔍 LOCAL Mode Debug Info:');
+      console.log('  - URL:', window.location.href);
+      console.log('  - Port:', window.location.port);
+      console.log('  - Search params:', window.location.search);
+      console.log('  - hasDevServers:', hasDevServers);
+      console.log('  - hasProdParam:', hasProdParam);
+      console.log('  - isProduction:', isProduction);
+      console.log('  - Mode will be:', isProduction ? 'PRODUCTION (root server)' : 'DEVELOPMENT (individual ports)');
 
       const appUrls = isProduction ? {
         // Production: Load from root server static files
@@ -272,6 +282,7 @@ switch (mode) {
       };
       const url = appUrls[name];
       console.log(`🚀 Loading ${name} from ${url}`);
+      console.log(`🔍 Debug: Using ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} URLs for ${name}`);
 
       return window.System.import(url).then((module) => {
         console.log(`✅ Successfully loaded ${name}:`, module);
@@ -320,11 +331,17 @@ switch (mode) {
             'single-spa-svelte-app': 'singleSpaSvelteApp',
           };
           const umdGlobalName = umdGlobals[name];
+          console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
+          console.log(`🔍 Debug: Available globals:`, Object.keys(window).filter(k => k.includes('single') || k.includes('Spa')));
+          
           if (umdGlobalName && window[umdGlobalName]) {
+            console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
             lifecycles = window[umdGlobalName];
           } else {
             console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
-            console.log('Module structure:', module);
+            console.log('🔍 Debug: Module structure:', module);
+            console.log('🔍 Debug: Expected UMD global:', umdGlobalName);
+            console.log('🔍 Debug: Available on window:', !!window[umdGlobalName]);
             throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
           }
         }
