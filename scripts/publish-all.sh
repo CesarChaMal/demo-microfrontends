@@ -4,6 +4,13 @@
 # Usage: ./publish-all.sh [version-type]
 # version-type: patch (default), minor, major
 
+echo "🔍 DEBUG: NPM publish script started"
+echo "🔍 DEBUG: Arguments: $@"
+echo "🔍 DEBUG: Current directory: $(pwd)"
+echo "🔍 DEBUG: NPM version: $(npm --version)"
+echo "🔍 DEBUG: Node version: $(node --version)"
+echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
+
 VERSION_TYPE=${1:-patch}
 
 echo "🚀 Publishing all microfrontends to NPM..."

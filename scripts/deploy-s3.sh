@@ -22,6 +22,10 @@ if [ -z "$BUCKET_NAME" ]; then
 fi
 
 echo "🚀 Deploying to S3 bucket: $BUCKET_NAME ($ENV environment)"
+echo "🔍 DEBUG: S3_BUCKET=$S3_BUCKET, AWS_REGION=$AWS_REGION, ORG_NAME=$ORG_NAME"
+echo "🔍 DEBUG: Current directory: $(pwd)"
+echo "🔍 DEBUG: AWS CLI version: $(aws --version 2>&1 || echo 'AWS CLI not found')"
+echo "🔍 DEBUG: AWS credentials configured: $(aws sts get-caller-identity --query 'Account' --output text 2>/dev/null || echo 'No credentials')"
 
 # Check if S3 bucket exists, create if not
 echo "🔍 Checking if S3 bucket exists..."

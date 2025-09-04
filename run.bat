@@ -35,6 +35,10 @@ powershell -Command "(Get-Content .env) -replace '^SPA_MODE=.*', 'SPA_MODE=%MODE
 powershell -Command "(Get-Content .env) -replace '^SPA_ENV=.*', 'SPA_ENV=%ENV%' | Set-Content .env"
 
 echo 🚀 Starting Demo Microfrontends Application in %MODE% mode (%ENV% environment)...
+echo 🔍 DEBUG: Script execution started at %DATE% %TIME%
+echo 🔍 DEBUG: Working directory: %CD%
+echo 🔍 DEBUG: User: %USERNAME%
+echo 🔍 DEBUG: Platform: Windows
 
 REM Set OpenSSL legacy provider for Node.js 22 compatibility with older Webpack
 echo ⚠️  Setting OpenSSL legacy provider for Node.js 22 compatibility
@@ -62,14 +66,21 @@ if "%ENV%"=="prod" (
 )
 
 if "%MODE%"=="local" (
+    echo 🔍 DEBUG: Local mode - ENV=%ENV%, NODE_VERSION=
+    node --version
+    echo 🔍 DEBUG: NPM_VERSION=
+    npm --version
+    
     if "%ENV%"=="prod" (
         echo 🌐 Starting production server...
+        echo 🔍 DEBUG: Production mode - serving built files from single-spa-root/dist
         echo Main application: http://localhost:8080
         echo.
         echo Press Ctrl+C to stop
         call npm start
     ) else (
         echo 🌐 Starting all microfrontends...
+        echo 🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211
         echo Main application: http://localhost:8080
         echo.
         echo Microfrontend ports:
@@ -109,13 +120,20 @@ if "%MODE%"=="local" (
         echo Main application: http://localhost:8080?mode=%MODE%
         echo.
         if "%MODE%"=="npm" (
+            echo 🔍 DEBUG: NPM mode - ENV=%ENV%
+            npm whoami >nul 2>&1 && echo 🔍 DEBUG: NPM user logged in || echo 🔍 DEBUG: NPM user not logged in
             echo 📦 Switching to NPM mode and starting server...
             call npm run mode:npm
             if errorlevel 1 exit /b 1
             echo Using NPM packages for microfrontends
         )
-        if "%MODE%"=="nexus" echo Using Nexus private registry for microfrontends
+        if "%MODE%"=="nexus" (
+            echo 🔍 DEBUG: Nexus mode - ENV=%ENV%
+            echo 🔍 DEBUG: Loading @cesarchamal scoped packages from Nexus registry
+            echo Using Nexus private registry for microfrontends
+        )
         if "%MODE%"=="github" (
+            echo 🔍 DEBUG: GitHub mode - ENV=%ENV%, GITHUB_USERNAME=%GITHUB_USERNAME%
             echo Using GitHub Pages for microfrontends
             if "%ENV%"=="prod" (
                 echo 🔧 Starting GitHub repository creation server for production...
@@ -126,7 +144,10 @@ if "%MODE%"=="local" (
                 echo 📖 Development mode: Reading from existing GitHub Pages
             )
         )
-        if "%MODE%"=="aws" echo Using AWS S3 for microfrontends
+        if "%MODE%"=="aws" (
+            echo 🔍 DEBUG: AWS mode - ENV=%ENV%, S3_BUCKET=%S3_BUCKET%, AWS_REGION=%AWS_REGION%
+            echo Using AWS S3 for microfrontends
+        )
         echo.
         echo Press Ctrl+C to stop
         if "%MODE%"=="npm" (

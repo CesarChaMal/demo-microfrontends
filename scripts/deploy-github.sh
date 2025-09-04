@@ -5,6 +5,10 @@
 
 set -e
 
+echo "🔍 DEBUG: GitHub deployment script started"
+echo "🔍 DEBUG: Arguments: $@"
+echo "🔍 DEBUG: Current directory: $(pwd)"
+
 APP_NAME=${1}
 
 if [ -z "$APP_NAME" ]; then
@@ -20,6 +24,10 @@ fi
 
 GITHUB_USERNAME=${GITHUB_USERNAME:-cesarchamal}
 GITHUB_TOKEN=${GITHUB_API_TOKEN:-${GITHUB_TOKEN}}
+
+echo "🔍 DEBUG: GITHUB_USERNAME=$GITHUB_USERNAME"
+echo "🔍 DEBUG: GITHUB_TOKEN=${GITHUB_TOKEN:+SET}"
+echo "🔍 DEBUG: Git version: $(git --version)"
 
 if [ -z "$GITHUB_TOKEN" ]; then
     echo "❌ Error: GITHUB_API_TOKEN or GITHUB_TOKEN not set"

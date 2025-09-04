@@ -33,9 +33,6 @@ console.log(`🚀 Single-SPA Mode: ${mode.toUpperCase()}`);
 console.log(`🔧 Environment Variables - SPA_MODE: ${process.env.SPA_MODE}, SPA_ENV: ${process.env.SPA_ENV}`);
 
 
-
-
-
 function showWhenAnyOf(routes) {
   return function (location) {
     return routes.some((route) => location.pathname === route);

@@ -27,6 +27,10 @@ if "%BUCKET_NAME%"=="" (
 )
 
 echo 🚀 Deploying to S3 bucket: %BUCKET_NAME% (%ENV% environment)
+echo 🔍 DEBUG: S3_BUCKET=%S3_BUCKET%, AWS_REGION=%AWS_REGION%, ORG_NAME=%ORG_NAME%
+echo 🔍 DEBUG: Current directory: %CD%
+aws --version >nul 2>&1 && echo 🔍 DEBUG: AWS CLI available || echo 🔍 DEBUG: AWS CLI not found
+aws sts get-caller-identity --query Account --output text >nul 2>&1 && echo 🔍 DEBUG: AWS credentials configured || echo 🔍 DEBUG: No AWS credentials
 
 REM Check if S3 bucket exists, create if not
 echo 🔍 Checking if S3 bucket exists...
