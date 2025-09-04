@@ -29,6 +29,11 @@ set ENV=%2
 if "%MODE%"=="" set MODE=local
 if "%ENV%"=="" set ENV=dev
 
+REM Update .env file with current mode and environment
+echo 📝 Updating SPA configuration in .env...
+powershell -Command "(Get-Content .env) -replace '^SPA_MODE=.*', 'SPA_MODE=%MODE%' | Set-Content .env"
+powershell -Command "(Get-Content .env) -replace '^SPA_ENV=.*', 'SPA_ENV=%ENV%' | Set-Content .env"
+
 echo 🚀 Starting Demo Microfrontends Application in %MODE% mode (%ENV% environment)...
 
 REM Set OpenSSL legacy provider for Node.js 22 compatibility with older Webpack

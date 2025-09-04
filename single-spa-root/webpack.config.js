@@ -5,10 +5,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // Load environment variables from .env file
 try {
-  require('dotenv').config();
+  require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 } catch (error) {
   console.warn('dotenv not found, using system environment variables only');
 }
+
+const webpack = require('webpack');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -55,6 +57,17 @@ module.exports = (env, argv) => {
     modules: [__dirname, 'node_modules'],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.SPA_MODE': JSON.stringify(process.env.SPA_MODE || 'local'),
+      'process.env.SPA_ENV': JSON.stringify(process.env.SPA_ENV || 'dev'),
+      AWS_CONFIG: JSON.stringify({
+        bucket: process.env.S3_BUCKET,
+        region: process.env.AWS_REGION,
+        orgName: process.env.ORG_NAME,
+      }),
+      IMPORTMAP_URL: JSON.stringify(process.env.IMPORTMAP_URL),
+      GITHUB_USERNAME: JSON.stringify(process.env.GITHUB_USERNAME),
+    }),
     new CleanWebpackPlugin({
       cleanAfterEveryBuildPatterns: ['dist'],
     }),

@@ -17,9 +17,11 @@ const MODES = {
   AWS: 'aws',
 };
 
-// Get mode from URL parameter or localStorage, default to LOCAL
+// Get mode from environment variables (via webpack), URL parameter, or localStorage
 const urlParams = new URLSearchParams(window.location.search);
-const mode = urlParams.get('mode') || localStorage.getItem('spa-mode') || MODES.LOCAL;
+const envMode = process.env.SPA_MODE || MODES.LOCAL;
+const envEnvironment = process.env.SPA_ENV || 'dev';
+const mode = urlParams.get('mode') || localStorage.getItem('spa-mode') || envMode;
 
 // Save mode to localStorage for persistence
 localStorage.setItem('spa-mode', mode);
@@ -148,10 +150,9 @@ switch (mode) {
 
   case MODES.GITHUB: {
     // GitHub Pages - different behavior for dev vs prod
-    const githubUrlParams = new URLSearchParams(window.location.search);
-    const githubEnv = githubUrlParams.get('env') || 'dev';
+    const githubEnv = envEnvironment;
     const { GITHUB_USERNAME } = window;
-    const githubUser = GITHUB_USERNAME || 'cesarchamal';
+    const githubUser = GITHUB_USERNAME || process.env.GITHUB_USERNAME || 'cesarchamal';
 
     if (githubEnv === 'prod') {
       // Production: Create repos and deploy everything
@@ -237,19 +238,16 @@ switch (mode) {
     // Local mode - detect if production build (files served from root)
     // or development (individual ports)
     loadApp = (name) => {
-      // Check if we're in production mode
-      // Production: explicit prod param OR running on port 8080 without dev servers
-      const hasDevServers = window.location.search.includes('dev');
-      const hasProdParam = window.location.search.includes('prod');
-      const isProduction = hasProdParam && !hasDevServers;
+      // Check if we're in production mode using environment variable
+      const isProduction = envEnvironment === 'prod';
 
       // Debug information
       console.log('🔍 LOCAL Mode Debug Info:');
       console.log('  - URL:', window.location.href);
       console.log('  - Port:', window.location.port);
-      console.log('  - Search params:', window.location.search);
-      console.log('  - hasDevServers:', hasDevServers);
-      console.log('  - hasProdParam:', hasProdParam);
+      console.log('  - SPA_MODE:', process.env.SPA_MODE);
+      console.log('  - SPA_ENV:', process.env.SPA_ENV);
+      console.log('  - envEnvironment:', envEnvironment);
       console.log('  - isProduction:', isProduction);
       console.log('  - Mode will be:', isProduction ? 'PRODUCTION (root server)' : 'DEVELOPMENT (individual ports)');
 

@@ -16,6 +16,11 @@ set -e
 MODE=${1:-local}
 ENV=${2:-dev}
 
+# Update .env file with current mode and environment
+echo "📝 Updating SPA configuration in .env..."
+sed -i "s/^SPA_MODE=.*/SPA_MODE=$MODE/" .env
+sed -i "s/^SPA_ENV=.*/SPA_ENV=$ENV/" .env
+
 echo "🚀 Starting Demo Microfrontends Application in $MODE mode ($ENV environment)..."
 
 # Set Node.js version using nvm
