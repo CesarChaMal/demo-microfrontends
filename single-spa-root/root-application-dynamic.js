@@ -286,18 +286,7 @@ switch (mode) {
 
       return window.System.import(url).then((module) => {
         console.log(`✅ Successfully loaded ${name}:`, module);
-        /*
-          return window.System.import(url).then((module) => {
-            console.log(`✅ Successfully loaded ${name}:`, module);
-            if (name === 'single-spa-layout-app') {
-              console.log('🎨 Layout module exports:', Object.keys(module));
-              console.log('🎨 Layout bootstrap:', typeof module.bootstrap);
-              console.log('🎨 Layout mount:', typeof module.mount);
-              console.log('🎨 Layout unmount:', typeof module.unmount);
-              console.log('🎨 Layout default:', module.default);
-            }
-            return module;
-    */
+
 
         // Handle different module formats
         let lifecycles;
@@ -332,7 +321,7 @@ switch (mode) {
           };
           const umdGlobalName = umdGlobals[name];
           console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
-          console.log(`🔍 Debug: Available globals:`, Object.keys(window).filter(k => k.includes('single') || k.includes('Spa')));
+          console.log('🔍 Debug: Available globals:', Object.keys(window).filter((k) => k.includes('single') || k.includes('Spa')));
           
           if (umdGlobalName && window[umdGlobalName]) {
             console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
