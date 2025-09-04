@@ -206,7 +206,6 @@ npm run serve:root
 ### Production Build
 ```bash
 # Manual production build
-npm run build:apps
 npm run build
 npm start
 

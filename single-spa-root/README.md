@@ -94,13 +94,11 @@ npm start           # Run Express server serving dist/
 ```bash
 npm run serve                    # Start root + all MFEs concurrently
 npm run serve:root              # Start only root application
-npm run dev:build:apps          # Build all MFEs in development mode
 npm run dev:serve:apps          # Serve all MFE dist folders
 ```
 
 ### Build Scripts
 ```bash
-npm run build:all               # Build all microfrontends
 npm run build                   # Build root application
 npm start                       # Build and start production server
 ```

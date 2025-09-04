@@ -242,7 +242,7 @@ switch (mode) {
       const hasDevServers = window.location.search.includes('dev');
       const hasProdParam = window.location.search.includes('prod');
       const isProduction = hasProdParam && !hasDevServers;
-      
+
       // Debug information
       console.log('🔍 LOCAL Mode Debug Info:');
       console.log('  - URL:', window.location.href);
@@ -322,7 +322,7 @@ switch (mode) {
           const umdGlobalName = umdGlobals[name];
           console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
           console.log('🔍 Debug: Available globals:', Object.keys(window).filter((k) => k.includes('single') || k.includes('Spa')));
-          
+
           if (umdGlobalName && window[umdGlobalName]) {
             console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
             lifecycles = window[umdGlobalName];

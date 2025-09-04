@@ -103,8 +103,7 @@ run.bat aws prod
 **Root Level Scripts:**
 - `build:dev` - Calls individual `build:*:dev` scripts
 - `build:prod` - Calls individual `build:*:prod` scripts
-- `build:all` - Legacy script (same as `build:dev`)
-- `build:apps` - Legacy script (same as `build:all`)
+- `build` - Legacy script (same as `build:dev`)
 
 **Individual App Scripts:**
 - `build:auth:dev` / `build:auth:prod`
