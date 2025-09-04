@@ -59,7 +59,7 @@ export TRAVIS_COMMIT=$GITHUB_SHA
 export APP_NAME
 export BUNDLE_FILE
 export SHARED_DEPS
-node ../scripts/update-importmap.mjs
+node ./update-importmap.mjs
 
 echo "Uploading new import map to S3"
 aws s3 cp importmap.json "s3://$S3_BUCKET/@${ORG_NAME}/importmap.json" --cache-control 'public, must-revalidate, max-age=0'

@@ -5,7 +5,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const mode = process.argv[2];
-const rootDir = path.join(__dirname, 'single-spa-root');
+const rootDir = path.join(__dirname, '..', 'single-spa-root');
 const packageJsonPath = path.join(rootDir, 'package.json');
 const packageNpmPath = path.join(rootDir, 'package-npm.json');
 const packageLocalPath = path.join(rootDir, 'package-local.json');

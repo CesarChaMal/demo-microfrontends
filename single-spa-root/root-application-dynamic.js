@@ -47,8 +47,8 @@ function deployToAWS() {
   } else {
     const message = `🚀 AWS S3 Deployment\n\n` +
                    `Run the deployment script to deploy to S3:\n` +
-                   `./deploy-s3.sh prod (Linux/Mac)\n` +
-                   `deploy-s3.bat prod (Windows)`;
+                   `./scripts/deploy-s3.sh prod (Linux/Mac)\n` +
+                   `scripts\\deploy-s3.bat prod (Windows)`;
     
     alert(message);
   }

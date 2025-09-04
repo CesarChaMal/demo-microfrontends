@@ -214,6 +214,25 @@ npm start
 run.bat local prod
 ```
 
+## Scripts Organization
+
+### Root Scripts (User-facing)
+- `run.sh` / `run.bat` - Main launcher scripts
+- `stop.sh` / `stop.bat` - Stop all services
+
+### Utility Scripts (`scripts/` folder)
+- `deploy-s3.sh` / `deploy-s3.bat` - AWS S3 deployment
+- `deploy-github.sh` / `deploy-github.bat` - GitHub Pages deployment
+- `create-github-repo.sh` / `create-github-repo.bat` - GitHub repository creation
+- `github-repo-server.js` - GitHub API server for repository management
+- `switch-mode.js` - Mode switching utility (local/npm/github/aws)
+- `version-manager.js` - Centralized version management
+- `publish-all.sh` / `publish-all.bat` - NPM publishing automation
+- `setup-s3.sh` / `setup-s3.bat` - S3 bucket setup and configuration
+- `trigger-*.sh` / `trigger-*.bat` - GitHub Actions deployment triggers
+- `update-importmap.mjs` - Import map management for deployments
+- `test-build.sh` - Build testing utility
+
 ## Individual Application Setup
 
 ### Root Application
@@ -514,10 +533,10 @@ This triggers GitHub Actions workflows that:
 **Direct deployment to S3:**
 ```bash
 # Linux/macOS/Git Bash
-./deploy-s3.sh [dev|prod]
+./scripts/deploy-s3.sh [dev|prod]
 
 # Windows
-deploy-s3.bat [dev|prod]
+scripts\deploy-s3.bat [dev|prod]
 ```
 
 **What manual deployment does:**
@@ -713,5 +732,5 @@ npm run mode:local
 - [Semantic Versioning](https://semver.org/)
 - [NPM Publishing Guide](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry)
 - [NPM Scopes](https://docs.npmjs.com/about-scopes)
-- [VERSION-MANAGEMENT.md](VERSION-MANAGEMENT.md) - Detailed version management guide
+- [VERSION-MANAGEMENT.md](scripts/VERSION-MANAGEMENT.md) - Detailed version management guide
 - [NPM-PUBLISHING.md](single-spa-root/NPM-PUBLISHING.md) - Complete publishing guide

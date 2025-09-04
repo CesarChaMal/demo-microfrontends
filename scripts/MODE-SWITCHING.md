@@ -371,10 +371,10 @@ curl $IMPORTMAP_URL
 ## 📚 Related Documentation
 
 - [VERSION-MANAGEMENT.md](VERSION-MANAGEMENT.md) - Version synchronization
-- [NPM-PUBLISHING.md](single-spa-root/NPM-PUBLISHING.md) - Package publishing
-- [README.md](README.md) - Main project documentation
-- [GitHub Pages Configuration](README.md#github-pages-configuration)
-- [AWS S3 Configuration](README.md#aws-s3-configuration)
+- [NPM-PUBLISHING.md](../single-spa-root/NPM-PUBLISHING.md) - Package publishing
+- [README.md](../README.md) - Main project documentation
+- [GitHub Pages Configuration](../README.md#github-pages-configuration)
+- [AWS S3 Configuration](../README.md#aws-s3-configuration)
 
 ## 🎯 Best Practices
 

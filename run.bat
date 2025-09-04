@@ -91,7 +91,7 @@ if "%MODE%"=="local" (
 ) else (
     if "%ENV%"=="prod" (
         if "%MODE%"=="aws" (
-            echo 🚀 AWS production: Deploy using deploy-s3.bat prod
+            echo 🚀 AWS production: Deploy using scripts\deploy-s3.bat prod
             echo 🌐 Starting production server...
             echo Main application: http://localhost:8080?mode=%MODE%
             echo.
