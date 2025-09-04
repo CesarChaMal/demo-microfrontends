@@ -137,6 +137,19 @@ start_aws() {
     fi
 }
 
+start_npm() {
+    echo "📦 Switching to NPM mode and starting server..."
+    npm run mode:npm
+    echo "🌐 Main application: http://localhost:8080?mode=npm"
+    exec_npm npm run serve:npm
+}
+
+start_nexus() {
+    echo "📦 Using Nexus packages for microfrontends"
+    echo "🌐 Main application: http://localhost:8080?mode=nexus"
+    exec_npm npm run serve:root -- --env.mode=nexus
+}
+
 start_other() {
     echo "📦 Using $MODE packages for microfrontends"
     echo "🌐 Main application: http://localhost:8080?mode=$MODE"
@@ -147,6 +160,12 @@ start_other() {
 case "$MODE" in
     "local")
         start_local
+        ;;
+    "npm")
+        start_npm
+        ;;
+    "nexus")
+        start_nexus
         ;;
     "github")
         start_github

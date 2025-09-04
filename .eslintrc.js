@@ -5,7 +5,7 @@ module.exports = {
     node: true,
   },
   extends: [
-    'airbnb-base',
+    'eslint:recommended',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -16,19 +16,13 @@ module.exports = {
   ],
   rules: {
     'no-console': 'off',
-    'import/no-extraneous-dependencies': 'off',
-    'import/no-unresolved': 'off',
-    'max-len': ['error', { code: 120 }],
-    'no-param-reassign': 'off',
-    'no-underscore-dangle': 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
   },
   ignorePatterns: [
     'node_modules/',
     'dist/',
     'build/',
     '*.min.js',
-    'single-spa-*/node_modules/',
-    'single-spa-*/dist/',
-    'single-spa-*/build/',
+    'single-spa-*/',
   ],
 };

@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { exec } = require('child_process');
-const path = require('path');
+
 const fs = require('fs');
 require('dotenv').config();
 
@@ -71,7 +71,7 @@ app.post('/api/create-all-repos', (req, res) => {
         ? `${createScript} "${app}"` 
         : `${createScript} "${app}"`;
 
-      exec(createCommand, { cwd: __dirname }, (error, stdout, stderr) => {
+      exec(createCommand, { cwd: __dirname }, (error, _stdout, _stderr) => {
         if (error && !error.message.includes('already exists')) {
           console.error(`Error creating repo ${app}:`, error.message);
           errors.push(`${app}: ${error.message}`);
@@ -85,7 +85,7 @@ app.post('/api/create-all-repos', (req, res) => {
             ? `${deployScript} "${app}"` 
             : `${deployScript} "${app}"`;
 
-          exec(deployCommand, { cwd: __dirname }, (deployError, deployStdout) => {
+          exec(deployCommand, { cwd: __dirname }, (deployError, _deployStdout) => {
             if (deployError) {
               console.error(`Error deploying ${app}:`, deployError.message);
               errors.push(`${app} deploy: ${deployError.message}`);

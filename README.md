@@ -234,25 +234,52 @@ npm run build
 ## Available Scripts
 
 ### Mode-Specific Scripts
-- `npm run serve:local` - Start in local development mode
+- `npm run serve:local:dev` - Start in local development mode
+- `npm run serve:local:prod` - Start in local production mode
 - `npm run serve:npm` - Start in NPM packages mode
 - `npm run serve:nexus` - Start in Nexus private registry mode
 - `npm run serve:github` - Start in GitHub Pages mode
 - `npm run serve:aws` - Start in AWS S3 mode
 
+### Mode Switching Scripts
+- `npm run mode:npm` - Switch to NPM mode (after publishing)
+- `npm run mode:local` - Switch back to local development mode
+- `npm run mode:github` - Switch to GitHub Pages mode
+- `npm run mode:aws` - Switch to AWS S3 mode
+- `npm run mode:status` - Check current mode status
+
+### Version Management Scripts
+- `npm run version:current` - Show current versions of all packages
+- `npm run version:bump:patch` - Bump patch version (0.1.0 → 0.1.1)
+- `npm run version:bump:minor` - Bump minor version (0.1.0 → 0.2.0)
+- `npm run version:bump:major` - Bump major version (0.1.0 → 1.0.0)
+- `npm run version:set 1.2.3` - Set specific version for all packages
+- `npm run version:clean` - Remove _trigger fields from packages
+
+### Publishing Scripts
+- `npm run publish:patch` - Bump patch version and publish all packages
+- `npm run publish:minor` - Bump minor version and publish all packages
+- `npm run publish:major` - Bump major version and publish all packages
+- `npm run publish:all` - Publish all packages (no version bump)
+
 ### Root Project Scripts
-- `npm run install:all` - Install dependencies for all applications
-- `npm run build:all` - Build all microfrontends
+- `npm run install` - Install dependencies for all applications
+- `npm run build` - Build all microfrontends
+- `npm run build:dev` - Build all microfrontends for development
+- `npm run build:prod` - Build all microfrontends for production
 - `npm run serve:root` - Start root development server
 - `npm run clean` - Clean all node_modules
 - `npm start` - Start development environment
+- `npm run lint` - Lint and fix all JavaScript/JSON files
+- `npm run lint:check` - Check linting without fixing
 
 ### Individual App Scripts
 - `npm run install:auth` - Install auth app dependencies
 - `npm run build:auth` - Build auth application
-- `npm run install:angular` - Install Angular app dependencies
-- `npm run build:angular` - Build Angular application
-- Similar patterns for: layout, home, vue, react, vanilla, webcomponents, typescript, jquery, svelte
+- `npm run build:auth:dev` - Build auth app for development
+- `npm run build:auth:prod` - Build auth app for production
+- `npm run serve:auth` - Serve auth app individually
+- Similar patterns for: layout, home, angular, vue, react, vanilla, webcomponents, typescript, jquery, svelte
 
 ## Technology Stack
 
@@ -513,12 +540,82 @@ http://your-bucket-name.s3-website-region.amazonaws.com
 http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com
 ```
 
+## NPM Package Publishing
+
+This project supports publishing all microfrontends as NPM packages for distribution and reuse.
+
+### Publishing Workflow
+
+```bash
+# 1. Login to NPM
+npm login
+
+# 2. Publish all packages with version bump
+npm run publish:patch    # Bug fixes (0.1.0 → 0.1.1)
+npm run publish:minor    # New features (0.1.0 → 0.2.0)
+npm run publish:major    # Breaking changes (0.1.0 → 1.0.0)
+
+# 3. Switch to NPM mode to test published packages
+npm run mode:npm
+npm run serve:npm
+```
+
+### Published Packages
+
+All packages are published under the `@cesarchamal` scope:
+
+- `@cesarchamal/single-spa-root` - Root orchestrator application
+- `@cesarchamal/single-spa-auth-app` - Vue.js authentication
+- `@cesarchamal/single-spa-layout-app` - Vue.js layout components
+- `@cesarchamal/single-spa-home-app` - AngularJS home page
+- `@cesarchamal/single-spa-angular-app` - Angular 8 application
+- `@cesarchamal/single-spa-vue-app` - Vue.js application
+- `@cesarchamal/single-spa-react-app` - React application
+- `@cesarchamal/single-spa-vanilla-app` - Vanilla JavaScript
+- `@cesarchamal/single-spa-webcomponents-app` - Web Components (Lit)
+- `@cesarchamal/single-spa-typescript-app` - TypeScript application
+- `@cesarchamal/single-spa-jquery-app` - jQuery legacy integration
+- `@cesarchamal/single-spa-svelte-app` - Svelte application
+
+### Version Management
+
+All packages use synchronized versioning:
+
+```bash
+# Check current versions
+npm run version:current
+
+# Manual version management
+npm run version:bump:patch
+npm run version:set 2.0.0
+
+# Publishing automatically handles versioning
+npm run publish:minor  # Bumps version + publishes
+```
+
+### Mode Switching
+
+```bash
+# Local development (default)
+npm run mode:local
+npm run serve:local:dev
+
+# NPM packages (after publishing)
+npm run mode:npm
+npm run serve:npm
+
+# Check current mode
+npm run mode:status
+```
+
 ## Features
 
 - **Framework Agnostic**: Multiple frontend frameworks coexisting
 - **Independent Deployment**: Each microfrontend can be deployed separately
 - **Multiple Loading Strategies**: Local, NPM packages, GitHub Pages, or AWS S3
 - **Dynamic Mode Switching**: Change loading strategy without code changes
+- **Centralized Version Management**: All packages synchronized automatically
+- **NPM Publishing**: Automated publishing with version management
 - **Environment-Driven Configuration**: AWS and GitHub settings via environment variables
 - **Automated GitHub Deployment**: Auto-creates repos and deploys in production mode
 - **Dual GitHub Modes**: Development (read existing) vs Production (create & deploy)
@@ -526,6 +623,7 @@ http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com
 - **Authentication Flow**: Centralized login system
 - **Routing**: Client-side routing across applications
 - **Hot Reloading**: Development-friendly setup
+- **ESLint Integration**: Code quality and consistency across all packages
 
 ## Contributing
 
@@ -561,6 +659,33 @@ Enable debug logging by setting environment variables:
 DEBUG=single-spa:* npm run serve
 ```
 
+### Version Management Issues
+
+```bash
+# Check all package versions
+npm run version:current
+
+# Reset all versions to match main package
+npm run version:set $(node -e "console.log(require('./package.json').version)")
+
+# Clean any _trigger fields
+npm run version:clean
+```
+
+### NPM Publishing Issues
+
+```bash
+# Check NPM authentication
+npm whoami
+
+# Test publishing (dry run)
+cd single-spa-auth-app
+npm publish --dry-run
+
+# Switch back to local mode if NPM packages fail
+npm run mode:local
+```
+
 ## Additional Resources
 
 ### Framework Documentation
@@ -584,3 +709,10 @@ DEBUG=single-spa:* npm run serve
 - [SystemJS Documentation](https://github.com/systemjs/systemjs)
 - [FontAwesome Documentation](https://fontawesome.com/)
 - [Bootstrap Documentation](https://getbootstrap.com/)
+
+### Version Management & Publishing
+- [Semantic Versioning](https://semver.org/)
+- [NPM Publishing Guide](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry)
+- [NPM Scopes](https://docs.npmjs.com/about-scopes)
+- [VERSION-MANAGEMENT.md](VERSION-MANAGEMENT.md) - Detailed version management guide
+- [NPM-PUBLISHING.md](single-spa-root/NPM-PUBLISHING.md) - Complete publishing guide

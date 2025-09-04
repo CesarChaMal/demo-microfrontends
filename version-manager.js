@@ -75,10 +75,35 @@ function updateAllVersions(newVersion) {
       
       // Update dependencies if they reference our packages
       if (packageData.dependencies) {
-        for (const [depName, depVersion] of Object.entries(packageData.dependencies)) {
+        for (const [depName] of Object.entries(packageData.dependencies)) {
           if (depName.startsWith('@cesarchamal/single-spa-')) {
             packageData.dependencies[depName] = `^${newVersion}`;
           }
+        }
+      }
+      
+      // Also update package-npm.json if it exists (for NPM mode)
+      if (packageDir === 'single-spa-root') {
+        const npmPackagePath = path.join(packageDir, 'package-npm.json');
+        if (fs.existsSync(npmPackagePath)) {
+          const npmPackageData = JSON.parse(fs.readFileSync(npmPackagePath, 'utf8'));
+          npmPackageData.version = newVersion;
+          
+          // Update NPM dependencies
+          if (npmPackageData.dependencies) {
+            for (const [depName] of Object.entries(npmPackageData.dependencies)) {
+              if (depName.startsWith('@cesarchamal/single-spa-')) {
+                npmPackageData.dependencies[depName] = `^${newVersion}`;
+              }
+            }
+          }
+          
+          if (npmPackageData._trigger) {
+            delete npmPackageData._trigger;
+          }
+          
+          fs.writeFileSync(npmPackagePath, JSON.stringify(npmPackageData, null, 2) + '\n');
+          console.log(`✅ Updated package-npm.json: ${newVersion}`);
         }
       }
       

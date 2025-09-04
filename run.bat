@@ -106,7 +106,12 @@ if "%MODE%"=="local" (
         echo 🌐 Starting development server...
         echo Main application: http://localhost:8080?mode=%MODE%
         echo.
-        if "%MODE%"=="npm" echo Using NPM packages for microfrontends
+        if "%MODE%"=="npm" (
+            echo 📦 Switching to NPM mode and starting server...
+            call npm run mode:npm
+            if errorlevel 1 exit /b 1
+            echo Using NPM packages for microfrontends
+        )
         if "%MODE%"=="nexus" echo Using Nexus private registry for microfrontends
         if "%MODE%"=="github" (
             echo Using GitHub Pages for microfrontends
@@ -122,6 +127,10 @@ if "%MODE%"=="local" (
         if "%MODE%"=="aws" echo Using AWS S3 for microfrontends
         echo.
         echo Press Ctrl+C to stop
-        call npm run serve:root -- --env.mode=%MODE%
+        if "%MODE%"=="npm" (
+            call npm run serve:npm
+        ) else (
+            call npm run serve:root -- --env.mode=%MODE%
+        )
     )
 )

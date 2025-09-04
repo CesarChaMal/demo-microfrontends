@@ -1,4 +1,4 @@
-/* eslint-disable import/no-unresolved */
+/* eslint-disable */
 import Vue from 'vue';
 import singleSpaVue from 'single-spa-vue';
 import { library } from '@fortawesome/fontawesome-svg-core';

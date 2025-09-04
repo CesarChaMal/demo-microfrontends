@@ -100,7 +100,15 @@
     "publish:minor": "./publish-all.sh minor",
     "publish:major": "./publish-all.sh major",
     "lint": "eslint . --ext .js,.json --fix",
-    "lint:check": "eslint . --ext .js,.json"
+    "lint:check": "eslint . --ext .js,.json",
+    "mode:npm": "node switch-mode.js npm",
+    "mode:local": "node switch-mode.js local",
+    "mode:github": "node switch-mode.js github",
+    "mode:aws": "node switch-mode.js aws",
+    "mode:status": "node switch-mode.js status",
+    "serve:npm": "npm run mode:npm && cd single-spa-root && npm run serve:npm",
+    "serve:github": "cd single-spa-root && npm run serve:github",
+    "serve:aws": "cd single-spa-root && npm run serve:aws"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
