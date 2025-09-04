@@ -21,3 +21,5 @@
 //"single-spa-typescript-app": "0.1.0",
 //"single-spa-jquery-app": "0.1.0",
 //"single-spa-svelte-app": "0.1.0",
+
+ npx eslint root-application-dynamic.js --fix

@@ -234,11 +234,14 @@ switch (mode) {
 
   case MODES.LOCAL:
   default:
-    // Local mode - detect if production build (files served from root) or development (individual ports)
+    // Local mode - detect if production build (files served from root)
+    // or development (individual ports)
     loadApp = (name) => {
       // Check if we're in production mode by looking for built files in root
-      const isProduction = window.location.hostname === 'localhost' && window.location.port === '8080' && !window.location.search.includes('dev');
-      
+      const isProduction = window.location.hostname === 'localhost'
+        && window.location.port === '8080'
+        && !window.location.search.includes('dev');
+
       const appUrls = isProduction ? {
         // Production: Load from root server static files
         'single-spa-auth-app': '/single-spa-auth-app.umd.js',
@@ -301,9 +304,28 @@ switch (mode) {
           console.log('globalName: ', globalName);
           lifecycles = window[globalName];
         } else {
-          console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
-          console.log('Module structure:', module);
-          throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
+          // Try specific UMD global names
+          const umdGlobals = {
+            'single-spa-auth-app': 'singleSpaAuthApp',
+            'single-spa-layout-app': 'singleSpaLayoutApp',
+            'single-spa-home-app': 'singleSpaHomeApp',
+            'single-spa-angular-app': 'singleSpaAngularApp',
+            'single-spa-vue-app': 'singleSpaVueApp',
+            'single-spa-react-app': 'singleSpaReactApp',
+            'single-spa-vanilla-app': 'singleSpaVanillaApp',
+            'single-spa-webcomponents-app': 'singleSpaWebcomponentsApp',
+            'single-spa-typescript-app': 'singleSpaTypescriptApp',
+            'single-spa-jquery-app': 'singleSpaJqueryApp',
+            'single-spa-svelte-app': 'singleSpaSvelteApp',
+          };
+          const umdGlobalName = umdGlobals[name];
+          if (umdGlobalName && window[umdGlobalName]) {
+            lifecycles = window[umdGlobalName];
+          } else {
+            console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
+            console.log('Module structure:', module);
+            throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
+          }
         }
 
         console.log(`✅ ${name} lifecycles resolved:`, {

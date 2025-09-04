@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'single-spa-jquery-app.js',
-    library: 'single-spa-jquery-app',
+    library: 'singleSpaJqueryApp',
     libraryTarget: 'umd'
   },
   module: {

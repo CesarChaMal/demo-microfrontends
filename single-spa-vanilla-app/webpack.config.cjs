@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'single-spa-vanilla-app.js',
-    library: 'single-spa-vanilla-app',
+    library: 'singleSpaVanillaApp',
     libraryTarget: 'umd'
   },
   module: {

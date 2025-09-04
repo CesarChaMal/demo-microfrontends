@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'single-spa-svelte-app.js',
-    library: 'single-spa-svelte-app',
+    library: 'singleSpaSvelteApp',
     libraryTarget: 'umd'
   },
   module: {

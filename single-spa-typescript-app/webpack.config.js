@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'single-spa-typescript-app.js',
-    library: 'single-spa-typescript-app',
+    library: 'singleSpaTypescriptApp',
     libraryTarget: 'umd'
   },
   module: {

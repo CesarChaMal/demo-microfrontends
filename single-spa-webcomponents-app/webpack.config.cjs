@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'single-spa-webcomponents-app.js',
-    library: 'single-spa-webcomponents-app',
+    library: 'singleSpaWebcomponentsApp',
     libraryTarget: 'umd'
   },
   module: {
