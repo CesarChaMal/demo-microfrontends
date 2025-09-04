@@ -114,10 +114,21 @@ start_local() {
 
 start_github() {
     if [ "$ENV" = "prod" ]; then
-        echo "🔧 GitHub production: Creating repos + deploying to GitHub Pages"
-        exec_npm npm run serve:github &
-        echo "📡 GitHub API server: http://localhost:3001"
-        sleep 2
+        echo "🔧 GitHub production: Deploying all microfrontends to GitHub Pages"
+        
+        # Deploy each microfrontend using existing scripts
+        APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
+        
+        for app in "${APPS[@]}"; do
+            echo "📤 Deploying $app app to GitHub Pages..."
+            ./scripts/deploy-github.sh single-spa-${app}-app
+        done
+        
+        # Deploy root application
+        echo "📤 Deploying root application to GitHub Pages..."
+        ./scripts/deploy-github.sh root
+        
+        echo "✅ All deployments complete!"
         echo "🌐 Main application: http://localhost:8080?mode=github"
         exec_npm npm run serve:root -- --env.mode=github
     else
@@ -129,7 +140,12 @@ start_github() {
 
 start_aws() {
     if [ "$ENV" = "prod" ]; then
-        echo "🚀 AWS production: Deploy using ./scripts/deploy-s3.sh prod"
+        echo "🚀 AWS production: Deploying all microfrontends to S3"
+        
+        # Deploy all microfrontends to S3 using existing script
+        ./scripts/deploy-s3.sh prod
+        
+        echo "✅ S3 deployment complete!"
         echo "🌐 Main application: http://localhost:8080?mode=aws"
         echo "🌍 Public S3 Website: ${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com}"
         exec_npm npm run serve:root -- --env.mode=aws
@@ -142,10 +158,23 @@ start_aws() {
 }
 
 start_npm() {
-    echo "📦 Switching to NPM mode and starting server..."
-    npm run mode:npm
-    echo "🌐 Main application: http://localhost:8080?mode=npm"
-    exec_npm npm run serve:npm
+    if [ "$ENV" = "prod" ]; then
+        echo "📦 NPM production: Publishing all packages to NPM"
+        
+        # Publish all packages using existing script
+        ./scripts/publish-all.sh patch
+        
+        echo "✅ NPM publishing complete!"
+        echo "📦 Switching to NPM mode and starting server..."
+        npm run mode:npm
+        echo "🌐 Main application: http://localhost:8080?mode=npm"
+        exec_npm npm run serve:npm
+    else
+        echo "📦 NPM development: Using existing NPM packages"
+        npm run mode:npm
+        echo "🌐 Main application: http://localhost:8080?mode=npm"
+        exec_npm npm run serve:npm
+    fi
 }
 
 start_nexus() {

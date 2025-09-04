@@ -23,6 +23,56 @@ fi
 
 echo "🚀 Deploying to S3 bucket: $BUCKET_NAME ($ENV environment)"
 
+# Check if S3 bucket exists, create if not
+echo "🔍 Checking if S3 bucket exists..."
+if aws s3 ls "s3://$BUCKET_NAME" 2>&1 | grep -q 'NoSuchBucket'; then
+    echo "📦 Creating S3 bucket $BUCKET_NAME..."
+    if [ "$REGION" = "us-east-1" ]; then
+        aws s3 mb "s3://$BUCKET_NAME"
+    else
+        aws s3 mb "s3://$BUCKET_NAME" --region "$REGION"
+    fi
+    
+    echo "🌐 Enabling static website hosting..."
+    aws s3 website "s3://$BUCKET_NAME" --index-document index.html --error-document error.html
+    
+    echo "🔓 Removing public access block..."
+    aws s3api put-public-access-block \
+        --bucket "$BUCKET_NAME" \
+        --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+    
+    echo "📋 Adding public read policy..."
+    aws s3api put-bucket-policy --bucket "$BUCKET_NAME" --policy '{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::'"$BUCKET_NAME"'/*"
+            }
+        ]
+    }'
+    
+    echo "🔧 Setting up CORS configuration..."
+    aws s3api put-bucket-cors --bucket "$BUCKET_NAME" --cors-configuration '{
+        "CORSRules": [
+            {
+                "AllowedHeaders": ["*"],
+                "AllowedMethods": ["GET", "HEAD", "PUT", "POST"],
+                "AllowedOrigins": ["*"],
+                "ExposeHeaders": ["ETag"],
+                "MaxAgeSeconds": 3000
+            }
+        ]
+    }'
+    
+    echo "✅ S3 bucket setup complete!"
+else
+    echo "✅ S3 bucket $BUCKET_NAME already exists"
+fi
+
 # Build all applications
 echo "🔨 Building all applications for $ENV..."
 if [ "$ENV" = "prod" ]; then

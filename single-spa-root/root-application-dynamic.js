@@ -32,67 +32,9 @@ localStorage.setItem('spa-mode', mode);
 console.log(`🚀 Single-SPA Mode: ${mode.toUpperCase()}`);
 console.log(`🔧 Environment Variables - SPA_MODE: ${process.env.SPA_MODE}, SPA_ENV: ${process.env.SPA_ENV}`);
 
-// AWS S3 deployment function
-function deployToAWS() {
-  console.log('🚀 AWS deployment uses existing deployment scripts');
 
-  const { S3_WEBSITE_URL } = window;
 
-  if (S3_WEBSITE_URL) {
-    const message = '🎉 AWS S3 Deployment Available!\n\n'
-                   + `🌍 Public URL: ${S3_WEBSITE_URL}\n\n`
-                   + 'Your application is deployed and live on the internet!';
 
-    alert(message);
-    console.log('🌍 S3 Website URL:', S3_WEBSITE_URL);
-  } else {
-    const message = '🚀 AWS S3 Deployment\n\n'
-                   + 'Run the deployment script to deploy to S3:\n'
-                   + './scripts/deploy-s3.sh prod (Linux/Mac)\n'
-                   + 'scripts\\deploy-s3.bat prod (Windows)';
-
-    alert(message);
-  }
-}
-
-// GitHub repository creation and deployment function
-function createGitHubRepos() {
-  const apps = [
-    'single-spa-auth-app',
-    'single-spa-layout-app',
-    'single-spa-home-app',
-    'single-spa-angular-app',
-    'single-spa-vue-app',
-    'single-spa-react-app',
-    'single-spa-vanilla-app',
-    'single-spa-webcomponents-app',
-    'single-spa-typescript-app',
-    'single-spa-jquery-app',
-    'single-spa-svelte-app',
-    'single-spa-root',
-  ];
-
-  console.log('📦 Creating and deploying GitHub repositories for all microfrontends...');
-
-  // Create all repositories and deploy them
-  fetch('http://localhost:3001/api/create-all-repos', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apps }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        console.log('✅ All repositories created and deployed successfully');
-        console.log('🔄 Repositories will be available at GitHub Pages shortly...');
-      } else {
-        console.log(`⚠️ Repository creation/deployment failed: ${data.error}`);
-      }
-    })
-    .catch((error) => {
-      console.log('⚠️ Could not create/deploy repos - API unavailable:', error);
-    });
-}
 
 function showWhenAnyOf(routes) {
   return function (location) {
@@ -187,9 +129,8 @@ switch (mode) {
     const githubUser = GITHUB_USERNAME || process.env.GITHUB_USERNAME || 'cesarchamal';
 
     if (githubEnv === 'prod') {
-      // Production: Create repos and deploy everything
-      console.log('🔧 GitHub prod mode: Creating and deploying repositories...');
-      createGitHubRepos();
+      // Production: GitHub deployment handled by launcher script
+      console.log('🔧 GitHub prod mode: GitHub Pages deployment completed by launcher');
     } else {
       // Development: Just read from existing GitHub Pages
       console.log('📖 GitHub dev mode: Reading from existing GitHub Pages...');
@@ -229,11 +170,10 @@ switch (mode) {
     const { S3_WEBSITE_URL } = window;
     const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
     if (envEnvironment === 'prod') {
-      // Production: Deploy everything to S3 + show public URL
-      console.log('🔧 AWS prod mode: Use ./scripts/deploy-s3.sh prod to deploy');
-      console.log('🌍 Public S3 Website will be available at:');
+      // Production: S3 deployment handled by launcher script
+      console.log('🔧 AWS prod mode: S3 deployment completed by launcher');
+      console.log('🌍 Public S3 Website:');
       console.log(`   ${publicUrl}`);
-      deployToAWS();
     } else {
       // Development: Just read from existing S3
       console.log('📖 AWS dev mode: Reading from existing S3 deployment...');

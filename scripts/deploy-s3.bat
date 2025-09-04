@@ -28,6 +28,68 @@ if "%BUCKET_NAME%"=="" (
 
 echo 🚀 Deploying to S3 bucket: %BUCKET_NAME% (%ENV% environment)
 
+REM Check if S3 bucket exists, create if not
+echo 🔍 Checking if S3 bucket exists...
+aws s3 ls "s3://%BUCKET_NAME%" >nul 2>&1
+if errorlevel 1 (
+    echo 📦 Creating S3 bucket %BUCKET_NAME%...
+    if "%REGION%"=="us-east-1" (
+        aws s3 mb "s3://%BUCKET_NAME%"
+    ) else (
+        aws s3 mb "s3://%BUCKET_NAME%" --region "%REGION%"
+    )
+    if errorlevel 1 exit /b 1
+    
+    echo 🌐 Enabling static website hosting...
+    aws s3 website "s3://%BUCKET_NAME%" --index-document index.html --error-document error.html
+    if errorlevel 1 exit /b 1
+    
+    echo 🔓 Removing public access block...
+    aws s3api put-public-access-block --bucket "%BUCKET_NAME%" --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+    if errorlevel 1 exit /b 1
+    
+    echo 📋 Adding public read policy...
+    (
+    echo {
+    echo   "Version": "2012-10-17",
+    echo   "Statement": [
+    echo     {
+    echo       "Sid": "PublicReadGetObject",
+    echo       "Effect": "Allow",
+    echo       "Principal": "*",
+    echo       "Action": "s3:GetObject",
+    echo       "Resource": "arn:aws:s3:::%BUCKET_NAME%/*"
+    echo     }
+    echo   ]
+    echo }
+    ) > bucket-policy.json
+    aws s3api put-bucket-policy --bucket "%BUCKET_NAME%" --policy file://bucket-policy.json
+    if errorlevel 1 exit /b 1
+    del bucket-policy.json
+    
+    echo 🔧 Setting up CORS configuration...
+    (
+    echo {
+    echo   "CORSRules": [
+    echo     {
+    echo       "AllowedHeaders": ["*"],
+    echo       "AllowedMethods": ["GET", "HEAD", "PUT", "POST"],
+    echo       "AllowedOrigins": ["*"],
+    echo       "ExposeHeaders": ["ETag"],
+    echo       "MaxAgeSeconds": 3000
+    echo     }
+    echo   ]
+    echo }
+    ) > cors-config.json
+    aws s3api put-bucket-cors --bucket "%BUCKET_NAME%" --cors-configuration file://cors-config.json
+    if errorlevel 1 exit /b 1
+    del cors-config.json
+    
+    echo ✅ S3 bucket setup complete!
+) else (
+    echo ✅ S3 bucket %BUCKET_NAME% already exists
+)
+
 REM Build all applications
 echo 🔨 Building all applications for %ENV%...
 if "%ENV%"=="prod" (
