@@ -66,6 +66,7 @@ module.exports = (env, argv) => {
         orgName: process.env.ORG_NAME,
       }),
       IMPORTMAP_URL: JSON.stringify(process.env.IMPORTMAP_URL),
+      S3_WEBSITE_URL: JSON.stringify(process.env.S3_WEBSITE_URL),
       GITHUB_USERNAME: JSON.stringify(process.env.GITHUB_USERNAME),
     }),
     new CleanWebpackPlugin({

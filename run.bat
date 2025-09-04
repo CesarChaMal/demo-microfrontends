@@ -91,14 +91,11 @@ if "%MODE%"=="local" (
 ) else (
     if "%ENV%"=="prod" (
         if "%MODE%"=="aws" (
-            echo 🚀 Deploying to S3 first...
-            call deploy-s3.bat prod
-            if errorlevel 1 exit /b 1
-            echo.
+            echo 🚀 AWS production: Deploy using deploy-s3.bat prod
             echo 🌐 Starting production server...
             echo Main application: http://localhost:8080?mode=%MODE%
             echo.
-            echo 🌍 Public S3 Website (deployed):
+            echo 🌍 Public S3 Website:
             echo   http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com
         ) else (
             echo 🌐 Starting production server...

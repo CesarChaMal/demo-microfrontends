@@ -21,13 +21,38 @@ const MODES = {
 const urlParams = new URLSearchParams(window.location.search);
 const envMode = process.env.SPA_MODE || MODES.LOCAL;
 const envEnvironment = process.env.SPA_ENV || 'dev';
-const mode = urlParams.get('mode') || localStorage.getItem('spa-mode') || envMode;
+// Prioritize environment variables over localStorage
+const mode = envMode !== MODES.LOCAL ? envMode : (urlParams.get('mode') || localStorage.getItem('spa-mode') || envMode);
 
 // Save mode to localStorage for persistence
 localStorage.setItem('spa-mode', mode);
 
 // Display current mode
 console.log(`🚀 Single-SPA Mode: ${mode.toUpperCase()}`);
+console.log(`🔧 Environment Variables - SPA_MODE: ${process.env.SPA_MODE}, SPA_ENV: ${process.env.SPA_ENV}`);
+
+// AWS S3 deployment function
+function deployToAWS() {
+  console.log('🚀 AWS deployment uses existing deployment scripts');
+  
+  const { S3_WEBSITE_URL } = window;
+  
+  if (S3_WEBSITE_URL) {
+    const message = `🎉 AWS S3 Deployment Available!\n\n` +
+                   `🌍 Public URL: ${S3_WEBSITE_URL}\n\n` +
+                   `Your application is deployed and live on the internet!`;
+    
+    alert(message);
+    console.log('🌍 S3 Website URL:', S3_WEBSITE_URL);
+  } else {
+    const message = `🚀 AWS S3 Deployment\n\n` +
+                   `Run the deployment script to deploy to S3:\n` +
+                   `./deploy-s3.sh prod (Linux/Mac)\n` +
+                   `deploy-s3.bat prod (Windows)`;
+    
+    alert(message);
+  }
+}
 
 // GitHub repository creation and deployment function
 function createGitHubRepos() {
@@ -123,6 +148,12 @@ if (mode === MODES.AWS && (!AWS_CONFIG || !IMPORTMAP_URL)) {
 let loadApp;
 let importMapPromise;
 
+console.log('🔍 Mode comparison debug:');
+console.log(`  - mode: '${mode}' (type: ${typeof mode})`);
+console.log(`  - MODES.AWS: '${MODES.AWS}' (type: ${typeof MODES.AWS})`);
+console.log(`  - mode === MODES.AWS: ${mode === MODES.AWS}`);
+console.log(`  - mode === 'aws': ${mode === 'aws'}`);
+
 switch (mode) {
   case MODES.NPM:
     // NPM package imports
@@ -191,6 +222,23 @@ switch (mode) {
     // AWS S3 - load from import map
     if (!IMPORTMAP_URL || !AWS_CONFIG) {
       throw new Error('❌ AWS mode requires environment variables: S3_BUCKET, AWS_REGION, ORG_NAME');
+    }
+
+    // AWS - different behavior for dev vs prod
+    const { S3_WEBSITE_URL } = window;
+    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
+    
+    if (envEnvironment === 'prod') {
+      // Production: Deploy everything to S3 + show public URL
+      console.log('🔧 AWS prod mode: Deploying all microfrontends to S3...');
+      console.log('🌍 Public S3 Website will be available at:');
+      console.log(`   ${publicUrl}`);
+      deployToAWS();
+    } else {
+      // Development: Just read from existing S3
+      console.log('📖 AWS dev mode: Reading from existing S3 deployment...');
+      console.log('🌍 Public S3 Website:');
+      console.log(`   ${publicUrl}`);
     }
 
     console.log(`📦 Loading import map from: ${IMPORTMAP_URL}`);

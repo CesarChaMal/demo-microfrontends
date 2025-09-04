@@ -129,8 +129,7 @@ start_github() {
 
 start_aws() {
     if [ "$ENV" = "prod" ]; then
-        echo "🚀 AWS production: Deploying to S3 + starting server"
-        ./deploy-s3.sh prod
+        echo "🚀 AWS production: Deploy using ./deploy-s3.sh prod"
         echo "🌐 Main application: http://localhost:8080?mode=aws"
         echo "🌍 Public S3 Website: ${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com}"
         exec_npm npm run serve:root -- --env.mode=aws
