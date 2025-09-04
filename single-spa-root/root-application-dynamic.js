@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable func-names */
 /* eslint-disable no-console */
+/* eslint-disable no-alert */
 import * as singleSpa from 'single-spa';
 import 'zone.js';
 
@@ -218,7 +219,7 @@ switch (mode) {
     break;
   }
 
-  case MODES.AWS:
+  case MODES.AWS: {
     // AWS S3 - load from import map
     if (!IMPORTMAP_URL || !AWS_CONFIG) {
       throw new Error('❌ AWS mode requires environment variables: S3_BUCKET, AWS_REGION, ORG_NAME');
@@ -279,6 +280,7 @@ switch (mode) {
       });
     };
     break;
+  }
 
   case MODES.LOCAL:
   default:
