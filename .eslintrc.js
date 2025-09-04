@@ -18,11 +18,5 @@ module.exports = {
     'no-console': 'off',
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    '*.min.js',
-    'single-spa-*/',
-  ],
+
 };
