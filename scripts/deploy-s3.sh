@@ -104,32 +104,37 @@ else
     echo "✅ S3 bucket $BUCKET_NAME already exists"
 fi
 
-# Build all applications
-echo "🔨 Building all applications for $ENV..."
-echo "🔍 DEBUG: About to run build command"
-if [ "$ENV" = "prod" ]; then
-    echo "🔍 DEBUG: Running npm run build:prod"
-    npm run build:prod
+# Check if called from run.sh (which sets SKIP_BUILD) or standalone
+if [ "${SKIP_BUILD:-}" = "true" ]; then
+    echo "📋 Using pre-built applications from run.sh..."
+    echo "🔍 DEBUG: Skipping build - applications already built by launcher script"
 else
-    echo "🔍 DEBUG: Running npm run build:dev"
-    npm run build:dev
+    echo "🔨 Building all applications for $ENV..."
+    echo "🔍 DEBUG: Standalone mode - building applications"
+    if [ "$ENV" = "prod" ]; then
+        echo "🔍 DEBUG: Running npm run build:prod"
+        npm run build:prod
+    else
+        echo "🔍 DEBUG: Running npm run build:dev"
+        npm run build:dev
+    fi
+    echo "🔍 DEBUG: Build command completed"
+    
+    echo "🔨 Building root application..."
+    echo "🔍 DEBUG: Changing to single-spa-root directory"
+    cd single-spa-root
+    echo "🔍 DEBUG: Current directory: $(pwd)"
+    echo "🔍 DEBUG: Running npm run build in root app"
+    npm run build
+    echo "🔍 DEBUG: Root build completed, returning to parent directory"
+    cd ..
+    echo "🔍 DEBUG: Back in directory: $(pwd)"
 fi
-echo "🔍 DEBUG: Build command completed"
-
-# Build root application
-echo "🔨 Building root application..."
-echo "🔍 DEBUG: Changing to single-spa-root directory"
-cd single-spa-root
-echo "🔍 DEBUG: Current directory: $(pwd)"
-echo "🔍 DEBUG: Running npm run build in root app"
-npm run build
-echo "🔍 DEBUG: Root build completed, returning to parent directory"
-cd ..
-echo "🔍 DEBUG: Back in directory: $(pwd)"
 
 # Deploy root application to S3
 echo "📤 Deploying root application to S3..."
-aws s3 sync single-spa-root/dist/ s3://$BUCKET_NAME/ --delete
+# Exclude hot-update files that can't be uploaded
+aws s3 sync single-spa-root/dist/ s3://$BUCKET_NAME/ --delete --exclude "*.hot-update.*"
 
 # Deploy each microfrontend
 echo "📤 Deploying microfrontends to S3..."

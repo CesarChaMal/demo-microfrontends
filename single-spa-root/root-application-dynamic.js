@@ -182,6 +182,16 @@ switch (mode) {
     console.log('🔧 AWS Config:', AWS_CONFIG);
     importMapPromise = fetch(IMPORTMAP_URL)
       .then((response) => response.json())
+      .then((importMap) => {
+        // Configure SystemJS with the import map
+        console.log('🔧 Configuring SystemJS with import map:', importMap);
+        if (window.System && window.System.addImportMap) {
+          window.System.addImportMap(importMap);
+        } else if (window.System && window.System.config) {
+          window.System.config({ map: importMap.imports });
+        }
+        return importMap;
+      })
       .catch((error) => {
         console.error('Failed to load import map from S3:', error);
         return { imports: {} };
@@ -211,10 +221,26 @@ switch (mode) {
       }
 
       console.log(`Loading ${name} from S3: ${url}`);
-      return window.System.import(url).catch((error) => {
-        console.error(`Failed to load ${name} from S3:`, error);
-        throw error;
-      });
+
+      // Try SystemJS import first, fallback to direct URL import
+      try {
+        const module = await window.System.import(moduleName);
+        console.log(`✅ SystemJS import successful for ${moduleName}:`, module);
+        console.log('🔍 Module keys:', Object.keys(module));
+        console.log('🔍 Has bootstrap:', typeof module.bootstrap);
+        console.log('🔍 Has mount:', typeof module.mount);
+        console.log('🔍 Has unmount:', typeof module.unmount);
+        return module;
+      } catch (systemError) {
+        console.warn(`SystemJS import failed for ${moduleName}, trying direct URL:`, systemError);
+        const module = await window.System.import(url);
+        console.log(`✅ Direct URL import successful for ${url}:`, module);
+        console.log('🔍 Module keys:', Object.keys(module));
+        console.log('🔍 Has bootstrap:', typeof module.bootstrap);
+        console.log('🔍 Has mount:', typeof module.mount);
+        console.log('🔍 Has unmount:', typeof module.unmount);
+        return module;
+      }
     };
     break;
   }

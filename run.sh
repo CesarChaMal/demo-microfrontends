@@ -241,7 +241,7 @@ start_aws() {
     # Deploy all microfrontends to S3 in both dev and prod
     echo "🚀 AWS mode: Deploying all microfrontends to S3"
     echo "🔍 DEBUG: Running npm run deploy:s3:$ENV"
-    if npm run deploy:s3:$ENV; then
+    if SKIP_BUILD=true npm run deploy:s3:$ENV; then
         echo "✅ S3 deployment successful"
     else
         echo "❌ S3 deployment failed"

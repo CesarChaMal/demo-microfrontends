@@ -94,21 +94,34 @@ if errorlevel 1 (
     echo ✅ S3 bucket %BUCKET_NAME% already exists
 )
 
-REM Build all applications
-echo 🔨 Building all applications for %ENV%...
-if "%ENV%"=="prod" (
-    npm run build:prod
+REM Check if called from run.bat (which sets SKIP_BUILD) or standalone
+if "%SKIP_BUILD%"=="true" (
+    echo 📋 Using pre-built applications from run.bat...
+    echo 🔍 DEBUG: Skipping build - applications already built by launcher script
 ) else (
-    npm run build:dev
+    echo 🔨 Building all applications for %ENV%...
+    echo 🔍 DEBUG: Standalone mode - building applications
+    if "%ENV%"=="prod" (
+        echo 🔍 DEBUG: Running npm run build:prod
+        npm run build:prod
+    ) else (
+        echo 🔍 DEBUG: Running npm run build:dev
+        npm run build:dev
+    )
+    if errorlevel 1 exit /b 1
+    echo 🔍 DEBUG: Build command completed
+    
+    echo 🔨 Building root application...
+    echo 🔍 DEBUG: Changing to single-spa-root directory
+    cd single-spa-root
+    echo 🔍 DEBUG: Current directory: %CD%
+    echo 🔍 DEBUG: Running npm run build in root app
+    npm run build
+    if errorlevel 1 exit /b 1
+    echo 🔍 DEBUG: Root build completed, returning to parent directory
+    cd ..
+    echo 🔍 DEBUG: Back in directory: %CD%
 )
-if errorlevel 1 exit /b 1
-
-REM Build root application
-echo 🔨 Building root application...
-cd single-spa-root
-npm run build
-if errorlevel 1 exit /b 1
-cd ..
 
 REM Deploy root application to S3
 echo 📤 Deploying root application to S3...

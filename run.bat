@@ -196,6 +196,7 @@ if "%MODE%"=="local" (
             echo 🔍 DEBUG: AWS mode - ENV=%ENV%, S3_BUCKET=%S3_BUCKET%, AWS_REGION=%AWS_REGION%
             echo 🚀 AWS mode: Deploying all microfrontends to S3
             echo 🔍 DEBUG: Running npm run deploy:s3:%ENV%
+            set SKIP_BUILD=true
             call npm run deploy:s3:%ENV%
             if errorlevel 1 (
                 echo ❌ S3 deployment failed
