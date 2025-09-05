@@ -23,3 +23,5 @@
 //"single-spa-svelte-app": "0.1.0",
 
  npx eslint root-application-dynamic.js --fix
+
+ ws s3 sync single-spa-root/dist/ s3://single-spa-demo-774145483743/ --exclude "*.hot-update.*"

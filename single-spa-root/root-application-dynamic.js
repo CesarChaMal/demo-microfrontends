@@ -22,11 +22,24 @@ const MODES = {
 const urlParams = new URLSearchParams(window.location.search);
 const envMode = process.env.SPA_MODE || MODES.LOCAL;
 const envEnvironment = process.env.SPA_ENV || 'dev';
-// Prioritize environment variables over localStorage
-const mode = envMode !== MODES.LOCAL ? envMode : (urlParams.get('mode') || localStorage.getItem('spa-mode') || envMode);
 
-// Save mode to localStorage for persistence
-localStorage.setItem('spa-mode', mode);
+// Auto-detect mode based on hostname
+let detectedMode = envMode;
+if (window.location.hostname.includes('.s3-website-') || window.location.hostname.includes('.s3.')) {
+  console.log('🔍 Auto-detected S3 website, switching to AWS mode');
+  detectedMode = MODES.AWS;
+} else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  console.log('🔍 Auto-detected localhost, using environment mode:', envMode);
+  detectedMode = envMode; // Use environment variable setting
+}
+
+// Prioritize auto-detection, then URL parameter, then localStorage, then environment
+const mode = urlParams.get('mode') || (detectedMode !== envMode ? detectedMode : localStorage.getItem('spa-mode')) || envMode;
+
+// Save mode to localStorage for persistence (only if not auto-detected)
+if (!window.location.hostname.includes('.s3-website-') && !window.location.hostname.includes('.s3.')) {
+  localStorage.setItem('spa-mode', mode);
+}
 
 // Display current mode
 console.log(`🚀 Single-SPA Mode: ${mode.toUpperCase()}`);
@@ -296,45 +309,63 @@ switch (mode) {
     console.log(`📦 Loading import map from: ${IMPORTMAP_URL}`);
     console.log('🔧 AWS Config:', AWS_CONFIG);
     importMapPromise = fetch(IMPORTMAP_URL)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch import map: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then((importMap) => {
         // Configure SystemJS with the import map
         console.log('🔧 Configuring SystemJS with import map:', importMap);
-        if (window.System && window.System.addImportMap) {
-          window.System.addImportMap(importMap);
-        } else if (window.System && window.System.config) {
-          window.System.config({ map: importMap.imports });
+
+        // Ensure SystemJS is available
+        if (!window.System) {
+          throw new Error('SystemJS is not available');
         }
+
+        // Configure SystemJS with the import map
+        if (window.System.addImportMap) {
+          window.System.addImportMap(importMap);
+        } else if (window.System.config) {
+          window.System.config({ map: importMap.imports });
+        } else {
+          // Fallback: manually set the map
+          window.System.map = window.System.map || {};
+          Object.assign(window.System.map, importMap.imports);
+        }
+
+        console.log('✅ SystemJS configured with import map');
         return importMap;
       })
       .catch((error) => {
-        console.error('Failed to load import map from S3:', error);
+        console.error('❌ Failed to load import map from S3:', error);
         return { imports: {} };
       });
 
     loadApp = async (name) => {
-      const importMap = await importMapPromise;
-      const appNameMap = getAWSAppUrls();
-
-      const moduleName = appNameMap[name];
-      const url = importMap.imports[moduleName];
-
-      if (!url) {
-        throw new Error(`Module ${moduleName} not found in import map`);
-      }
-
-      console.log(`Loading ${name} from S3: ${url}`);
-
-      // Try SystemJS import first, fallback to direct URL import
       try {
-        const module = await window.System.import(moduleName);
+        // Wait for import map to be loaded
+        const importMap = await importMapPromise;
+        const appNameMap = getAWSAppUrls();
+        const moduleName = appNameMap[name];
+        const url = importMap.imports[moduleName];
+
+        if (!url) {
+          throw new Error(`Module ${moduleName} not found in import map. Available modules: ${Object.keys(importMap.imports).join(', ')}`);
+        }
+
+        console.log(`Loading ${name} from S3: ${url}`);
+        console.log(`🔍 Module name: ${moduleName}`);
+        console.log(`🔍 Resolved URL: ${url}`);
+
+        // Use direct URL import to avoid SystemJS resolution issues
+        const module = await window.System.import(url);
         console.log(`✅ SystemJS import successful for ${moduleName}:`, module);
         return resolveLifecycles(module, name);
-      } catch (systemError) {
-        console.warn(`SystemJS import failed for ${moduleName}, trying direct URL:`, systemError);
-        const module = await window.System.import(url);
-        console.log(`✅ Direct URL import successful for ${url}:`, module);
-        return resolveLifecycles(module, name);
+      } catch (error) {
+        console.error(`❌ Failed to load ${name} from AWS S3:`, error);
+        throw error;
       }
     };
     break;
@@ -458,6 +489,12 @@ window.addEventListener('single-spa:routing-event', (evt) => {
 window.addEventListener('single-spa:app-change', (evt) => {
   console.log('📍 Single-SPA app change:', evt.detail);
 });
+
+// Auto-redirect to login if not authenticated and at root
+if (!isAuthenticated() && window.location.pathname === '/') {
+  console.log('🔄 Not authenticated, redirecting to /login');
+  window.history.pushState(null, null, '/login');
+}
 
 console.log('🚀 Starting Single-SPA...');
 singleSpa.start();
