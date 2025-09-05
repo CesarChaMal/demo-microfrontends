@@ -125,7 +125,7 @@ if "%SKIP_BUILD%"=="true" (
 
 REM Deploy root application to S3
 echo 📤 Deploying root application to S3...
-aws s3 sync single-spa-root/dist/ s3://%BUCKET_NAME%/ --delete
+aws s3 sync single-spa-root/dist/ s3://%BUCKET_NAME%/ --delete --exclude "*.hot-update.*"
 if errorlevel 1 exit /b 1
 
 REM Deploy each microfrontend

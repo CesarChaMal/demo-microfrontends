@@ -84,6 +84,62 @@ if (mode === MODES.AWS && (!AWS_CONFIG || !IMPORTMAP_URL)) {
   console.warn('⚠️ AWS configuration not found. Make sure environment variables are set: S3_BUCKET, AWS_REGION, ORG_NAME');
 }
 
+// Shared function to resolve single-spa lifecycle functions from loaded modules
+function resolveLifecycles(module, name) {
+  console.log(`🔍 Module keys:`, Object.keys(module));
+  console.log(`🔍 Has bootstrap:`, module.bootstrap);
+  console.log(`🔍 Has mount:`, module.mount);
+  console.log(`🔍 Has unmount:`, module.unmount);
+
+  let lifecycles;
+
+  // Check if it's a proper single-spa app with lifecycle functions
+  if (module.bootstrap && module.mount && module.unmount) {
+    lifecycles = module;
+  } else if (module.default && module.default.bootstrap) {
+    lifecycles = module.default;
+  } else if (window['single-spa-layout-app']) {
+    // Check if it's exposed on window (UMD)
+    lifecycles = window['single-spa-layout-app'];
+  } else if (window[name.replace(/-/g, '')]) {
+    // Check if it's exposed on window (UMD)
+    const globalName = name.replace(/-/g, '');
+    console.log('globalName: ', globalName);
+    lifecycles = window[globalName];
+  } else {
+    // Try specific UMD global names
+    const umdGlobals = {
+      'single-spa-auth-app': 'singleSpaAuthApp',
+      'single-spa-layout-app': 'singleSpaLayoutApp',
+      'single-spa-home-app': 'singleSpaHomeApp',
+      'single-spa-angular-app': 'singleSpaAngularApp',
+      'single-spa-vue-app': 'singleSpaVueApp',
+      'single-spa-react-app': 'singleSpaReactApp',
+      'single-spa-vanilla-app': 'singleSpaVanillaApp',
+      'single-spa-webcomponents-app': 'singleSpaWebcomponentsApp',
+      'single-spa-typescript-app': 'singleSpaTypescriptApp',
+      'single-spa-jquery-app': 'singleSpaJqueryApp',
+      'single-spa-svelte-app': 'singleSpaSvelteApp',
+    };
+    const umdGlobalName = umdGlobals[name];
+    console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
+    console.log('🔍 Debug: Available globals:', Object.keys(window).filter((k) => k.includes('single') || k.includes('Spa')));
+
+    if (umdGlobalName && window[umdGlobalName]) {
+      console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
+      lifecycles = window[umdGlobalName];
+    } else {
+      console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
+      console.log('🔍 Debug: Module structure:', module);
+      console.log('🔍 Debug: Expected UMD global:', umdGlobalName);
+      console.log('🔍 Debug: Available on window:', !!window[umdGlobalName]);
+      throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
+    }
+  }
+
+  return lifecycles;
+}
+
 // Configure loading strategy based on mode
 let loadApp;
 let importMapPromise;
@@ -94,28 +150,96 @@ console.log(`  - MODES.AWS: '${MODES.AWS}' (type: ${typeof MODES.AWS})`);
 console.log(`  - mode === MODES.AWS: ${mode === MODES.AWS}`);
 console.log(`  - mode === 'aws': ${mode === 'aws'}`);
 
+function getLocalAppUrls(isProduction) {
+  return isProduction ? {
+    // Production: Load from root server static files
+    'single-spa-auth-app': '/single-spa-auth-app.umd.js',
+    'single-spa-layout-app': '/single-spa-layout-app.umd.js',
+    'single-spa-home-app': '/single-spa-home-app.js',
+    'single-spa-angular-app': '/single-spa-angular-app.js',
+    'single-spa-vue-app': '/single-spa-vue-app.umd.js',
+    'single-spa-react-app': '/single-spa-react-app.js',
+    'single-spa-vanilla-app': '/single-spa-vanilla-app.js',
+    'single-spa-webcomponents-app': '/single-spa-webcomponents-app.js',
+    'single-spa-typescript-app': '/single-spa-typescript-app.js',
+    'single-spa-jquery-app': '/single-spa-jquery-app.js',
+    'single-spa-svelte-app': '/single-spa-svelte-app.js',
+  } : {
+    // Development: Load from individual ports
+    'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
+    'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
+    'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
+    'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
+    'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.umd.js',
+    'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
+    'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
+    'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
+    'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
+    'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
+    'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
+  };
+}
+
+function getGitHubAppUrls(githubUser) {
+  return {
+    'single-spa-auth-app': `https://${githubUser}.github.io/single-spa-auth-app/single-spa-auth-app.js`,
+    'single-spa-layout-app': `https://${githubUser}.github.io/single-spa-layout-app/single-spa-layout-app.js`,
+    'single-spa-home-app': `https://${githubUser}.github.io/single-spa-home-app/single-spa-home-app.js`,
+    'single-spa-angular-app': `https://${githubUser}.github.io/single-spa-angular-app/single-spa-angular-app.js`,
+    'single-spa-vue-app': `https://${githubUser}.github.io/single-spa-vue-app/single-spa-vue-app.js`,
+    'single-spa-react-app': `https://${githubUser}.github.io/single-spa-react-app/single-spa-react-app.js`,
+    'single-spa-vanilla-app': `https://${githubUser}.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js`,
+    'single-spa-webcomponents-app': `https://${githubUser}.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js`,
+    'single-spa-typescript-app': `https://${githubUser}.github.io/single-spa-typescript-app/single-spa-typescript-app.js`,
+    'single-spa-jquery-app': `https://${githubUser}.github.io/single-spa-jquery-app/single-spa-jquery-app.js`,
+    'single-spa-svelte-app': `https://${githubUser}.github.io/single-spa-svelte-app/single-spa-svelte-app.js`,
+  };
+}
+
+function getAWSAppUrls() {
+  return {
+    'single-spa-auth-app': `@${AWS_CONFIG.orgName}/auth-app`,
+    'single-spa-layout-app': `@${AWS_CONFIG.orgName}/layout-app`,
+    'single-spa-home-app': `@${AWS_CONFIG.orgName}/home-app`,
+    'single-spa-angular-app': `@${AWS_CONFIG.orgName}/angular-app`,
+    'single-spa-vue-app': `@${AWS_CONFIG.orgName}/vue-app`,
+    'single-spa-react-app': `@${AWS_CONFIG.orgName}/react-app`,
+    'single-spa-vanilla-app': `@${AWS_CONFIG.orgName}/vanilla-app`,
+    'single-spa-webcomponents-app': `@${AWS_CONFIG.orgName}/webcomponents-app`,
+    'single-spa-typescript-app': `@${AWS_CONFIG.orgName}/typescript-app`,
+    'single-spa-jquery-app': `@${AWS_CONFIG.orgName}/jquery-app`,
+    'single-spa-svelte-app': `@${AWS_CONFIG.orgName}/svelte-app`,
+  };
+}
+
 switch (mode) {
   case MODES.NPM:
     // NPM package imports
-    loadApp = (name) => {
+    loadApp = async (name) => {
       console.log(`Loading ${name} from NPM`);
-      return import(name).catch((error) => {
+      try {
+        const module = await import(name);
+        return resolveLifecycles(module, name);
+      } catch (error) {
         console.error(`Failed to load ${name} from NPM:`, error);
         throw error;
-      });
+      }
     };
     break;
 
   case MODES.NEXUS:
     // Nexus private registry imports (scoped packages)
-    loadApp = (name) => {
+    loadApp = async (name) => {
       // Convert package name to scoped Nexus package
       const scopedName = `@cesarchamal/${name}`;
       console.log(`Loading ${name} from Nexus: ${scopedName}`);
-      return import(scopedName).catch((error) => {
+      try {
+        const module = await import(scopedName);
+        return resolveLifecycles(module, name);
+      } catch (error) {
         console.error(`Failed to load ${name} from Nexus:`, error);
         throw error;
-      });
+      }
     };
     break;
 
@@ -133,26 +257,17 @@ switch (mode) {
       console.log('📖 GitHub dev mode: Reading from existing GitHub Pages...');
     }
 
-    loadApp = (name) => {
-      const appUrls = {
-        'single-spa-auth-app': `https://${githubUser}.github.io/single-spa-auth-app/single-spa-auth-app.js`,
-        'single-spa-layout-app': `https://${githubUser}.github.io/single-spa-layout-app/single-spa-layout-app.js`,
-        'single-spa-home-app': `https://${githubUser}.github.io/single-spa-home-app/single-spa-home-app.js`,
-        'single-spa-angular-app': `https://${githubUser}.github.io/single-spa-angular-app/single-spa-angular-app.js`,
-        'single-spa-vue-app': `https://${githubUser}.github.io/single-spa-vue-app/single-spa-vue-app.js`,
-        'single-spa-react-app': `https://${githubUser}.github.io/single-spa-react-app/single-spa-react-app.js`,
-        'single-spa-vanilla-app': `https://${githubUser}.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js`,
-        'single-spa-webcomponents-app': `https://${githubUser}.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js`,
-        'single-spa-typescript-app': `https://${githubUser}.github.io/single-spa-typescript-app/single-spa-typescript-app.js`,
-        'single-spa-jquery-app': `https://${githubUser}.github.io/single-spa-jquery-app/single-spa-jquery-app.js`,
-        'single-spa-svelte-app': `https://${githubUser}.github.io/single-spa-svelte-app/single-spa-svelte-app.js`,
-      };
+    loadApp = async (name) => {
+      const appUrls = getGitHubAppUrls(githubUser);
       const url = appUrls[name];
       console.log(`Loading ${name} from GitHub: ${url}`);
-      return import(url).catch((error) => {
+      try {
+        const module = await import(url);
+        return resolveLifecycles(module, name);
+      } catch (error) {
         console.error(`Failed to load ${name} from GitHub:`, error);
         throw error;
-      });
+      }
     };
     break;
   }
@@ -199,19 +314,7 @@ switch (mode) {
 
     loadApp = async (name) => {
       const importMap = await importMapPromise;
-      const appNameMap = {
-        'single-spa-auth-app': `@${AWS_CONFIG.orgName}/auth-app`,
-        'single-spa-layout-app': `@${AWS_CONFIG.orgName}/layout-app`,
-        'single-spa-home-app': `@${AWS_CONFIG.orgName}/home-app`,
-        'single-spa-angular-app': `@${AWS_CONFIG.orgName}/angular-app`,
-        'single-spa-vue-app': `@${AWS_CONFIG.orgName}/vue-app`,
-        'single-spa-react-app': `@${AWS_CONFIG.orgName}/react-app`,
-        'single-spa-vanilla-app': `@${AWS_CONFIG.orgName}/vanilla-app`,
-        'single-spa-webcomponents-app': `@${AWS_CONFIG.orgName}/webcomponents-app`,
-        'single-spa-typescript-app': `@${AWS_CONFIG.orgName}/typescript-app`,
-        'single-spa-jquery-app': `@${AWS_CONFIG.orgName}/jquery-app`,
-        'single-spa-svelte-app': `@${AWS_CONFIG.orgName}/svelte-app`,
-      };
+      const appNameMap = getAWSAppUrls();
 
       const moduleName = appNameMap[name];
       const url = importMap.imports[moduleName];
@@ -226,20 +329,12 @@ switch (mode) {
       try {
         const module = await window.System.import(moduleName);
         console.log(`✅ SystemJS import successful for ${moduleName}:`, module);
-        console.log('🔍 Module keys:', Object.keys(module));
-        console.log('🔍 Has bootstrap:', typeof module.bootstrap);
-        console.log('🔍 Has mount:', typeof module.mount);
-        console.log('🔍 Has unmount:', typeof module.unmount);
-        return module;
+        return resolveLifecycles(module, name);
       } catch (systemError) {
         console.warn(`SystemJS import failed for ${moduleName}, trying direct URL:`, systemError);
         const module = await window.System.import(url);
         console.log(`✅ Direct URL import successful for ${url}:`, module);
-        console.log('🔍 Module keys:', Object.keys(module));
-        console.log('🔍 Has bootstrap:', typeof module.bootstrap);
-        console.log('🔍 Has mount:', typeof module.mount);
-        console.log('🔍 Has unmount:', typeof module.unmount);
-        return module;
+        return resolveLifecycles(module, name);
       }
     };
     break;
@@ -262,95 +357,19 @@ switch (mode) {
       console.log('  - envEnvironment:', envEnvironment);
       console.log('  - isProduction:', isProduction);
       console.log('  - Mode will be:', isProduction ? 'PRODUCTION (root server)' : 'DEVELOPMENT (individual ports)');
-
-      const appUrls = isProduction ? {
-        // Production: Load from root server static files
-        'single-spa-auth-app': '/single-spa-auth-app.umd.js',
-        'single-spa-layout-app': '/single-spa-layout-app.umd.js',
-        'single-spa-home-app': '/single-spa-home-app.js',
-        'single-spa-angular-app': '/single-spa-angular-app.js',
-        'single-spa-vue-app': '/single-spa-vue-app.umd.js',
-        'single-spa-react-app': '/single-spa-react-app.js',
-        'single-spa-vanilla-app': '/single-spa-vanilla-app.js',
-        'single-spa-webcomponents-app': '/single-spa-webcomponents-app.js',
-        'single-spa-typescript-app': '/single-spa-typescript-app.js',
-        'single-spa-jquery-app': '/single-spa-jquery-app.js',
-        'single-spa-svelte-app': '/single-spa-svelte-app.js',
-      } : {
-        // Development: Load from individual ports
-        'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
-        'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
-        'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
-        'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
-        'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.umd.js',
-        'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
-        'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
-        'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
-        'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
-        'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
-        'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
-      };
+      const appUrls = getLocalAppUrls(isProduction);
       const url = appUrls[name];
       console.log(`🚀 Loading ${name} from ${url}`);
       console.log(`🔍 Debug: Using ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} URLs for ${name}`);
 
       return window.System.import(url).then((module) => {
         console.log(`✅ Successfully loaded ${name}:`, module);
-
-
-        // Handle different module formats
-        let lifecycles;
-
-        // Check if it's a proper single-spa app with lifecycle functions
-        if (module.bootstrap && module.mount && module.unmount) {
-          lifecycles = module;
-        } else if (module.default && module.default.bootstrap) {
-          lifecycles = module.default;
-        } else if (window['single-spa-layout-app']) {
-          // Check if it's exposed on window (UMD)
-          lifecycles = window['single-spa-layout-app'];
-        } else if (window[name.replace(/-/g, '')]) {
-          // Check if it's exposed on window (UMD)
-          const globalName = name.replace(/-/g, '');
-          console.log('globalName: ', globalName);
-          lifecycles = window[globalName];
-        } else {
-          // Try specific UMD global names
-          const umdGlobals = {
-            'single-spa-auth-app': 'singleSpaAuthApp',
-            'single-spa-layout-app': 'singleSpaLayoutApp',
-            'single-spa-home-app': 'singleSpaHomeApp',
-            'single-spa-angular-app': 'singleSpaAngularApp',
-            'single-spa-vue-app': 'singleSpaVueApp',
-            'single-spa-react-app': 'singleSpaReactApp',
-            'single-spa-vanilla-app': 'singleSpaVanillaApp',
-            'single-spa-webcomponents-app': 'singleSpaWebcomponentsApp',
-            'single-spa-typescript-app': 'singleSpaTypescriptApp',
-            'single-spa-jquery-app': 'singleSpaJqueryApp',
-            'single-spa-svelte-app': 'singleSpaSvelteApp',
-          };
-          const umdGlobalName = umdGlobals[name];
-          console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
-          console.log('🔍 Debug: Available globals:', Object.keys(window).filter((k) => k.includes('single') || k.includes('Spa')));
-
-          if (umdGlobalName && window[umdGlobalName]) {
-            console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
-            lifecycles = window[umdGlobalName];
-          } else {
-            console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
-            console.log('🔍 Debug: Module structure:', module);
-            console.log('🔍 Debug: Expected UMD global:', umdGlobalName);
-            console.log('🔍 Debug: Available on window:', !!window[umdGlobalName]);
-            throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
-          }
-        }
-
+        const lifecycles = resolveLifecycles(module, name);
         console.log(`✅ ${name} lifecycles resolved:`, {
           bootstrap: typeof lifecycles.bootstrap,
           mount: typeof lifecycles.mount,
           unmount: typeof lifecycles.unmount,
         });
-
         return lifecycles;
       }).catch((error) => {
         console.error(`❌ Failed to load ${name} locally:`, error);
