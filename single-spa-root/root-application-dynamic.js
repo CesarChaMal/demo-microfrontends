@@ -86,10 +86,10 @@ if (mode === MODES.AWS && (!AWS_CONFIG || !IMPORTMAP_URL)) {
 
 // Shared function to resolve single-spa lifecycle functions from loaded modules
 function resolveLifecycles(module, name) {
-  console.log(`🔍 Module keys:`, Object.keys(module));
-  console.log(`🔍 Has bootstrap:`, module.bootstrap);
-  console.log(`🔍 Has mount:`, module.mount);
-  console.log(`🔍 Has unmount:`, module.unmount);
+  console.log('🔍 Module keys:', Object.keys(module));
+  console.log('🔍 Has bootstrap:', module.bootstrap);
+  console.log('🔍 Has mount:', module.mount);
+  console.log('🔍 Has unmount:', module.unmount);
 
   let lifecycles;
 
