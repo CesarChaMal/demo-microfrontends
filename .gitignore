@@ -21,6 +21,8 @@ target/
 
 # NPM configuration with credentials
 .npmrc
+.npmrc.backup
+.npmrc.nexus
 
 # IDE and Editor files
 .vscode/

@@ -68,10 +68,19 @@ else
     exit 1
 fi
 
-# Check if dist directory exists
-if [ ! -d "dist" ]; then
-    echo "❌ Error: dist directory not found after build"
-    exit 1
+# Check if build output exists
+if [ "$APP_NAME" = "root" ]; then
+    # Root app builds to current directory
+    if [ ! -f "index.html" ] || [ ! -f "root-application.js" ]; then
+        echo "❌ Error: Root app build files not found"
+        exit 1
+    fi
+else
+    # Other apps build to dist directory
+    if [ ! -d "dist" ]; then
+        echo "❌ Error: dist directory not found after build"
+        exit 1
+    fi
 fi
 
 # Create GitHub repository if it doesn't exist
@@ -121,7 +130,13 @@ fi
 
 # Copy dist contents to root for GitHub Pages
 echo "📁 Preparing files for GitHub Pages..."
-cp -r dist/* .
+if [ "$APP_NAME" = "root" ]; then
+    # Root app builds to current directory, no need to copy
+    echo "📁 Root app files already in place"
+else
+    # Other apps build to dist directory
+    cp -r dist/* .
+fi
 
 # Only commit if there are changes
 if [ -n "$(git status --porcelain)" ]; then

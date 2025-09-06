@@ -139,6 +139,13 @@ fi
 # Define startup behavior based on mode and environment
 start_local() {
     echo "🔍 DEBUG: Local mode - ENV=$ENV, NODE_VERSION=$(node --version), NPM_VERSION=$(npm --version)"
+    
+    # Restore original .npmrc for local mode
+    if [ -f ".npmrc.backup" ]; then
+        echo "🔄 Restoring original .npmrc configuration..."
+        cp .npmrc.backup .npmrc
+        rm .npmrc.backup
+    fi
     echo "🔍 DEBUG: Available ports check:"
     for port in 8080 4201 4202 4203 4204 4205 4206 4207 4208 4209 4210 4211; do
         # Cross-platform port checking
@@ -295,6 +302,14 @@ start_aws() {
 start_npm() {
     echo "🔍 DEBUG: NPM mode - ENV=$ENV, NPM_TOKEN=${NPM_TOKEN:+SET}"
     
+    # Switch to NPM .npmrc configuration
+    echo "🔄 Switching to NPM .npmrc configuration..."
+    if [ -f ".npmrc" ]; then
+        cp .npmrc .npmrc.backup
+    fi
+    cp .npmrc.npm .npmrc
+    echo "📝 Registry switched to: $(npm config get registry)"
+    
     # Check if user is logged in to NPM for both dev and prod
     if ! npm whoami >/dev/null 2>&1; then
         echo "❌ Error: Not logged in to NPM. Run 'npm login' first"
@@ -306,6 +321,11 @@ start_npm() {
     # Build root application with NPM mode configuration
     echo "🔨 Building root application for NPM deployment..."
     exec_npm npm run build:root:npm
+    
+    # Verify .npmrc is correctly set for NPM publishing
+    echo "🔍 DEBUG: Current registry: $(npm config get registry)"
+    echo "🔍 DEBUG: Current .npmrc contents:"
+    head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
     
     # Publish packages (microfrontends + root app in prod)
     echo "📦 NPM mode: Publishing packages to NPM"
@@ -343,12 +363,25 @@ start_npm() {
 
 start_nexus() {
     echo "🔍 DEBUG: Nexus mode - ENV=$ENV, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
-    echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
+    
+    # Switch to Nexus .npmrc configuration
+    echo "🔄 Switching to Nexus .npmrc configuration..."
+    if [ -f ".npmrc" ]; then
+        cp .npmrc .npmrc.backup
+    fi
+    cp .npmrc.nexus .npmrc
+    echo "📝 Registry switched to: $(npm config get registry)"
+    
     echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
     
     # Build root application with Nexus mode configuration
     echo "🔨 Building root application for Nexus deployment..."
     exec_npm npm run build:root:nexus
+    
+    # Verify .npmrc is correctly set for Nexus publishing
+    echo "🔍 DEBUG: Current registry: $(npm config get registry)"
+    echo "🔍 DEBUG: Current .npmrc contents:"
+    head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
     
     # Publish packages (microfrontends + root app in prod)
     echo "📦 Nexus mode: Publishing packages to Nexus registry"
