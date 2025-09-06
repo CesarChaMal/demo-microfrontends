@@ -176,11 +176,11 @@ start_local() {
 }
 
 start_github() {
-    echo "🔍 DEBUG: GitHub mode - ENV=$ENV, GITHUB_TOKEN=${GITHUB_TOKEN:+SET}, GITHUB_USERNAME=${GITHUB_USERNAME:-NOT_SET}"
+    echo "🔍 DEBUG: GitHub mode - ENV=$ENV, GITHUB_API_TOKEN=${GITHUB_API_TOKEN:+SET}, GITHUB_USERNAME=${GITHUB_USERNAME:-NOT_SET}"
     
     # Check prerequisites for both dev and prod
-    if [ -z "$GITHUB_TOKEN" ]; then
-        echo "❌ Error: GITHUB_TOKEN not set in .env"
+    if [ -z "$GITHUB_API_TOKEN" ]; then
+        echo "❌ Error: GITHUB_API_TOKEN not set in .env"
         exit 1
     fi
     

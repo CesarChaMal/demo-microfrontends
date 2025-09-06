@@ -19,6 +19,9 @@ target/
 .env.test.local
 .env.production.local
 
+# NPM configuration with credentials
+.npmrc
+
 # IDE and Editor files
 .vscode/
 .idea/

@@ -35,12 +35,8 @@ if (window.location.hostname.includes('.s3-website-')
   detectedMode = envMode;
 }
 
-// Prioritize auto-detection, then URL parameter, then localStorage, then environment
-// const mode = urlParams.get('mode') || (detectedMode !== envMode ? detectedMode :
-// localStorage.getItem('spa-mode')) || envMode;
-const mode = urlParams.get('mode')
-    || (detectedMode !== envMode ? detectedMode : localStorage.getItem('spa-mode'))
-    || envMode;
+// Prioritize URL parameter, then environment mode, then localStorage, then auto-detection
+const mode = urlParams.get('mode') || envMode || localStorage.getItem('spa-mode') || detectedMode;
 // localStorage.setItem('spa-mode', mode);
 
 // Save mode to localStorage for persistence (only if not auto-detected)
@@ -206,11 +202,11 @@ function getLocalAppUrls(isProduction) {
 
 function getGitHubAppUrls(githubUser) {
   return {
-    'single-spa-auth-app': `https://${githubUser}.github.io/single-spa-auth-app/single-spa-auth-app.js`,
-    'single-spa-layout-app': `https://${githubUser}.github.io/single-spa-layout-app/single-spa-layout-app.js`,
+    'single-spa-auth-app': `https://${githubUser}.github.io/single-spa-auth-app/single-spa-auth-app.umd.js`,
+    'single-spa-layout-app': `https://${githubUser}.github.io/single-spa-layout-app/single-spa-layout-app.umd.js`,
     'single-spa-home-app': `https://${githubUser}.github.io/single-spa-home-app/single-spa-home-app.js`,
     'single-spa-angular-app': `https://${githubUser}.github.io/single-spa-angular-app/single-spa-angular-app.js`,
-    'single-spa-vue-app': `https://${githubUser}.github.io/single-spa-vue-app/single-spa-vue-app.js`,
+    'single-spa-vue-app': `https://${githubUser}.github.io/single-spa-vue-app/single-spa-vue-app.umd.js`,
     'single-spa-react-app': `https://${githubUser}.github.io/single-spa-react-app/single-spa-react-app.js`,
     'single-spa-vanilla-app': `https://${githubUser}.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js`,
     'single-spa-webcomponents-app': `https://${githubUser}.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js`,

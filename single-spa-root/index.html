@@ -6,9 +6,7 @@
     <title>Single Spa microfrontends example</title>
 
     <!-- Set base href only for S3 production deployment -->
-    <% if (useS3Paths) { %>
-    <base href="<%= publicPath %>">
-    <% } %>
+    
 </head>
 
 <body>
@@ -43,31 +41,29 @@
 
 <!-- Set global configuration for different modes -->
 <script>
-    window.IMPORTMAP_URL = '<%= importmapUrl %>';
+    window.IMPORTMAP_URL = 'https://single-spa-demo-774145483743.s3.eu-central-1.amazonaws.com/@cesarchamal/importmap.json';
     window.AWS_CONFIG = {
-        s3Bucket: '<%= s3Bucket %>',
-        region: '<%= awsRegion %>',
-        orgName: '<%= orgName %>'
+        s3Bucket: 'single-spa-demo-774145483743',
+        region: 'eu-central-1',
+        orgName: 'cesarchamal'
     };
-    window.GITHUB_USERNAME = '<%= githubUsername %>';
-    window.S3_WEBSITE_URL = '<%= mode === "aws" ? "https://" + s3Bucket + ".s3-website-" + awsRegion + ".amazonaws.com" : "" %>';
+    window.GITHUB_USERNAME = 'cesarchamal';
+    window.S3_WEBSITE_URL = '';
 
     // Debug information
     console.log('🔧 HTML Template Configuration:');
-    console.log('  - Mode:', '<%= mode %>');
-    console.log('  - Production:', <%= isProduction %>);
-    console.log('  - Use S3 Paths:', <%= useS3Paths %>);
-    console.log('  - Public Path:', '<%= publicPath %>');
+    console.log('  - Mode:', 'github');
+    console.log('  - Production:', true);
+    console.log('  - Use S3 Paths:', false);
+    console.log('  - Public Path:', '/');
     console.log('  - Import Map URL:', window.IMPORTMAP_URL);
     console.log('  - S3 Website URL:', window.S3_WEBSITE_URL);
 </script>
 
 <!-- Load your root application -->
-<% if (useS3Paths) { %>
-<script src="<%= publicPath %>root-application.js"></script>
-<% } else { %>
+
 <script src="/root-application.js"></script>
-<% } %>
+
 
 <!-- Mount points for microfrontends -->
 <div id="auth-app"></div>
