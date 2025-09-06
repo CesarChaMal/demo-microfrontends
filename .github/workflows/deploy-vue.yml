@@ -25,6 +25,9 @@ jobs:
         cache: 'npm'
         cache-dependency-path: single-spa-vue-app/package-lock.json
 
+    - name: Configure NPM registry
+      run: npm config set registry https://registry.npmjs.org/
+      
     - name: Install dependencies
       run: npm install --legacy-peer-deps
 
