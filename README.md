@@ -271,6 +271,11 @@ npm run build
 
 ## Available Scripts
 
+### Trigger Scripts
+- `npm run trigger:actions` - Trigger all GitHub Actions deployments
+- `npm run trigger:deploy:aws` - Trigger AWS S3 deployment
+- `npm run trigger:deploy:github` - Trigger GitHub Pages deployment
+
 ### Mode-Specific Scripts
 - `npm run serve:local:dev` - Start in local development mode
 - `npm run serve:local:prod` - Start in local production mode
