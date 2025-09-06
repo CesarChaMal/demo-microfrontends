@@ -658,6 +658,158 @@ npm run serve:npm
 npm run mode:status
 ```
 
+## Deployment Modes
+
+This project supports 5 different deployment modes, each with specific configuration and use cases:
+
+### **1. Local Mode** 🏠
+```bash
+# Configuration
+SPA_MODE=local
+SPA_ENV=dev|prod
+
+# URLs
+Dev:  http://localhost:4201-4211/app-name.js
+Prod: /app-name.js (served from root server)
+
+# Deployment
+- No external deployment
+- Serves from local dev servers or static files
+- 12 individual ports (4201-4211) in dev
+- Single server (8080) in prod
+
+# Build Process
+npm run build:dev   # Individual dev servers
+npm run build:prod  # Static files to root/dist
+```
+
+### **2. NPM Mode** 📦
+```bash
+# Configuration  
+SPA_MODE=npm
+Requires: npm login, published packages
+
+# Package Structure
+@cesarchamal/single-spa-auth-app@0.1.0
+@cesarchamal/single-spa-layout-app@0.1.0
+# ... 11 microfrontends total
+
+# URLs (via unpkg CDN)
+https://unpkg.com/@cesarchamal/single-spa-auth-app@latest/dist/bundle.js
+
+# Deployment Process
+1. Version bump (patch/minor/major)
+2. Build all apps (npm run build:prod)
+3. Publish to NPM registry
+4. Switch package.json to include NPM dependencies
+5. Load via ES6 imports from CDN
+
+# Package Switching
+npm run mode:npm    # Switches to package-npm.json
+npm run mode:local  # Switches back to package.json
+```
+
+### **3. Nexus Mode** 🏢
+```bash
+# Configuration
+SPA_MODE=nexus
+Requires: Nexus registry access, authentication
+
+# Package Structure
+Same as NPM but published to private Nexus registry
+
+# URLs
+https://nexus-registry.company.com/@cesarchamal/single-spa-auth-app@latest/dist/bundle.js
+
+# Deployment Process
+1. Configure NPM registry: npm config set registry https://nexus.company.com
+2. Authenticate with Nexus
+3. Same publishing process as NPM
+4. Load via ES6 imports from private registry
+```
+
+### **4. GitHub Mode** 🐙
+```bash
+# Configuration
+SPA_MODE=github
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
+GITHUB_USERNAME=cesarchamal
+
+# Repository Structure
+cesarchamal/single-spa-auth-app (GitHub Pages enabled)
+cesarchamal/single-spa-layout-app
+# ... 11 repos + 1 root repo = 12 total
+
+# URLs
+https://cesarchamal.github.io/single-spa-auth-app/single-spa-auth-app.js
+
+# Deployment Process (Dev vs Prod)
+Dev:  Reads from existing GitHub Pages (no deployment)
+Prod: Creates repos + builds + deploys + enables GitHub Pages
+
+# GitHub API Usage
+- Creates repositories via GitHub API
+- Enables GitHub Pages via API
+- Pushes built files to main branch
+- Each app gets its own repository
+```
+
+### **5. AWS Mode** ☁️
+```bash
+# Configuration
+SPA_MODE=aws
+S3_BUCKET=single-spa-demo-774145483743
+AWS_REGION=eu-central-1
+ORG_NAME=cesarchamal
+
+# S3 Structure
+bucket/
+├── index.html (root app)
+├── root-application.js
+├── @cesarchamal/
+│   ├── importmap.json
+│   ├── auth-app/single-spa-auth-app.umd.js
+│   ├── layout-app/single-spa-layout-app.umd.js
+│   └── ... (11 microfrontends)
+
+# Import Map (Dynamic Loading)
+{
+  "imports": {
+    "@cesarchamal/auth-app": "https://bucket.s3.region.amazonaws.com/@cesarchamal/auth-app/single-spa-auth-app.umd.js"
+  }
+}
+
+# URLs
+Website: http://bucket.s3-website-region.amazonaws.com
+Import Map: https://bucket.s3.region.amazonaws.com/@cesarchamal/importmap.json
+
+# Deployment Process
+1. Setup S3 bucket (public, website hosting, CORS)
+2. Build all apps + root app with AWS config
+3. Upload root app to bucket root
+4. Upload microfrontends to organized paths
+5. Generate and upload import map
+6. SystemJS loads apps dynamically via import map
+```
+
+### **Mode Comparison Table**
+
+| Mode | Loading Strategy | Dependencies | Build Config | Deployment Target |
+|------|-----------------|--------------|--------------|-------------------|
+| **Local** | SystemJS from localhost | Local files | Standard webpack | Local servers |
+| **NPM** | ES6 imports from CDN | NPM packages in package.json | `--env.mode=npm` | NPM registry |
+| **Nexus** | ES6 imports from private CDN | Nexus packages | `--env.mode=nexus` | Nexus registry |
+| **GitHub** | ES6 imports from GitHub Pages | No special deps | `--env.mode=github` | GitHub repositories |
+| **AWS** | SystemJS + Import Map | No special deps | `--env.mode=aws` + AWS config | S3 bucket |
+
+### **Runtime Behavior**
+- **Mode Detection**: Auto-detects S3 websites, uses URL params, localStorage, or env vars
+- **Authentication**: All modes require login (admin/12345) except login page
+- **Error Handling**: CORS, 403, 404 errors handled per mode
+- **Fallbacks**: Import map failures return empty maps to prevent crashes
+
+Each mode provides a complete microfrontend deployment strategy suitable for different organizational needs and infrastructure requirements.
+
 ## Features
 
 - **Framework Agnostic**: Multiple frontend frameworks coexisting

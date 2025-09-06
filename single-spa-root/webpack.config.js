@@ -13,7 +13,9 @@ try {
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production';
+  const isProduction = argv.mode === 'production' || process.env.SPA_ENV === 'prod';
+  const mode = env && env.mode ? env.mode : (process.env.SPA_MODE || 'local');
+  const isDevServer = process.argv.includes('webpack-dev-server');
   
   return {
   entry: {
@@ -91,6 +93,11 @@ module.exports = (env, argv) => {
       inject: false,
       templateParameters: {
           isLocal: env && env.isLocal === "true",
+          mode: mode,
+          isProduction: isProduction,
+          isDevServer: isDevServer,
+          useS3Paths: false, // Regular config never uses S3 paths
+          publicPath: '/',
           importmapUrl: process.env.IMPORTMAP_URL || `https://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3.${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com/@${process.env.ORG_NAME || 'cesarchamal'}/importmap.json`,
           s3Bucket: process.env.S3_BUCKET || 'single-spa-demo-774145483743',
           awsRegion: process.env.AWS_REGION || 'eu-central-1',

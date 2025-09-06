@@ -44,7 +44,7 @@ singleSpa.registerApplication('vue', () => System.import('single-spa-vue-app'), 
 singleSpa.registerApplication('react', () => System.import('single-spa-react-app'), showWhenPrefix(['/react']));
 singleSpa.registerApplication('vanilla', () => System.import('single-spa-vanilla-app'), showWhenPrefix(['/vanilla']));
 singleSpa.registerApplication('webcomponents', () => System.import('single-spa-webcomponents-app'), showWhenPrefix(['/webcomponents']));
-singleSpa.registerApplication('typescript', () => System.import('single-spa-typescript-app'), showWhenPrefix(['/typescript']));
+singleSpa.registerApplication('typescript', () => System.import('single-spa-typescript-app/src/single-spa-typescript-app'), showWhenPrefix(['/typescript']));
 singleSpa.registerApplication('jquery', () => System.import('single-spa-jquery-app'), showWhenPrefix(['/jquery']));
 singleSpa.registerApplication('svelte', () => System.import('single-spa-svelte-app'), showWhenPrefix(['/svelte']));
 

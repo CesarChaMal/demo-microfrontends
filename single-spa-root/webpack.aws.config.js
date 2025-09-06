@@ -26,11 +26,8 @@ module.exports = (env, argv) => {
   console.log('  - useS3Paths will be:', mode === 'aws' && isProduction);
   console.log('  - publicPath will be:', mode === 'aws' && isProduction ? 'S3 URL' : 'local /');
 
-  // Dev server (webpack-dev-server) should NEVER use S3 paths for root app
-  // Only static builds deployed to S3 should use S3 paths
-  const isDevServer = process.argv.includes('webpack-dev-server');
-  // const isDevServer = !argv.mode || argv.mode !== 'production';
-  const useS3Paths = (mode === 'aws' && isProduction && !isDevServer);
+  // This is for static S3 website builds only
+  const useS3Paths = (mode === 'aws' && isProduction);
   let publicPath = '/';
 
   if (useS3Paths) {
@@ -96,7 +93,6 @@ module.exports = (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
         'process.env.SPA_MODE': JSON.stringify(process.env.SPA_MODE || 'local'),
         'process.env.SPA_ENV': JSON.stringify(process.env.SPA_ENV || 'dev'),
-        'process.env.GITHUB_USERNAME': JSON.stringify(process.env.GITHUB_USERNAME),
         AWS_CONFIG: JSON.stringify({
           s3Bucket: process.env.S3_BUCKET,
           region: process.env.AWS_REGION,

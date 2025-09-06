@@ -8,6 +8,24 @@ import 'zone.js';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
+System.import = System.import || window.importShim;
+
+System.config({
+  map: {
+    'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.js',
+    'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.js',
+    'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
+    'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
+    'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.js',
+    'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
+    'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
+    'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
+    'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
+    'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
+    'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
+  },
+});
+
 function showWhenAnyOf(routes) {
   return function (location) {
     return routes.some((route) => location.pathname === route);
@@ -76,7 +94,7 @@ singleSpa.registerApplication(
 
 singleSpa.registerApplication(
   'typescript',
-  () => import('single-spa-typescript-app'),
+  () => import('single-spa-typescript-app/src/single-spa-typescript-app'),
   showWhenPrefix(['/typescript']),
 );
 

@@ -184,6 +184,10 @@ start_github() {
         exit 1
     fi
     
+    # Build root application with GitHub mode configuration
+    echo "🔨 Building root application for GitHub deployment..."
+    exec_npm npm run build:root:github
+    
     # Deploy all microfrontends to GitHub Pages in both dev and prod
     echo "🚀 GitHub mode: Deploying all microfrontends to GitHub Pages"
     
@@ -243,8 +247,19 @@ start_aws() {
     fi
 
     # Build root application with AWS mode configuration
-    echo "🔨 Building root application for AWS S3 deployment..."
-    exec_npm npm run build:prod -- --env.mode=aws
+    echo "🔨 Building root application for AWS deployment..."
+#    if [ "$ENV" = "dev" ]; then
+#        exec_npm npm run build -- --env.mode=aws
+#    else
+#        exec_npm npm run build -- --env.mode=aws
+#        exec_npm npm run build:aws:prod
+#    fi
+    if [ "$ENV" = "dev" ]; then
+        exec_npm npm run build:root:aws
+    else
+        exec_npm npm run build:root:aws
+        exec_npm npm run build:root:aws:prod
+    fi
 
     # Deploy all microfrontends to S3 in both dev and prod
     echo "🚀 AWS mode: Deploying all microfrontends to S3"
@@ -288,6 +303,10 @@ start_npm() {
     
     echo "🔍 DEBUG: NPM user: $(npm whoami)"
     
+    # Build root application with NPM mode configuration
+    echo "🔨 Building root application for NPM deployment..."
+    exec_npm npm run build:root:npm
+    
     # Publish packages (microfrontends + root app in prod)
     echo "📦 NPM mode: Publishing packages to NPM"
     if [ "$ENV" = "prod" ]; then
@@ -326,6 +345,10 @@ start_nexus() {
     echo "🔍 DEBUG: Nexus mode - ENV=$ENV, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
     echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
     echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
+    
+    # Build root application with Nexus mode configuration
+    echo "🔨 Building root application for Nexus deployment..."
+    exec_npm npm run build:root:nexus
     
     # Publish packages (microfrontends + root app in prod)
     echo "📦 Nexus mode: Publishing packages to Nexus registry"
