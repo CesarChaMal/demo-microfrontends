@@ -276,6 +276,12 @@ npm run build
 - `npm run trigger:deploy:aws` - Trigger AWS S3 deployment
 - `npm run trigger:deploy:github` - Trigger GitHub Pages deployment
 
+### Registry Switching Scripts
+- `npm run registry:npm` - Switch to NPM registry
+- `npm run registry:nexus` - Switch to Nexus registry
+- `npm run registry:status` - Check current registry
+- `npm run registry:restore` - Restore original registry
+
 ### Mode-Specific Scripts
 - `npm run serve:local:dev` - Start in local development mode
 - `npm run serve:local:prod` - Start in local production mode
@@ -877,6 +883,8 @@ MIT License - see individual LICENSE files in each application directory.
 2. **Node Version**: Use Node.js v18 or higher
 3. **Memory Issues**: Increase Node.js memory limit if needed
 4. **CORS Issues**: Applications are configured with CORS support
+5. **Registry Issues**: Run scripts automatically switch NPM registries
+6. **GitHub Actions Failures**: Individual apps use public NPM registry automatically
 
 ### Debug Mode
 
@@ -911,6 +919,39 @@ npm publish --dry-run
 # Switch back to local mode if NPM packages fail
 npm run mode:local
 ```
+
+### Registry Configuration Issues
+
+**Automatic Registry Switching:**
+The run scripts automatically switch NPM registries:
+- NPM mode: Uses public NPM registry (`https://registry.npmjs.org/`)
+- Nexus mode: Uses Nexus registry (`http://localhost:8081/repository/npm-group/`)
+- Local mode: Restores original configuration
+
+**Manual Registry Management:**
+```bash
+# Quick registry switching
+npm run registry:npm      # Switch to NPM
+npm run registry:nexus    # Switch to Nexus
+npm run registry:status   # Check current
+npm run registry:restore  # Restore original
+
+# Advanced management
+npm config get registry   # Check current registry
+npm config delete registry # Reset to default
+ls -la .npmrc*            # Verify .npmrc files
+
+# Use run scripts for automatic switching
+./run.sh npm dev    # Auto-switches to public NPM
+./run.sh nexus dev  # Auto-switches to Nexus
+./run.sh local dev  # Restores original config
+```
+
+**Configuration Files:**
+- `.npmrc.npm` - Public NPM registry template (committed)
+- `.npmrc.nexus.example` - Nexus registry template (copy and customize)
+- `.npmrc` - Active configuration (auto-generated, not committed)
+- `.npmrc.backup` - Backup of original configuration
 
 ## Additional Resources
 

@@ -148,7 +148,11 @@
     "deploy:github:root": "bash ./scripts/deploy-github.sh root",
     "trigger:actions": "bash ./scripts/trigger-actions.sh",
     "trigger:deploy:aws": "bash ./scripts/trigger-deploy-aws.sh",
-    "trigger:deploy:github": "bash ./scripts/trigger-deploy-github.sh"
+    "trigger:deploy:github": "bash ./scripts/trigger-deploy-github.sh",
+    "registry:npm": "cp .npmrc.npm .npmrc && echo 'Switched to NPM registry'",
+    "registry:nexus": "cp .npmrc.nexus .npmrc && echo 'Switched to Nexus registry'",
+    "registry:status": "echo 'Current registry:' && npm config get registry",
+    "registry:restore": "cp .npmrc.backup .npmrc && echo 'Restored original registry'"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
