@@ -31,6 +31,7 @@
     "build:root": "cd single-spa-root && npm run build",
     "build:root:dev": "cd single-spa-root && npm run build:dev",
     "build:root:prod": "cd single-spa-root && npm run build:prod",
+    "build:root:aws:prod": "cd single-spa-root && npm run build:aws:prod",
     "build:auth": "cd single-spa-auth-app && npm run build",
     "build:auth:dev": "cd single-spa-auth-app && npm run build:dev",
     "build:auth:prod": "cd single-spa-auth-app && npm run build:prod",

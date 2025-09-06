@@ -237,7 +237,15 @@ start_aws() {
         echo "❌ Error: AWS_REGION not set in .env"
         exit 1
     fi
-    
+    if [ -z "$ORG_NAME" ]; then
+        echo "❌ Error: ORG_NAME not set in .env"
+        exit 1
+    fi
+
+    # Build root application with AWS mode configuration
+    echo "🔨 Building root application for AWS S3 deployment..."
+    exec_npm npm run build:prod -- --env.mode=aws
+
     # Deploy all microfrontends to S3 in both dev and prod
     echo "🚀 AWS mode: Deploying all microfrontends to S3"
     echo "🔍 DEBUG: Running npm run deploy:s3:$ENV"
@@ -247,18 +255,25 @@ start_aws() {
         echo "❌ S3 deployment failed"
         exit 1
     fi
-    
+
+    # Set S3 website URL for display
+    S3_WEBSITE_URL_DISPLAY="${S3_WEBSITE_URL:-http://$S3_BUCKET.s3-website-$AWS_REGION.amazonaws.com}"
+
     echo "✅ S3 deployment complete!"
-    echo "🌐 Main application: http://localhost:8080?mode=aws"
-    
     if [ "$ENV" = "prod" ]; then
-        echo "🌍 Public S3 Website: ${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com}"
-        echo "🌐 Production: Both local server AND public website available"
+        echo "🌍 Production S3 Website: $S3_WEBSITE_URL_DISPLAY"
+        echo "🌍 Production: Both local server AND public website available"
+        echo "🔗 Direct S3 Link: $S3_WEBSITE_URL_DISPLAY/index.html?mode=aws"
+        echo "🌍 Main application: http://localhost:8080?mode=aws"
     else
         echo "📖 Development: Local server with S3 deployment"
+        echo "🔗 S3 Development Site: $S3_WEBSITE_URL_DISPLAY/index.html?mode=aws"
+        echo "🌍 Main application: http://localhost:8080?mode=aws"
     fi
-    
-    echo "🔍 DEBUG: Import map URL: https://${S3_BUCKET:-single-spa-demo-774145483743}.s3.${AWS_REGION:-eu-central-1}.amazonaws.com/@${ORG_NAME:-cesarchamal}/importmap.json"
+
+    echo "🔍 DEBUG: Import map URL: https://$S3_BUCKET.s3.$AWS_REGION.amazonaws.com/@$ORG_NAME/importmap.json"
+
+    # Start local server for development/testing
     exec_npm npm run serve:root -- --env.mode=aws
 }
 

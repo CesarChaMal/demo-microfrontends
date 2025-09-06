@@ -22,36 +22,16 @@ const MODES = {
 const urlParams = new URLSearchParams(window.location.search);
 const envMode = process.env.SPA_MODE || MODES.LOCAL;
 const envEnvironment = process.env.SPA_ENV || 'dev';
+// Prioritize environment variables over localStorage
+const mode = envMode !== MODES.LOCAL ? envMode : (urlParams.get('mode') || localStorage.getItem('spa-mode') || envMode);
 
-// Auto-detect mode based on hostname
-let detectedMode = envMode;
-if (window.location.hostname.includes('.s3-website-')
-    || window.location.hostname.includes('.s3.')
-    || window.location.hostname.includes('amazonaws.com')) {
-  console.log('🔍 Auto-detected S3 website, switching to AWS mode');
-  detectedMode = MODES.AWS;
-} else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-  console.log('🔍 Auto-detected localhost, using environment mode:', envMode);
-  detectedMode = envMode;
-}
-
-// Prioritize auto-detection, then URL parameter, then localStorage, then environment
-const mode = urlParams.get('mode')
-    || (detectedMode !== envMode ? detectedMode : localStorage.getItem('spa-mode'))
-    || envMode;
-
-// Save mode to localStorage for persistence (only if not auto-detected)
-if (!window.location.hostname.includes('.s3-website-')
-    && !window.location.hostname.includes('.s3.')
-    && !window.location.hostname.includes('amazonaws.com')) {
-  localStorage.setItem('spa-mode', mode);
-}
+// Save mode to localStorage for persistence
+localStorage.setItem('spa-mode', mode);
 
 // Display current mode
 console.log(`🚀 Single-SPA Mode: ${mode.toUpperCase()}`);
 console.log(`🔧 Environment Variables - SPA_MODE: ${process.env.SPA_MODE}, SPA_ENV: ${process.env.SPA_ENV}`);
-console.log(`🌐 Hostname: ${window.location.hostname}`);
-console.log(`🔗 Full URL: ${window.location.href}`);
+
 
 function showWhenAnyOf(routes) {
   return function (location) {
@@ -98,7 +78,6 @@ function showWhenAuthenticatedExcept(routes) {
 // AWS S3 import map configuration from webpack template (environment variables)
 const { AWS_CONFIG } = window;
 const { IMPORTMAP_URL } = window;
-const { S3_WEBSITE_URL } = window;
 
 // Only warn about AWS config if we're actually using AWS mode
 if (mode === MODES.AWS && (!AWS_CONFIG || !IMPORTMAP_URL)) {
@@ -108,9 +87,9 @@ if (mode === MODES.AWS && (!AWS_CONFIG || !IMPORTMAP_URL)) {
 // Shared function to resolve single-spa lifecycle functions from loaded modules
 function resolveLifecycles(module, name) {
   console.log('🔍 Module keys:', Object.keys(module));
-  console.log('🔍 Has bootstrap:', typeof module.bootstrap);
-  console.log('🔍 Has mount:', typeof module.mount);
-  console.log('🔍 Has unmount:', typeof module.unmount);
+  console.log('🔍 Has bootstrap:', module.bootstrap);
+  console.log('🔍 Has mount:', module.mount);
+  console.log('🔍 Has unmount:', module.unmount);
 
   let lifecycles;
 
@@ -233,21 +212,6 @@ function getAWSAppUrls() {
   };
 }
 
-// Enhanced error handling for network requests
-function handleNetworkError(error, context) {
-  console.error(`❌ Network error in ${context}:`, error);
-  if (error.message.includes('CORS')) {
-    console.error('🚨 CORS Error: Check S3 bucket CORS configuration');
-  }
-  if (error.message.includes('403') || error.message.includes('Forbidden')) {
-    console.error('🚨 Access Denied: Check S3 bucket permissions and policies');
-  }
-  if (error.message.includes('404') || error.message.includes('Not Found')) {
-    console.error('🚨 Resource Not Found: Check if files are properly deployed to S3');
-  }
-  return error;
-}
-
 switch (mode) {
   case MODES.NPM:
     // NPM package imports
@@ -257,7 +221,8 @@ switch (mode) {
         const module = await import(name);
         return resolveLifecycles(module, name);
       } catch (error) {
-        throw handleNetworkError(error, `NPM import for ${name}`);
+        console.error(`Failed to load ${name} from NPM:`, error);
+        throw error;
       }
     };
     break;
@@ -272,7 +237,8 @@ switch (mode) {
         const module = await import(scopedName);
         return resolveLifecycles(module, name);
       } catch (error) {
-        throw handleNetworkError(error, `Nexus import for ${name}`);
+        console.error(`Failed to load ${name} from Nexus:`, error);
+        throw error;
       }
     };
     break;
@@ -284,9 +250,11 @@ switch (mode) {
     const githubUser = GITHUB_USERNAME || process.env.GITHUB_USERNAME || 'cesarchamal';
 
     if (githubEnv === 'prod') {
+      // Production: GitHub deployment handled by launcher script
       console.log('🔧 GitHub prod mode: GitHub Pages deployment completed by launcher');
     } else {
-      console.log('🔖 GitHub dev mode: Reading from existing GitHub Pages...');
+      // Development: Just read from existing GitHub Pages
+      console.log('📖 GitHub dev mode: Reading from existing GitHub Pages...');
     }
 
     loadApp = async (name) => {
@@ -297,7 +265,8 @@ switch (mode) {
         const module = await import(url);
         return resolveLifecycles(module, name);
       } catch (error) {
-        throw handleNetworkError(error, `GitHub import for ${name}`);
+        console.error(`Failed to load ${name} from GitHub:`, error);
+        throw error;
       }
     };
     break;
@@ -310,6 +279,7 @@ switch (mode) {
     }
 
     // AWS - different behavior for dev vs prod
+    const { S3_WEBSITE_URL } = window;
     const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
     if (envEnvironment === 'prod') {
       // Production: S3 deployment handled by launcher script
@@ -326,62 +296,45 @@ switch (mode) {
     console.log(`📦 Loading import map from: ${IMPORTMAP_URL}`);
     console.log('🔧 AWS Config:', AWS_CONFIG);
     importMapPromise = fetch(IMPORTMAP_URL)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Failed to fetch import map: ${response.status} ${response.statusText}`);
-          }
-          return response.json();
-        })
-        .then((importMap) => {
-          console.log('🔧 Configuring SystemJS with import map:', importMap);
-
-          // Ensure SystemJS is available
-          if (!window.System) {
-            throw new Error('SystemJS is not available');
-          }
-
-          // Configure SystemJS with the import map
-          if (window.System.addImportMap) {
-            window.System.addImportMap(importMap);
-          } else if (window.System.config) {
-            window.System.config({ map: importMap.imports });
-          } else {
-            // Fallback: manually set the map
-            window.System.map = window.System.map || {};
-            Object.assign(window.System.map, importMap.imports);
-          }
-
-          console.log('✅ SystemJS configured with import map');
-          return importMap;
-        })
-        .catch((error) => {
-          handleNetworkError(error, 'Import map fetch from S3');
-          // Return empty import map to prevent complete failure
-          return { imports: {} };
-        });
+      .then((response) => response.json())
+      .then((importMap) => {
+        // Configure SystemJS with the import map
+        console.log('🔧 Configuring SystemJS with import map:', importMap);
+        if (window.System && window.System.addImportMap) {
+          window.System.addImportMap(importMap);
+        } else if (window.System && window.System.config) {
+          window.System.config({ map: importMap.imports });
+        }
+        return importMap;
+      })
+      .catch((error) => {
+        console.error('Failed to load import map from S3:', error);
+        return { imports: {} };
+      });
 
     loadApp = async (name) => {
+      const importMap = await importMapPromise;
+      const appNameMap = getAWSAppUrls();
+
+      const moduleName = appNameMap[name];
+      const url = importMap.imports[moduleName];
+
+      if (!url) {
+        throw new Error(`Module ${moduleName} not found in import map`);
+      }
+
+      console.log(`Loading ${name} from S3: ${url}`);
+
+      // Try SystemJS import first, fallback to direct URL import
       try {
-        // Wait for import map to be loaded
-        const importMap = await importMapPromise;
-        const appNameMap = getAWSAppUrls();
-        const moduleName = appNameMap[name];
-        const url = importMap.imports[moduleName];
-
-        if (!url) {
-          throw new Error(`Module ${moduleName} not found in import map. Available modules: ${Object.keys(importMap.imports).join(', ')}`);
-        }
-
-        console.log(`Loading ${name} from S3: ${url}`);
-        console.log(`🔍 Module name: ${moduleName}`);
-        console.log(`🔍 Resolved URL: ${url}`);
-
-        // Use direct URL import to avoid SystemJS resolution issues
-        const module = await window.System.import(url);
+        const module = await window.System.import(moduleName);
         console.log(`✅ SystemJS import successful for ${moduleName}:`, module);
         return resolveLifecycles(module, name);
-      } catch (error) {
-        throw handleNetworkError(error, `AWS S3 import for ${name}`);
+      } catch (systemError) {
+        console.warn(`SystemJS import failed for ${moduleName}, trying direct URL:`, systemError);
+        const module = await window.System.import(url);
+        console.log(`✅ Direct URL import successful for ${url}:`, module);
+        return resolveLifecycles(module, name);
       }
     };
     break;
@@ -419,7 +372,8 @@ switch (mode) {
         });
         return lifecycles;
       }).catch((error) => {
-        throw handleNetworkError(error, `Local import for ${name}`);
+        console.error(`❌ Failed to load ${name} locally:`, error);
+        throw error;
       });
     };
     break;
@@ -427,69 +381,69 @@ switch (mode) {
 
 // Register applications using the selected loading strategy
 singleSpa.registerApplication(
-    'login',
-    () => loadApp('single-spa-auth-app'),
-    (location) => !isAuthenticated() || location.pathname === '/login',
+  'login',
+  () => loadApp('single-spa-auth-app'),
+  (location) => !isAuthenticated() || location.pathname === '/login',
 );
 
 singleSpa.registerApplication(
-    'layout',
-    () => loadApp('single-spa-layout-app'),
-    showWhenAuthenticatedExcept(['/login']),
+  'layout',
+  () => loadApp('single-spa-layout-app'),
+  showWhenAuthenticatedExcept(['/login']),
 );
 
 singleSpa.registerApplication(
-    'home',
-    () => loadApp('single-spa-home-app'),
-    showWhenAuthenticatedAndAnyOf(['/', '/index.html']),
+  'home',
+  () => loadApp('single-spa-home-app'),
+  showWhenAuthenticatedAndAnyOf(['/']),
 );
 
 singleSpa.registerApplication(
-    'angular',
-    () => loadApp('single-spa-angular-app'),
-    showWhenAuthenticatedAndPrefix(['/angular']),
+  'angular',
+  () => loadApp('single-spa-angular-app'),
+  showWhenAuthenticatedAndPrefix(['/angular']),
 );
 
 singleSpa.registerApplication(
-    'vue',
-    () => loadApp('single-spa-vue-app'),
-    showWhenAuthenticatedAndPrefix(['/vue']),
+  'vue',
+  () => loadApp('single-spa-vue-app'),
+  showWhenAuthenticatedAndPrefix(['/vue']),
 );
 
 singleSpa.registerApplication(
-    'react',
-    () => loadApp('single-spa-react-app'),
-    showWhenAuthenticatedAndPrefix(['/react']),
+  'react',
+  () => loadApp('single-spa-react-app'),
+  showWhenAuthenticatedAndPrefix(['/react']),
 );
 
 singleSpa.registerApplication(
-    'vanilla',
-    () => loadApp('single-spa-vanilla-app'),
-    showWhenAuthenticatedAndPrefix(['/vanilla']),
+  'vanilla',
+  () => loadApp('single-spa-vanilla-app'),
+  showWhenAuthenticatedAndPrefix(['/vanilla']),
 );
 
 singleSpa.registerApplication(
-    'webcomponents',
-    () => loadApp('single-spa-webcomponents-app'),
-    showWhenAuthenticatedAndPrefix(['/webcomponents']),
+  'webcomponents',
+  () => loadApp('single-spa-webcomponents-app'),
+  showWhenAuthenticatedAndPrefix(['/webcomponents']),
 );
 
 singleSpa.registerApplication(
-    'typescript',
-    () => loadApp('single-spa-typescript-app'),
-    showWhenAuthenticatedAndPrefix(['/typescript']),
+  'typescript',
+  () => loadApp('single-spa-typescript-app'),
+  showWhenAuthenticatedAndPrefix(['/typescript']),
 );
 
 singleSpa.registerApplication(
-    'jquery',
-    () => loadApp('single-spa-jquery-app'),
-    showWhenAuthenticatedAndPrefix(['/jquery']),
+  'jquery',
+  () => loadApp('single-spa-jquery-app'),
+  showWhenAuthenticatedAndPrefix(['/jquery']),
 );
 
 singleSpa.registerApplication(
-    'svelte',
-    () => loadApp('single-spa-svelte-app'),
-    showWhenAuthenticatedAndPrefix(['/svelte']),
+  'svelte',
+  () => loadApp('single-spa-svelte-app'),
+  showWhenAuthenticatedAndPrefix(['/svelte']),
 );
 
 // Add event listeners to debug Single-SPA lifecycle
@@ -505,24 +459,9 @@ window.addEventListener('single-spa:app-change', (evt) => {
   console.log('📍 Single-SPA app change:', evt.detail);
 });
 
-// Enhanced routing for S3 deployments - handle /index.html paths
-const currentPath = window.location.pathname;
-if (currentPath === '/index.html') {
-  console.log('🔄 S3 index.html detected, treating as root path');
-  // Don't redirect, just let single-spa handle it
-}
-
-// Auto-redirect to login if not authenticated and at root
-if (!isAuthenticated() && (currentPath === '/' || currentPath === '/index.html')) {
-  console.log('🔄 Not authenticated, redirecting to /login');
-  window.history.pushState(null, null, '/login');
-}
-
 console.log('🚀 Starting Single-SPA...');
 singleSpa.start();
 console.log('✅ Single-SPA started');
 
 // Log current location
 console.log('📍 Current location:', window.location.pathname);
-console.log('📍 Current search:', window.location.search);
-console.log('📍 Authentication status:', isAuthenticated() ? 'Authenticated' : 'Not authenticated');

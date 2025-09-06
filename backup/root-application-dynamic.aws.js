@@ -36,12 +36,9 @@ if (window.location.hostname.includes('.s3-website-')
 }
 
 // Prioritize auto-detection, then URL parameter, then localStorage, then environment
-// const mode = urlParams.get('mode') || (detectedMode !== envMode ? detectedMode :
-// localStorage.getItem('spa-mode')) || envMode;
 const mode = urlParams.get('mode')
     || (detectedMode !== envMode ? detectedMode : localStorage.getItem('spa-mode'))
     || envMode;
-// localStorage.setItem('spa-mode', mode);
 
 // Save mode to localStorage for persistence (only if not auto-detected)
 if (!window.location.hostname.includes('.s3-website-')
@@ -329,40 +326,40 @@ switch (mode) {
     console.log(`📦 Loading import map from: ${IMPORTMAP_URL}`);
     console.log('🔧 AWS Config:', AWS_CONFIG);
     importMapPromise = fetch(IMPORTMAP_URL)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch import map: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then((importMap) => {
-        // Configure SystemJS with the import map
-        console.log('🔧 Configuring SystemJS with import map:', importMap);
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch import map: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then((importMap) => {
+          // Configure SystemJS with the import map
+          console.log('🔧 Configuring SystemJS with import map:', importMap);
 
-        // Ensure SystemJS is available
-        if (!window.System) {
-          throw new Error('SystemJS is not available');
-        }
+          // Ensure SystemJS is available
+          if (!window.System) {
+            throw new Error('SystemJS is not available');
+          }
 
-        // Configure SystemJS with the import map
-        if (window.System.addImportMap) {
-          window.System.addImportMap(importMap);
-        } else if (window.System.config) {
-          window.System.config({ map: importMap.imports });
-        } else {
-          // Fallback: manually set the map
-          window.System.map = window.System.map || {};
-          Object.assign(window.System.map, importMap.imports);
-        }
+          // Configure SystemJS with the import map
+          if (window.System.addImportMap) {
+            window.System.addImportMap(importMap);
+          } else if (window.System.config) {
+            window.System.config({ map: importMap.imports });
+          } else {
+            // Fallback: manually set the map
+            window.System.map = window.System.map || {};
+            Object.assign(window.System.map, importMap.imports);
+          }
 
-        console.log('✅ SystemJS configured with import map');
-        return importMap;
-      })
-      .catch((error) => {
-        handleNetworkError(error, 'Import map fetch from S3');
-        // Return empty import map to prevent complete failure
-        return { imports: {} };
-      });
+          console.log('✅ SystemJS configured with import map');
+          return importMap;
+        })
+        .catch((error) => {
+          handleNetworkError(error, 'Import map fetch from S3');
+          // Return empty import map to prevent complete failure
+          return { imports: {} };
+        });
 
     loadApp = async (name) => {
       try {
@@ -431,69 +428,69 @@ switch (mode) {
 
 // Register applications using the selected loading strategy
 singleSpa.registerApplication(
-  'login',
-  () => loadApp('single-spa-auth-app'),
-  (location) => !isAuthenticated() || location.pathname === '/login',
+    'login',
+    () => loadApp('single-spa-auth-app'),
+    (location) => !isAuthenticated() || location.pathname === '/login',
 );
 
 singleSpa.registerApplication(
-  'layout',
-  () => loadApp('single-spa-layout-app'),
-  showWhenAuthenticatedExcept(['/login']),
+    'layout',
+    () => loadApp('single-spa-layout-app'),
+    showWhenAuthenticatedExcept(['/login']),
 );
 
 singleSpa.registerApplication(
-  'home',
-  () => loadApp('single-spa-home-app'),
-  showWhenAuthenticatedAndAnyOf(['/', '/index.html']),
+    'home',
+    () => loadApp('single-spa-home-app'),
+    showWhenAuthenticatedAndAnyOf(['/', '/index.html']),
 );
 
 singleSpa.registerApplication(
-  'angular',
-  () => loadApp('single-spa-angular-app'),
-  showWhenAuthenticatedAndPrefix(['/angular']),
+    'angular',
+    () => loadApp('single-spa-angular-app'),
+    showWhenAuthenticatedAndPrefix(['/angular']),
 );
 
 singleSpa.registerApplication(
-  'vue',
-  () => loadApp('single-spa-vue-app'),
-  showWhenAuthenticatedAndPrefix(['/vue']),
+    'vue',
+    () => loadApp('single-spa-vue-app'),
+    showWhenAuthenticatedAndPrefix(['/vue']),
 );
 
 singleSpa.registerApplication(
-  'react',
-  () => loadApp('single-spa-react-app'),
-  showWhenAuthenticatedAndPrefix(['/react']),
+    'react',
+    () => loadApp('single-spa-react-app'),
+    showWhenAuthenticatedAndPrefix(['/react']),
 );
 
 singleSpa.registerApplication(
-  'vanilla',
-  () => loadApp('single-spa-vanilla-app'),
-  showWhenAuthenticatedAndPrefix(['/vanilla']),
+    'vanilla',
+    () => loadApp('single-spa-vanilla-app'),
+    showWhenAuthenticatedAndPrefix(['/vanilla']),
 );
 
 singleSpa.registerApplication(
-  'webcomponents',
-  () => loadApp('single-spa-webcomponents-app'),
-  showWhenAuthenticatedAndPrefix(['/webcomponents']),
+    'webcomponents',
+    () => loadApp('single-spa-webcomponents-app'),
+    showWhenAuthenticatedAndPrefix(['/webcomponents']),
 );
 
 singleSpa.registerApplication(
-  'typescript',
-  () => loadApp('single-spa-typescript-app'),
-  showWhenAuthenticatedAndPrefix(['/typescript']),
+    'typescript',
+    () => loadApp('single-spa-typescript-app'),
+    showWhenAuthenticatedAndPrefix(['/typescript']),
 );
 
 singleSpa.registerApplication(
-  'jquery',
-  () => loadApp('single-spa-jquery-app'),
-  showWhenAuthenticatedAndPrefix(['/jquery']),
+    'jquery',
+    () => loadApp('single-spa-jquery-app'),
+    showWhenAuthenticatedAndPrefix(['/jquery']),
 );
 
 singleSpa.registerApplication(
-  'svelte',
-  () => loadApp('single-spa-svelte-app'),
-  showWhenAuthenticatedAndPrefix(['/svelte']),
+    'svelte',
+    () => loadApp('single-spa-svelte-app'),
+    showWhenAuthenticatedAndPrefix(['/svelte']),
 );
 
 // Add event listeners to debug Single-SPA lifecycle

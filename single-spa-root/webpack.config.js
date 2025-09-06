@@ -13,15 +13,12 @@ try {
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production' || process.env.NODE_ENV === 'production';
+  const isProduction = argv.mode === 'production';
   
-  const entry = {
+  return {
+  entry: {
     'root-application': 'root-application-dynamic.js',
-  };
-  
-  const config = {
-  mode: isProduction ? 'production' : 'development',
-  entry: entry,
+  },
   output: {
     publicPath: '/',
     filename: '[name].js',
@@ -103,30 +100,24 @@ module.exports = (env, argv) => {
     }),
   ], 
   devtool: isProduction ? false : 'source-map',
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-        },
-      },
+  devServer: {
+    historyApiFallback: true,
+    writeToDisk: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
     },
   },
   };
-  
-  // Only add devServer configuration in development
-  if (!isProduction) {
-    config.devServer = {
-      historyApiFallback: true,
-      writeToDisk: true,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    };
-  }
-  
-  return config;
 };
+
+
+/*
+{
+  from: path.resolve(
+      __dirname,
+      'node_modules/single-spa-layout-app/dist/img',
+  ),
+      to: path.resolve(__dirname, 'dist/img'),
+    noErrorOnMissing: true,
+},
+*/
