@@ -334,7 +334,7 @@ start_npm() {
     echo "📦 NPM mode: Publishing packages to NPM"
     if [ "$ENV" = "prod" ]; then
         echo "🔍 DEBUG: Running npm run publish:npm:prod"
-        if npm run publish:npm:prod; then
+        if FROM_RUN_SCRIPT=true npm run publish:npm:prod; then
             echo "✅ NPM publishing successful"
             echo "🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root"
             echo "🌐 Production: Local server + root app available on NPM registry"
@@ -344,7 +344,7 @@ start_npm() {
         fi
     else
         echo "🔍 DEBUG: Running npm run publish:npm:dev"
-        if npm run publish:npm:dev; then
+        if FROM_RUN_SCRIPT=true npm run publish:npm:dev; then
             echo "✅ NPM publishing successful"
             echo "📖 Development: Local server loading microfrontends from NPM registry"
         else
@@ -390,7 +390,7 @@ start_nexus() {
     echo "📦 Nexus mode: Publishing packages to Nexus registry"
     if [ "$ENV" = "prod" ]; then
         echo "🔍 DEBUG: Running npm run publish:nexus:prod"
-        if npm run publish:nexus:prod; then
+        if FROM_RUN_SCRIPT=true npm run publish:nexus:prod; then
             echo "✅ Nexus publishing successful"
             echo "🌍 Public Nexus Package: Available on Nexus registry"
             echo "🌐 Production: Local server + root app available on Nexus registry"
@@ -400,7 +400,7 @@ start_nexus() {
         fi
     else
         echo "🔍 DEBUG: Running npm run publish:nexus:dev"
-        if npm run publish:nexus:dev; then
+        if FROM_RUN_SCRIPT=true npm run publish:nexus:dev; then
             echo "✅ Nexus publishing successful"
             echo "📖 Development: Local server loading microfrontends from Nexus registry"
         else

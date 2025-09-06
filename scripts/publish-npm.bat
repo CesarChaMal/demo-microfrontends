@@ -11,6 +11,21 @@ if "%VERSION_TYPE%"=="" set VERSION_TYPE=patch
 set ENVIRONMENT=%2
 if "%ENVIRONMENT%"=="" set ENVIRONMENT=dev
 
+echo 🔍 DEBUG: Called from run.bat: %FROM_RUN_SCRIPT%
+
+REM Auto-switch to NPM registry if not called from run.bat
+if not "%FROM_RUN_SCRIPT%"=="true" (
+    echo 🔄 Auto-switching to NPM registry...
+    if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
+    if exist ".npmrc.npm" (
+        copy ".npmrc.npm" ".npmrc" >nul
+        echo 📝 Registry switched to NPM
+    ) else (
+        echo ❌ Error: .npmrc.npm not found. Please create it first.
+        exit /b 1
+    )
+)
+
 echo 🚀 Publishing to NPM...
 echo 📦 Version bump type: %VERSION_TYPE%
 echo 🌐 Environment: %ENVIRONMENT%

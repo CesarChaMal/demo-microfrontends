@@ -143,6 +143,7 @@ if "%MODE%"=="local" (
             echo 📦 NPM mode: Publishing packages to NPM registry
             if "%ENV%"=="prod" (
                 echo 🔍 DEBUG: Running npm run publish:npm:prod
+                set FROM_RUN_SCRIPT=true
                 call npm run publish:npm:prod
                 if errorlevel 1 (
                     echo ❌ NPM publishing failed
@@ -153,6 +154,7 @@ if "%MODE%"=="local" (
                 echo 🌐 Production: Local server + root app available on NPM registry
             ) else (
                 echo 🔍 DEBUG: Running npm run publish:npm:dev
+                set FROM_RUN_SCRIPT=true
                 call npm run publish:npm:dev
                 if errorlevel 1 (
                     echo ❌ NPM publishing failed
@@ -187,6 +189,7 @@ if "%MODE%"=="local" (
             echo 📦 Nexus mode: Publishing packages to Nexus registry
             if "%ENV%"=="prod" (
                 echo 🔍 DEBUG: Running npm run publish:nexus:prod
+                set FROM_RUN_SCRIPT=true
                 call npm run publish:nexus:prod
                 if errorlevel 1 (
                     echo ❌ Nexus publishing failed
@@ -197,6 +200,7 @@ if "%MODE%"=="local" (
                 echo 🌐 Production: Local server + root app available on Nexus registry
             ) else (
                 echo 🔍 DEBUG: Running npm run publish:nexus:dev
+                set FROM_RUN_SCRIPT=true
                 call npm run publish:nexus:dev
                 if errorlevel 1 (
                     echo ❌ Nexus publishing failed

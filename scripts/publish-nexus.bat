@@ -11,6 +11,21 @@ if "%VERSION_TYPE%"=="" set VERSION_TYPE=patch
 set ENVIRONMENT=%2
 if "%ENVIRONMENT%"=="" set ENVIRONMENT=dev
 
+echo 🔍 DEBUG: Called from run.bat: %FROM_RUN_SCRIPT%
+
+REM Auto-switch to Nexus registry if not called from run.bat
+if not "%FROM_RUN_SCRIPT%"=="true" (
+    echo 🔄 Auto-switching to Nexus registry...
+    if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
+    if exist ".npmrc.nexus" (
+        copy ".npmrc.nexus" ".npmrc" >nul
+        echo 📝 Registry switched to Nexus
+    ) else (
+        echo ❌ Error: .npmrc.nexus not found. Please create it first.
+        exit /b 1
+    )
+)
+
 echo 🚀 Publishing to Nexus...
 echo 📦 Version bump type: %VERSION_TYPE%
 echo 🌐 Environment: %ENVIRONMENT%

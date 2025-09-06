@@ -10,6 +10,24 @@ echo "🔍 DEBUG: Arguments: $@"
 echo "🔍 DEBUG: Current directory: $(pwd)"
 echo "🔍 DEBUG: NPM version: $(npm --version)"
 echo "🔍 DEBUG: Node version: $(node --version)"
+echo "🔍 DEBUG: Called from run.sh: ${FROM_RUN_SCRIPT:-false}"
+
+# Auto-switch to NPM registry if not called from run.sh
+if [ "${FROM_RUN_SCRIPT}" != "true" ]; then
+    echo "🔄 Auto-switching to NPM registry..."
+    if [ -f ".npmrc" ]; then
+        cp .npmrc .npmrc.backup
+    fi
+    if [ -f ".npmrc.npm" ]; then
+        cp .npmrc.npm .npmrc
+        echo "📝 Registry switched to: $(npm config get registry)"
+    else
+        echo "❌ Error: .npmrc.npm not found. Please create it first."
+        exit 1
+    fi
+fi
+
+echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
 echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
 
 VERSION_TYPE=${1:-patch}

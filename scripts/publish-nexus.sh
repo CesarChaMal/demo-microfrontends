@@ -10,6 +10,23 @@ echo "🔍 DEBUG: Arguments: $@"
 echo "🔍 DEBUG: Current directory: $(pwd)"
 echo "🔍 DEBUG: NPM version: $(npm --version)"
 echo "🔍 DEBUG: Node version: $(node --version)"
+echo "🔍 DEBUG: Called from run.sh: ${FROM_RUN_SCRIPT:-false}"
+
+# Auto-switch to Nexus registry if not called from run.sh
+if [ "${FROM_RUN_SCRIPT}" != "true" ]; then
+    echo "🔄 Auto-switching to Nexus registry..."
+    if [ -f ".npmrc" ]; then
+        cp .npmrc .npmrc.backup
+    fi
+    if [ -f ".npmrc.nexus" ]; then
+        cp .npmrc.nexus .npmrc
+        echo "📝 Registry switched to: $(npm config get registry)"
+    else
+        echo "❌ Error: .npmrc.nexus not found. Please create it first."
+        exit 1
+    fi
+fi
+
 echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
 echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
 
