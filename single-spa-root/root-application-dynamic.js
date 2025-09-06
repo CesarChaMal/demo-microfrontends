@@ -200,20 +200,38 @@ function getLocalAppUrls(isProduction) {
   };
 }
 
-function getGitHubAppUrls(githubUser) {
-  return {
-    'single-spa-auth-app': `https://${githubUser}.github.io/single-spa-auth-app/single-spa-auth-app.umd.js`,
-    'single-spa-layout-app': `https://${githubUser}.github.io/single-spa-layout-app/single-spa-layout-app.umd.js`,
-    'single-spa-home-app': `https://${githubUser}.github.io/single-spa-home-app/single-spa-home-app.js`,
-    'single-spa-angular-app': `https://${githubUser}.github.io/single-spa-angular-app/single-spa-angular-app.js`,
-    'single-spa-vue-app': `https://${githubUser}.github.io/single-spa-vue-app/single-spa-vue-app.umd.js`,
-    'single-spa-react-app': `https://${githubUser}.github.io/single-spa-react-app/single-spa-react-app.js`,
-    'single-spa-vanilla-app': `https://${githubUser}.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js`,
-    'single-spa-webcomponents-app': `https://${githubUser}.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js`,
-    'single-spa-typescript-app': `https://${githubUser}.github.io/single-spa-typescript-app/single-spa-typescript-app.js`,
-    'single-spa-jquery-app': `https://${githubUser}.github.io/single-spa-jquery-app/single-spa-jquery-app.js`,
-    'single-spa-svelte-app': `https://${githubUser}.github.io/single-spa-svelte-app/single-spa-svelte-app.js`,
-  };
+function getGitHubAppUrls(githubUser, usePages = true) {
+  if (usePages) {
+    // GitHub Pages URLs (for prod mode)
+    return {
+      'single-spa-auth-app': `https://${githubUser}.github.io/single-spa-auth-app/single-spa-auth-app.umd.js`,
+      'single-spa-layout-app': `https://${githubUser}.github.io/single-spa-layout-app/single-spa-layout-app.umd.js`,
+      'single-spa-home-app': `https://${githubUser}.github.io/single-spa-home-app/single-spa-home-app.js`,
+      'single-spa-angular-app': `https://${githubUser}.github.io/single-spa-angular-app/single-spa-angular-app.js`,
+      'single-spa-vue-app': `https://${githubUser}.github.io/single-spa-vue-app/single-spa-vue-app.umd.js`,
+      'single-spa-react-app': `https://${githubUser}.github.io/single-spa-react-app/single-spa-react-app.js`,
+      'single-spa-vanilla-app': `https://${githubUser}.github.io/single-spa-vanilla-app/single-spa-vanilla-app.js`,
+      'single-spa-webcomponents-app': `https://${githubUser}.github.io/single-spa-webcomponents-app/single-spa-webcomponents-app.js`,
+      'single-spa-typescript-app': `https://${githubUser}.github.io/single-spa-typescript-app/single-spa-typescript-app.js`,
+      'single-spa-jquery-app': `https://${githubUser}.github.io/single-spa-jquery-app/single-spa-jquery-app.js`,
+      'single-spa-svelte-app': `https://${githubUser}.github.io/single-spa-svelte-app/single-spa-svelte-app.js`,
+    };
+  } else {
+    // Raw GitHub repository URLs (for dev mode)
+    return {
+      'single-spa-auth-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-auth-app/main/dist/single-spa-auth-app.umd.js`,
+      'single-spa-layout-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-layout-app/main/dist/single-spa-layout-app.umd.js`,
+      'single-spa-home-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-home-app/main/dist/single-spa-home-app.js`,
+      'single-spa-angular-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-angular-app/main/dist/single-spa-angular-app.js`,
+      'single-spa-vue-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-vue-app/main/dist/single-spa-vue-app.umd.js`,
+      'single-spa-react-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-react-app/main/dist/single-spa-react-app.js`,
+      'single-spa-vanilla-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-vanilla-app/main/dist/single-spa-vanilla-app.js`,
+      'single-spa-webcomponents-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-webcomponents-app/main/dist/single-spa-webcomponents-app.js`,
+      'single-spa-typescript-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-typescript-app/main/dist/single-spa-typescript-app.js`,
+      'single-spa-jquery-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-jquery-app/main/dist/single-spa-jquery-app.js`,
+      'single-spa-svelte-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-svelte-app/main/dist/single-spa-svelte-app.js`,
+    };
+  }
 }
 
 function getAWSAppUrls() {
@@ -282,21 +300,64 @@ switch (mode) {
     const { GITHUB_USERNAME } = window;
     const githubUser = GITHUB_USERNAME || process.env.GITHUB_USERNAME || 'cesarchamal';
 
+    const usePages = githubEnv === 'prod';
+
     if (githubEnv === 'prod') {
-      console.log('🔧 GitHub prod mode: GitHub Pages deployment completed by launcher');
+      console.log('🔧 GitHub prod mode: Loading from GitHub Pages (deployed websites)');
+      console.log('⏳ Note: GitHub Pages may take 5-10 minutes to become available after deployment');
     } else {
-      console.log('🔖 GitHub dev mode: Reading from existing GitHub Pages...');
+      console.log('📖 GitHub dev mode: Loading from GitHub repositories (raw files)');
+      console.log('🔍 Source: Raw repository files from main branch');
+    }
+
+    // Retry mechanism
+    async function loadWithRetry(url, maxRetries = 3, delay = 2000) {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`📡 Attempt ${attempt}/${maxRetries} loading: ${url}`);
+          const module = await import(url);
+          console.log(`✅ Successfully loaded on attempt ${attempt}`);
+          return module;
+        } catch (error) {
+          console.log(`❌ Attempt ${attempt} failed:`, error.message);
+          
+          if (attempt === maxRetries) {
+            if (usePages) {
+              console.error('🚨 GitHub Pages not ready yet. This is normal after fresh deployment.');
+              console.error('💡 Solutions:');
+              console.error('   1. Wait 5-10 minutes for GitHub Pages to activate');
+              console.error('   2. Check repository settings: Settings > Pages');
+              console.error('   3. Verify deployment completed successfully');
+              console.error(`   4. Manual check: ${url}`);
+            } else {
+              console.error('🚨 Repository files not found.');
+              console.error('💡 Solutions:');
+              console.error('   1. Verify repositories exist and are public');
+              console.error('   2. Check if files are built and committed');
+              console.error('   3. Verify branch is "main" not "master"');
+              console.error(`   4. Manual check: ${url}`);
+            }
+            throw error;
+          }
+          
+          const retryDelay = usePages ? delay : 1000;
+          console.log(`⏳ Waiting ${retryDelay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          delay *= 1.5;
+        }
+      }
     }
 
     loadApp = async (name) => {
-      const appUrls = getGitHubAppUrls(githubUser);
+      const appUrls = getGitHubAppUrls(githubUser, usePages);
       const url = appUrls[name];
-      console.log(`Loading ${name} from GitHub: ${url}`);
+      const source = usePages ? 'GitHub Pages' : 'GitHub Repository';
+      console.log(`Loading ${name} from ${source}: ${url}`);
       try {
-        const module = await import(url);
+        const module = usePages ? await loadWithRetry(url) : await loadWithRetry(url, 2, 1000);
         return resolveLifecycles(module, name);
       } catch (error) {
-        throw handleNetworkError(error, `GitHub import for ${name}`);
+        throw handleNetworkError(error, `GitHub ${source} import for ${name}`);
       }
     };
     break;
