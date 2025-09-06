@@ -33,7 +33,8 @@ module.exports = (env, argv) => {
   if (useS3Paths) {
     const s3Bucket = process.env.S3_BUCKET || 'single-spa-demo-774145483743';
     const awsRegion = process.env.AWS_REGION || 'eu-central-1';
-    publicPath = `https://${s3Bucket}.s3.${awsRegion}.amazonaws.com/`;
+    // Use S3 website URL format, not S3 API format
+    publicPath = `https://${s3Bucket}.s3-website-${awsRegion}.amazonaws.com/`;
     console.log('🔍 S3 Mode Activated:');
     console.log('  - useS3Paths:', useS3Paths);
     console.log('  - publicPath:', publicPath);
