@@ -185,53 +185,56 @@ start_local() {
 start_github() {
     echo "🔍 DEBUG: GitHub mode - ENV=$ENV, GITHUB_API_TOKEN=${GITHUB_API_TOKEN:+SET}, GITHUB_USERNAME=${GITHUB_USERNAME:-NOT_SET}"
     
-    # Check prerequisites for both dev and prod
-    if [ -z "$GITHUB_API_TOKEN" ]; then
-        echo "❌ Error: GITHUB_API_TOKEN not set in .env"
-        exit 1
-    fi
-    
-    # Build root application with GitHub mode configuration
-    echo "🔨 Building root application for GitHub deployment..."
-    exec_npm npm run build:root:github
-    
-    # Deploy all microfrontends to GitHub Pages in both dev and prod
-    echo "🚀 GitHub mode: Deploying all microfrontends to GitHub Pages"
-    
-    # Deploy each microfrontend using existing scripts
-    APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
-    
-    for app in "${APPS[@]}"; do
-        echo "📤 Deploying $app app to GitHub Pages..."
-        echo "🔍 DEBUG: Running npm run deploy:github:$app"
-        if npm run deploy:github:$app; then
-            echo "✅ $app deployment successful"
-        else
-            echo "❌ $app deployment failed"
+    if [ "$ENV" = "prod" ]; then
+        # Production mode: Create repositories and deploy
+        echo "🚀 GitHub Production: Creating repositories and deploying to GitHub Pages"
+        
+        # Check prerequisites for production deployment
+        if [ -z "$GITHUB_API_TOKEN" ]; then
+            echo "❌ Error: GITHUB_API_TOKEN required for production deployment"
             exit 1
         fi
-    done
-    
-    # Deploy root application
-    echo "📤 Deploying root application to GitHub Pages..."
-    echo "🔍 DEBUG: Running npm run deploy:github:root"
-    if npm run deploy:github:root; then
-        echo "✅ Root deployment successful"
-    else
-        echo "❌ Root deployment failed"
-        exit 1
-    fi
-    
-    echo "✅ All deployments complete!"
-    echo "🌐 Main application: http://localhost:8080?mode=github"
-    
-    if [ "$ENV" = "prod" ]; then
+        
+        # Build root application with GitHub mode configuration
+        echo "🔨 Building root application for GitHub deployment..."
+        exec_npm npm run build:root:github
+        
+        # Deploy each microfrontend using existing scripts
+        APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
+        
+        for app in "${APPS[@]}"; do
+            echo "📤 Deploying $app app to GitHub Pages..."
+            if npm run deploy:github:$app; then
+                echo "✅ $app deployment successful"
+            else
+                echo "❌ $app deployment failed"
+                exit 1
+            fi
+        done
+        
+        # Deploy root application
+        echo "📤 Deploying root application to GitHub Pages..."
+        if npm run deploy:github:root; then
+            echo "✅ Root deployment successful"
+        else
+            echo "❌ Root deployment failed"
+            exit 1
+        fi
+        
+        echo "✅ All deployments complete!"
         echo "🌍 Public GitHub Pages: https://${GITHUB_USERNAME:-cesarchamal}.github.io/single-spa-root/"
         echo "🌐 Production: Both local server AND public GitHub Pages available"
     else
-        echo "📖 Development: Local server with GitHub Pages deployment"
+        # Development mode: Read from existing GitHub Pages
+        echo "📖 GitHub Development: Reading from existing GitHub Pages (no deployment)"
+        echo "🔍 Assumes repositories already exist and are deployed"
+        
+        # Build root application with GitHub mode configuration
+        echo "🔨 Building root application for GitHub mode..."
+        exec_npm npm run build:root:github
     fi
     
+    echo "🌐 Main application: http://localhost:8080?mode=github"
     echo "🔍 DEBUG: GitHub username: ${GITHUB_USERNAME:-cesarchamal}"
     exec_npm npm run serve:root -- --env.mode=github
 }

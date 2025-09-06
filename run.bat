@@ -120,97 +120,201 @@ if "%MODE%"=="local" (
         echo Main application: http://localhost:8080?mode=%MODE%
         echo.
         if "%MODE%"=="npm" (
-            echo 🔍 DEBUG: NPM mode - ENV=%ENV%
+            echo 🔍 DEBUG: NPM mode - ENV=%ENV%, NPM_TOKEN=SET
+            
+            REM Switch to NPM .npmrc configuration
+            echo 🔄 Switching to NPM .npmrc configuration...
+            if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
+            copy ".npmrc.npm" ".npmrc" >nul
+            
+            REM Check if user is logged in to NPM
+            npm whoami >nul 2>&1
+            if errorlevel 1 (
+                echo ❌ Error: Not logged in to NPM. Run 'npm login' first
+                exit /b 1
+            )
+            
+            REM Build root application with NPM mode configuration
+            echo 🔨 Building root application for NPM deployment...
+            call npm run build:root:npm
+            if errorlevel 1 exit /b 1
+            
+            REM Publish packages
             echo 📦 NPM mode: Publishing packages to NPM registry
             if "%ENV%"=="prod" (
                 echo 🔍 DEBUG: Running npm run publish:npm:prod
                 call npm run publish:npm:prod
-            ) else (
-                echo 🔍 DEBUG: Running npm run publish:npm:dev
-                call npm run publish:npm:dev
-            )
-            if errorlevel 1 (
-                echo ❌ NPM publishing failed
-                exit /b 1
-            )
-            echo ✅ NPM publishing successful
-            if "%ENV%"=="prod" (
+                if errorlevel 1 (
+                    echo ❌ NPM publishing failed
+                    exit /b 1
+                )
+                echo ✅ NPM publishing successful
                 echo 🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root
                 echo 🌐 Production: Local server + root app available on NPM registry
             ) else (
+                echo 🔍 DEBUG: Running npm run publish:npm:dev
+                call npm run publish:npm:dev
+                if errorlevel 1 (
+                    echo ❌ NPM publishing failed
+                    exit /b 1
+                )
+                echo ✅ NPM publishing successful
                 echo 📖 Development: Local server loading microfrontends from NPM registry
             )
+            
+            REM Switch to NPM mode and start server
             echo 📦 Switching to NPM mode and starting server...
             call npm run mode:npm
             if errorlevel 1 exit /b 1
+            
+            echo ✅ NPM mode setup complete!
+            echo 🌐 Main application: http://localhost:8080?mode=npm
         )
         if "%MODE%"=="nexus" (
-            echo 🔍 DEBUG: Nexus mode - ENV=%ENV%
+            echo 🔍 DEBUG: Nexus mode - ENV=%ENV%, NEXUS_REGISTRY=SET
+            
+            REM Switch to Nexus .npmrc configuration
+            echo 🔄 Switching to Nexus .npmrc configuration...
+            if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
+            copy ".npmrc.nexus" ".npmrc" >nul
+            
+            REM Build root application with Nexus mode configuration
+            echo 🔨 Building root application for Nexus deployment...
+            call npm run build:root:nexus
+            if errorlevel 1 exit /b 1
+            
+            REM Publish packages
             echo 📦 Nexus mode: Publishing packages to Nexus registry
             if "%ENV%"=="prod" (
                 echo 🔍 DEBUG: Running npm run publish:nexus:prod
                 call npm run publish:nexus:prod
-            ) else (
-                echo 🔍 DEBUG: Running npm run publish:nexus:dev
-                call npm run publish:nexus:dev
-            )
-            if errorlevel 1 (
-                echo ❌ Nexus publishing failed
-                exit /b 1
-            )
-            echo ✅ Nexus publishing successful
-            if "%ENV%"=="prod" (
+                if errorlevel 1 (
+                    echo ❌ Nexus publishing failed
+                    exit /b 1
+                )
+                echo ✅ Nexus publishing successful
                 echo 🌍 Public Nexus Package: Available on Nexus registry
                 echo 🌐 Production: Local server + root app available on Nexus registry
             ) else (
+                echo 🔍 DEBUG: Running npm run publish:nexus:dev
+                call npm run publish:nexus:dev
+                if errorlevel 1 (
+                    echo ❌ Nexus publishing failed
+                    exit /b 1
+                )
+                echo ✅ Nexus publishing successful
                 echo 📖 Development: Local server loading microfrontends from Nexus registry
             )
+            
+            REM Switch to Nexus mode and start server
+            echo 📦 Switching to Nexus mode and starting server...
+            call npm run mode:nexus
+            if errorlevel 1 exit /b 1
+            
+            echo ✅ Nexus mode setup complete!
+            echo 🌐 Main application: http://localhost:8080?mode=nexus
         )
         if "%MODE%"=="github" (
-            echo 🔍 DEBUG: GitHub mode - ENV=%ENV%, GITHUB_USERNAME=%GITHUB_USERNAME%
-            echo 🚀 GitHub mode: Deploying all microfrontends to GitHub Pages
-            echo 🔍 DEBUG: Running GitHub deployment via npm scripts
-            REM Deploy each microfrontend using npm scripts
-            call npm run deploy:github:auth
-            call npm run deploy:github:layout
-            call npm run deploy:github:home
-            call npm run deploy:github:angular
-            call npm run deploy:github:vue
-            call npm run deploy:github:react
-            call npm run deploy:github:vanilla
-            call npm run deploy:github:webcomponents
-            call npm run deploy:github:typescript
-            call npm run deploy:github:jquery
-            call npm run deploy:github:svelte
-            call npm run deploy:github:root
-            if errorlevel 1 (
-                echo ❌ GitHub deployment failed
-                exit /b 1
-            )
-            echo ✅ GitHub deployment complete!
+            echo 🔍 DEBUG: GitHub mode - ENV=%ENV%, GITHUB_API_TOKEN=SET, GITHUB_USERNAME=%GITHUB_USERNAME%
+            
             if "%ENV%"=="prod" (
-                echo 🌍 Public GitHub Pages available
+                REM Production mode: Create repositories and deploy
+                echo 🚀 GitHub Production: Creating repositories and deploying to GitHub Pages
+                
+                REM Build root application with GitHub mode configuration
+                echo 🔨 Building root application for GitHub deployment...
+                call npm run build:root:github
+                if errorlevel 1 exit /b 1
+                
+                REM Deploy each microfrontend using npm scripts
+                echo 📤 Deploying microfrontends to GitHub Pages...
+                call npm run deploy:github:auth
+                call npm run deploy:github:layout
+                call npm run deploy:github:home
+                call npm run deploy:github:angular
+                call npm run deploy:github:vue
+                call npm run deploy:github:react
+                call npm run deploy:github:vanilla
+                call npm run deploy:github:webcomponents
+                call npm run deploy:github:typescript
+                call npm run deploy:github:jquery
+                call npm run deploy:github:svelte
+                call npm run deploy:github:root
+                if errorlevel 1 (
+                    echo ❌ GitHub deployment failed
+                    exit /b 1
+                )
+                echo ✅ All deployments complete!
+                echo 🌍 Public GitHub Pages: https://%GITHUB_USERNAME%.github.io/single-spa-root/
+                echo 🌐 Production: Both local server AND public GitHub Pages available
+            ) else (
+                REM Development mode: Read from existing GitHub Pages
+                echo 📖 GitHub Development: Reading from existing GitHub Pages (no deployment)
+                echo 🔍 Assumes repositories already exist and are deployed
+                
+                REM Build root application with GitHub mode configuration
+                echo 🔨 Building root application for GitHub mode...
+                call npm run build:root:github
+                if errorlevel 1 exit /b 1
             )
         )
         if "%MODE%"=="aws" (
-            echo 🔍 DEBUG: AWS mode - ENV=%ENV%, S3_BUCKET=%S3_BUCKET%, AWS_REGION=%AWS_REGION%
+            echo 🔍 DEBUG: AWS mode - ENV=%ENV%, S3_BUCKET=%S3_BUCKET%, AWS_REGION=%AWS_REGION%, ORG_NAME=%ORG_NAME%
+            
+            REM Check prerequisites
+            if "%S3_BUCKET%"=="" (
+                echo ❌ Error: S3_BUCKET not set in .env
+                exit /b 1
+            )
+            if "%AWS_REGION%"=="" (
+                echo ❌ Error: AWS_REGION not set in .env
+                exit /b 1
+            )
+            if "%ORG_NAME%"=="" (
+                echo ❌ Error: ORG_NAME not set in .env
+                exit /b 1
+            )
+            
+            REM Build root application with AWS mode configuration
+            echo 🔨 Building root application for AWS deployment...
+            if "%ENV%"=="dev" (
+                call npm run build:root:aws
+            ) else (
+                call npm run build:root:aws
+                call npm run build:root:aws:prod
+            )
+            if errorlevel 1 exit /b 1
+            
+            REM Deploy to S3
             echo 🚀 AWS mode: Deploying all microfrontends to S3
-            echo 🔍 DEBUG: Running npm run deploy:s3:%ENV%
             set SKIP_BUILD=true
             call npm run deploy:s3:%ENV%
             if errorlevel 1 (
                 echo ❌ S3 deployment failed
                 exit /b 1
             )
+            
             echo ✅ S3 deployment complete!
             if "%ENV%"=="prod" (
-                echo 🌍 Public S3 Website available
+                echo 🌍 Production S3 Website: http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com
+                echo 🌍 Production: Both local server AND public website available
+                echo 🔗 Direct S3 Link: http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com/index.html?mode=aws
+            ) else (
+                echo 📖 Development: Local server with S3 deployment
+                echo 🔗 S3 Development Site: http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com/index.html?mode=aws
             )
+            echo 🌐 Main application: http://localhost:8080?mode=aws
+        )
+        if "%MODE%"=="github" (
+            echo 🌐 Main application: http://localhost:8080?mode=github
+            echo 🔍 DEBUG: GitHub username: %GITHUB_USERNAME%
         )
         echo.
         echo Press Ctrl+C to stop
         if "%MODE%"=="npm" (
             call npm run serve:npm
+        ) else if "%MODE%"=="nexus" (
+            call npm run serve:nexus
         ) else (
             call npm run serve:root -- --env.mode=%MODE%
         )
