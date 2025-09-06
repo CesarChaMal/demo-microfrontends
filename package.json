@@ -146,6 +146,7 @@
     "deploy:github:jquery": "bash ./scripts/deploy-github.sh single-spa-jquery-app",
     "deploy:github:svelte": "bash ./scripts/deploy-github.sh single-spa-svelte-app",
     "deploy:github:root": "bash ./scripts/deploy-github.sh root",
+    "deploy:github:main": "bash ./scripts/deploy-github.sh main",
     "trigger:actions": "bash ./scripts/trigger-actions.sh",
     "trigger:deploy:aws": "bash ./scripts/trigger-deploy-aws.sh",
     "trigger:deploy:github": "bash ./scripts/trigger-deploy-github.sh",

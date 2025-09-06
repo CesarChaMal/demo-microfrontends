@@ -5,6 +5,14 @@
 /* eslint-disable no-alert */
 /* eslint-disable import/no-dynamic-require */
 /* eslint-disable import/no-unresolved */
+/* eslint-disable no-else-return */
+/* eslint-disable no-inner-declarations */
+/* eslint-disable consistent-return */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-trailing-spaces */
+/* eslint-disable arrow-parens */
+/* eslint-disable no-param-reassign */
 import * as singleSpa from 'single-spa';
 import 'zone.js';
 

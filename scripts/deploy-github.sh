@@ -13,7 +13,7 @@ APP_NAME=${1}
 
 if [ -z "$APP_NAME" ]; then
     echo "❌ Error: App name is required"
-    echo "Usage: ./deploy-github.sh [app-name|root]"
+    echo "Usage: ./deploy-github.sh [app-name|root|main]"
     exit 1
 fi
 
@@ -41,45 +41,54 @@ git config --global user.email "cesarchamal@gmail.com"
 
 echo "🚀 Deploying $APP_NAME to GitHub Pages..."
 
-# Handle root app deployment
+# Handle different deployment types
 if [ "$APP_NAME" = "root" ]; then
     APP_DIR="single-spa-root"
     REPO_NAME="single-spa-root"
+elif [ "$APP_NAME" = "main" ]; then
+    APP_DIR="."
+    REPO_NAME="demo-microfrontends"
 else
     APP_DIR="$APP_NAME"
     REPO_NAME="$APP_NAME"
 fi
 
-# Check if app directory exists
-if [ ! -d "$APP_DIR" ]; then
-    echo "❌ Error: Directory $APP_DIR not found"
-    exit 1
-fi
-
-cd "$APP_DIR"
-
-# Build the application
-echo "🔨 Building $APP_NAME..."
-if [ -f "package.json" ]; then
-    npm install
-    npm run build
+# Handle main package deployment (no build needed)
+if [ "$APP_NAME" = "main" ]; then
+    echo "📁 Main package deployment - no build required"
+    echo "✅ Using existing project files for GitHub Pages"
 else
-    echo "❌ Error: package.json not found in $APP_NAME"
-    exit 1
-fi
-
-# Check if build output exists
-if [ "$APP_NAME" = "root" ]; then
-    # Root app builds to current directory
-    if [ ! -f "index.html" ] || [ ! -f "root-application.js" ]; then
-        echo "❌ Error: Root app build files not found"
+    # Check if app directory exists
+    if [ ! -d "$APP_DIR" ]; then
+        echo "❌ Error: Directory $APP_DIR not found"
         exit 1
     fi
-else
-    # Other apps build to dist directory
-    if [ ! -d "dist" ]; then
-        echo "❌ Error: dist directory not found after build"
+    
+    cd "$APP_DIR"
+    
+    # Build the application
+    echo "🔨 Building $APP_NAME..."
+    if [ -f "package.json" ]; then
+        npm install
+        npm run build
+    else
+        echo "❌ Error: package.json not found in $APP_NAME"
         exit 1
+    fi
+    
+    # Check if build output exists
+    if [ "$APP_NAME" = "root" ]; then
+        # Root app builds to current directory
+        if [ ! -f "index.html" ] || [ ! -f "root-application.js" ]; then
+            echo "❌ Error: Root app build files not found"
+            exit 1
+        fi
+    else
+        # Other apps build to dist directory
+        if [ ! -d "dist" ]; then
+            echo "❌ Error: dist directory not found after build"
+            exit 1
+        fi
     fi
 fi
 
@@ -130,7 +139,10 @@ fi
 
 # Copy dist contents to root for GitHub Pages
 echo "📁 Preparing files for GitHub Pages..."
-if [ "$APP_NAME" = "root" ]; then
+if [ "$APP_NAME" = "main" ]; then
+    # Main package - files already in place
+    echo "📁 Main package files already in place"
+elif [ "$APP_NAME" = "root" ]; then
     # Root app builds to current directory, no need to copy
     echo "📁 Root app files already in place"
 else
@@ -164,7 +176,10 @@ curl -X POST \
   -d '{"source":{"branch":"main","path":"/"}}' \
   2>/dev/null || echo "GitHub Pages may already be enabled"
 
-cd ..
+# Return to original directory if we changed it
+if [ "$APP_NAME" != "main" ]; then
+    cd ..
+fi
 
 echo "✅ $APP_NAME deployed to https://${GITHUB_USERNAME}.github.io/${REPO_NAME}/"
 echo "⏳ GitHub Pages may take a few minutes to become available"

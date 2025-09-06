@@ -221,8 +221,19 @@ start_github() {
             exit 1
         fi
         
+        # Deploy main package documentation
+        echo "📤 Deploying main package to GitHub Pages..."
+        if npm run deploy:github:main; then
+            echo "✅ Main package deployment successful"
+        else
+            echo "❌ Main package deployment failed"
+            exit 1
+        fi
+        
         echo "✅ All deployments complete!"
-        echo "🌍 Public GitHub Pages: https://${GITHUB_USERNAME:-cesarchamal}.github.io/single-spa-root/"
+        echo "🌍 Public GitHub Pages:"
+        echo "   Root App: https://${GITHUB_USERNAME:-cesarchamal}.github.io/single-spa-root/"
+        echo "   Documentation: https://${GITHUB_USERNAME:-cesarchamal}.github.io/demo-microfrontends/"
         echo "🌐 Production: Both local server AND public GitHub Pages available"
     else
         # Development mode: Read from existing GitHub Pages

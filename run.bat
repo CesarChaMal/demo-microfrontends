@@ -244,12 +244,15 @@ if "%MODE%"=="local" (
                 call npm run deploy:github:jquery
                 call npm run deploy:github:svelte
                 call npm run deploy:github:root
+                call npm run deploy:github:main
                 if errorlevel 1 (
                     echo ❌ GitHub deployment failed
                     exit /b 1
                 )
                 echo ✅ All deployments complete!
-                echo 🌍 Public GitHub Pages: https://%GITHUB_USERNAME%.github.io/single-spa-root/
+                echo 🌍 Public GitHub Pages:
+                echo    Root App: https://%GITHUB_USERNAME%.github.io/single-spa-root/
+                echo    Documentation: https://%GITHUB_USERNAME%.github.io/demo-microfrontends/
                 echo 🌐 Production: Both local server AND public GitHub Pages available
             ) else (
                 REM Development mode: Read from existing GitHub Pages

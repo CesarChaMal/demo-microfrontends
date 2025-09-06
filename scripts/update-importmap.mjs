@@ -38,7 +38,7 @@ Object.entries(sharedDeps).forEach(([key, value]) => {
 const s3Bucket = process.env.S3_BUCKET || 'single-spa-demo';
 const awsRegion = process.env.AWS_REGION || 'eu-central-1';
 const orgName = process.env.ORG_NAME || 'cesarchamal';
-const commitSha = process.env.TRAVIS_COMMIT || process.env.GITHUB_SHA;
+const commitSha = process.env.GIT_ACTIONS_COMMIT || process.env.GITHUB_SHA;
 const url = `https://${s3Bucket}.s3-${awsRegion}.amazonaws.com/@${orgName}/${appName}/${commitSha}/${bundleFile}`;
 
 https

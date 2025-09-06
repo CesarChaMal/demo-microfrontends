@@ -55,7 +55,7 @@ echo "Downloading import map from S3"
 aws s3 cp "s3://$S3_BUCKET/@${ORG_NAME}/importmap.json" importmap.json || echo '{}' > importmap.json
 
 echo "Updating import map to point to new version of @${ORG_NAME}/${APP_NAME}"
-export TRAVIS_COMMIT=$GITHUB_SHA
+export GIT_ACTIONS_COMMIT=$GITHUB_SHA
 export APP_NAME
 export BUNDLE_FILE
 export SHARED_DEPS
