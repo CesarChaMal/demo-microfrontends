@@ -3,6 +3,8 @@
 /* eslint-disable func-names */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
+/* eslint-disable import/no-dynamic-require */
+/* eslint-disable import/no-unresolved */
 import * as singleSpa from 'single-spa';
 import 'zone.js';
 
