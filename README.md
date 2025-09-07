@@ -2,6 +2,16 @@
 
 A comprehensive demonstration of microfrontend architecture using Single-SPA framework, showcasing multiple frontend technologies working together in a unified application.
 
+## ▶️ Live Demo
+
+**Live Demo:** [http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com](http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com)
+
+**Login credentials:**
+
+| User  | Password |
+| ----- | -------- |
+| admin | 12345    |
+
 ## Architecture Overview
 
 This project demonstrates a microfrontend architecture with:
@@ -169,18 +179,18 @@ run.bat [mode] [environment]
 
 **What Each Combination Launches:**
 
-| Mode | Environment | Apps Running | Build Type | Use Case |
-|------|-------------|-------------|------------|----------|
-| `local` | `dev` | All 12 apps | Development | Full development environment |
-| `local` | `prod` | Root app only | Production | Test production build locally |
-| `npm` | `dev` | Root app only | Development | Test NPM package loading |
-| `npm` | `prod` | Root app only | Production | Test NPM packages in production |
-| `nexus` | `dev` | Root app only | Development | Test Nexus private registry |
-| `nexus` | `prod` | Root app only | Production | Test Nexus in production |
-| `github` | `dev` | Root app only | Development | Read from existing GitHub Pages |
-| `github` | `prod` | Root app only | Production | Create repos + deploy to GitHub Pages |
-| `aws` | `dev` | Root app only | Development | Test AWS S3 loading |
-| `aws` | `prod` | Root app only | Production | Test AWS S3 in production |
+| Mode | Environment | Apps Running | Build Type | Publishing | Use Case |
+|------|-------------|-------------|------------|------------|----------|
+| `local` | `dev` | All 12 apps | Development | None | Full development environment |
+| `local` | `prod` | Root app only | Production | None | Test production build locally |
+| `npm` | `dev` | Root app only | Development | Version only | Test NPM package loading |
+| `npm` | `prod` | Root app only | Production | All 12 packages | Publish + test NPM packages |
+| `nexus` | `dev` | Root app only | Development | Version only | Test Nexus private registry |
+| `nexus` | `prod` | Root app only | Production | All 12 packages | Publish + test Nexus packages |
+| `github` | `dev` | Root app only | Development | None | Read from existing GitHub Pages |
+| `github` | `prod` | Root app only | Production | Deploy to GitHub | Create repos + deploy to GitHub Pages |
+| `aws` | `dev` | Root app only | Development | None | Test AWS S3 loading |
+| `aws` | `prod` | Root app only | Production | Deploy to S3 | Test AWS S3 in production |
 
 **Examples:**
 ```bash
@@ -343,16 +353,20 @@ npm run build
 - `npm run publish:npm:patch` - Publish to NPM with patch version bump
 - `npm run publish:npm:minor` - Publish to NPM with minor version bump
 - `npm run publish:npm:major` - Publish to NPM with major version bump
-- `npm run publish:npm:dev` - Publish to NPM in dev mode (microfrontends only)
-- `npm run publish:npm:prod` - Publish to NPM in prod mode (microfrontends + root app)
+- `npm run publish:npm:dev` - Version management only (no publishing)
+- `npm run publish:npm:prod` - Publish all 12 packages (11 microfrontends + root app)
 
 #### Nexus Registry Publishing
 - `npm run publish:nexus` - Publish to Nexus (default: patch version, dev environment)
 - `npm run publish:nexus:patch` - Publish to Nexus with patch version bump
 - `npm run publish:nexus:minor` - Publish to Nexus with minor version bump
 - `npm run publish:nexus:major` - Publish to Nexus with major version bump
-- `npm run publish:nexus:dev` - Publish to Nexus in dev mode (microfrontends only)
-- `npm run publish:nexus:prod` - Publish to Nexus in prod mode (microfrontends + root app)
+- `npm run publish:nexus:dev` - Version management only (no publishing)
+- `npm run publish:nexus:prod` - Publish all 12 packages (11 microfrontends + root app)
+
+#### Publishing Mode Behavior
+- **Dev Mode**: Only updates package versions, no actual publishing
+- **Prod Mode**: Publishes all packages to registry for public/private access
 
 #### Backward-Compatible Aliases
 - `npm run publish:all` - Publish all packages to NPM (alias for publish:npm)

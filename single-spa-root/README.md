@@ -38,7 +38,7 @@ This application is a [demo](https://single-spa-with-npm-packages.herokuapp.com/
 
 ## ▶️ Demo
 
-**Live Demo:** [https://single-spa-with-npm-packages.herokuapp.com](https://single-spa-with-npm-packages.herokuapp.com/)
+**Live Demo:** [http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com](https://single-spa-with-npm-packages.herokuapp.com/)
 **Login credentials:**
 
 | User  | Password |
