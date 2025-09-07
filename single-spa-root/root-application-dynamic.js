@@ -31,7 +31,11 @@ const MODES = {
 // Get mode from environment variables (via webpack), URL parameter, or localStorage
 const urlParams = new URLSearchParams(window.location.search);
 const envMode = process.env.SPA_MODE || MODES.LOCAL;
-const envEnvironment = process.env.SPA_ENV || 'dev';
+// Auto-detect production environment for S3 websites
+const isS3Website = window.location.hostname.includes('.s3-website-')
+    || window.location.hostname.includes('.s3.')
+    || window.location.hostname.includes('amazonaws.com');
+const envEnvironment = isS3Website ? 'prod' : (process.env.SPA_ENV || 'dev');
 
 // Auto-detect mode based on hostname
 let detectedMode = envMode;
@@ -45,9 +49,13 @@ if (window.location.hostname.includes('.s3-website-')
   detectedMode = envMode;
 }
 
-// Prioritize URL parameter, then environment mode, then localStorage, then auto-detection
-const mode = urlParams.get('mode') || envMode || localStorage.getItem('spa-mode') || detectedMode;
-// localStorage.setItem('spa-mode', mode);
+// Prioritize auto-detection for S3 websites, then URL parameter, then environment mode, then localStorage
+const mode = detectedMode === MODES.AWS
+    ? detectedMode                    // 1. If S3 website detected → use AWS mode
+    : (urlParams.get('mode')          // 2. Otherwise, check URL parameter (?mode=aws)
+        || envMode                      // 3. Then check environment variable (SPA_MODE)
+        || localStorage.getItem('spa-mode') // 4. Then check browser storage
+        || detectedMode);               // 5. Finally, use auto-detected mode
 
 // Save mode to localStorage for persistence (only if not auto-detected)
 if (!window.location.hostname.includes('.s3-website-')
