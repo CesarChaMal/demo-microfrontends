@@ -3,22 +3,41 @@
 const fs = require('fs');
 const path = require('path');
 
+// Find project root directory (where main package.json is located)
+const findProjectRoot = () => {
+  let currentDir = __dirname;
+  while (currentDir !== path.dirname(currentDir)) {
+    const packagePath = path.join(currentDir, 'package.json');
+    if (fs.existsSync(packagePath)) {
+      const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+      if (pkg.name === 'demo-microfrontends') {
+        return currentDir;
+      }
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  // Fallback: assume we're in scripts/ directory
+  return path.join(__dirname, '..');
+};
+
+const PROJECT_ROOT = findProjectRoot();
+
 // All package directories (relative to project root)
 const PACKAGES = [
-  '..',
-  '../single-spa-root',
-  '../single-spa-auth-app',
-  '../single-spa-layout-app',
-  '../single-spa-home-app',
-  '../single-spa-angular-app',
-  '../single-spa-vue-app',
-  '../single-spa-react-app',
-  '../single-spa-vanilla-app',
-  '../single-spa-webcomponents-app',
-  '../single-spa-typescript-app',
-  '../single-spa-jquery-app',
-  '../single-spa-svelte-app'
-];
+  '.',
+  'single-spa-root',
+  'single-spa-auth-app',
+  'single-spa-layout-app',
+  'single-spa-home-app',
+  'single-spa-angular-app',
+  'single-spa-vue-app',
+  'single-spa-react-app',
+  'single-spa-vanilla-app',
+  'single-spa-webcomponents-app',
+  'single-spa-typescript-app',
+  'single-spa-jquery-app',
+  'single-spa-svelte-app'
+].map(dir => path.join(PROJECT_ROOT, dir));
 
 function readPackageJson(packageDir) {
   const packagePath = path.join(packageDir, 'package.json');
@@ -52,7 +71,7 @@ function incrementVersion(version, type = 'patch') {
 }
 
 function getCurrentVersion() {
-  const mainPackage = readPackageJson('..');
+  const mainPackage = readPackageJson(PROJECT_ROOT);
   return mainPackage ? mainPackage.version : '0.1.0';
 }
 
@@ -83,7 +102,7 @@ function updateAllVersions(newVersion) {
       }
       
       // Also update package-npm.json if it exists (for NPM mode)
-      if (packageDir === '../single-spa-root') {
+      if (path.basename(packageDir) === 'single-spa-root') {
         const npmPackagePath = path.join(packageDir, 'package-npm.json');
         if (fs.existsSync(npmPackagePath)) {
           const npmPackageData = JSON.parse(fs.readFileSync(npmPackagePath, 'utf8'));
@@ -109,7 +128,7 @@ function updateAllVersions(newVersion) {
       
       writePackageJson(packageDir, packageData);
       
-      const displayName = packageDir === '..' ? 'demo-microfrontends' : packageData.name;
+      const displayName = packageDir === PROJECT_ROOT ? 'demo-microfrontends' : packageData.name;
       console.log(`✅ ${displayName}: ${oldVersion} → ${newVersion}`);
       updated++;
       
@@ -173,7 +192,7 @@ function main() {
     for (const packageDir of PACKAGES) {
       const packageData = readPackageJson(packageDir);
       if (packageData) {
-        const displayName = packageDir === '..' ? 'demo-microfrontends' : packageData.name;
+        const displayName = packageDir === PROJECT_ROOT ? 'demo-microfrontends' : packageData.name;
         console.log(`  ${displayName}: ${packageData.version}`);
       }
     }
@@ -187,7 +206,7 @@ function main() {
       if (packageData && packageData._trigger) {
         delete packageData._trigger;
         writePackageJson(packageDir, packageData);
-        console.log(`✅ Cleaned ${packageDir === '..' ? 'demo-microfrontends' : packageData.name}`);
+        console.log(`✅ Cleaned ${packageDir === PROJECT_ROOT ? 'demo-microfrontends' : packageData.name}`);
         cleaned++;
       }
     }

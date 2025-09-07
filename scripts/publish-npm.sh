@@ -52,7 +52,7 @@ echo ""
 
 # Centralized version management
 echo "📈 Updating all package versions..."
-node version-manager.js bump $VERSION_TYPE
+node scripts/version-manager.js bump $VERSION_TYPE
 if [ $? -ne 0 ]; then
   echo "❌ Version update failed"
   exit 1
@@ -165,12 +165,14 @@ echo "  - Cross-package dependencies will be updated"
 echo "  - _trigger fields will be removed if present"
 
 echo ""
-read -p "Continue with publishing? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-  echo "❌ Publishing cancelled."
-  exit 1
-fi
+# Interactive prompt (commented out for automation)
+# read -p "Continue with publishing? (y/N): " -n 1 -r
+# echo
+# if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+#   echo "❌ Publishing cancelled."
+#   exit 1
+# fi
+echo "🚀 Proceeding with publishing automatically..."
 
 # Build all apps first
 echo ""

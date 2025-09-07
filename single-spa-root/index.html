@@ -61,8 +61,14 @@
 </script>
 
 <!-- Load your root application -->
-
+<% if (useS3Paths) { %>
+<!-- AWS S3 build with code splitting -->
+<script src="/vendors.js"></script>
 <script src="/root-application.js"></script>
+<% } else { %>
+<!-- Regular build -->
+<script src="/root-application.js"></script>
+<% } %>
 
 
 <!-- Mount points for microfrontends -->
