@@ -638,6 +638,55 @@ scripts\setup-s3.bat public
 - `cors` - S3 bucket + CORS configuration  
 - `public` - Full public website setup (bucket + website + policy + CORS)
 
+### AWS Deployment Scripts
+
+#### Quick AWS Deployment
+```bash
+# Build for AWS and deploy to S3 in one command
+npm run deploy:aws         # Production deployment (default)
+npm run deploy:aws:dev     # Development deployment
+npm run deploy:aws:prod    # Production deployment (explicit)
+```
+
+#### Individual S3 Sync Scripts
+```bash
+# Sync individual apps to S3 (after building)
+npm run sync:s3:root       # Root app only
+npm run sync:s3:auth       # Auth app only
+npm run sync:s3:layout     # Layout app only
+npm run sync:s3:home       # Home app only
+npm run sync:s3:angular    # Angular app only
+npm run sync:s3:vue        # Vue app only
+npm run sync:s3:react      # React app only
+npm run sync:s3:vanilla    # Vanilla JS app only
+npm run sync:s3:webcomponents  # Web Components app only
+npm run sync:s3:typescript # TypeScript app only
+npm run sync:s3:jquery     # jQuery app only
+npm run sync:s3:svelte     # Svelte app only
+npm run sync:s3:all        # All apps in sequence
+```
+
+**S3 Sync Features:**
+- **Proper Synchronization**: Uses `--delete` flag to remove stale files
+- **Hot-Update Exclusion**: Root app excludes development artifacts
+- **Environment Variables**: Uses `S3_BUCKET` and `ORG_NAME` from .env
+- **Organized Paths**: Each app syncs to `@{ORG_NAME}/app-name/` structure
+
+**Usage Examples:**
+```bash
+# Quick single app update
+npm run build:react:prod && npm run sync:s3:react
+
+# Update root app only
+npm run build:root:aws:prod && npm run sync:s3:root
+
+# Full deployment (build + sync all)
+npm run deploy:aws:prod
+
+# Development workflow
+npm run build:auth:dev && npm run sync:s3:auth
+```
+
 ### Deployment Methods
 
 #### Method 1: GitHub Actions (Recommended)
