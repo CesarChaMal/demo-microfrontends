@@ -126,7 +126,8 @@ publish_app() {
   # Setup authentication if needed
   if [ -n "$NPM_TOKEN" ]; then
     echo "🔑 Using NPM_TOKEN for $app_dir"
-    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+    echo "registry=https://registry.npmjs.org/" >> .npmrc
   fi
   
   # Actual publish
@@ -247,7 +248,8 @@ if [ "$ENVIRONMENT" = "prod" ]; then
     # Setup authentication if needed
     if [ -n "$NPM_TOKEN" ]; then
       echo "🔑 Using NPM_TOKEN for root app"
-      echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+      echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+      echo "registry=https://registry.npmjs.org/" >> .npmrc
     fi
     
     # Actual publish

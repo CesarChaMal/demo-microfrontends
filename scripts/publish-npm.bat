@@ -158,7 +158,8 @@ for %%a in (%APPS%) do (
     REM Setup authentication if needed
     if defined NPM_TOKEN (
         echo 🔑 Using NPM_TOKEN for %%a
-        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > %USERPROFILE%\.npmrc
+        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
+        echo registry=https://registry.npmjs.org/ >> .npmrc
     )
     
     REM Actual publish
@@ -202,7 +203,8 @@ if "%ENVIRONMENT%"=="prod" (
     REM Setup authentication if needed
     if defined NPM_TOKEN (
         echo 🔑 Using NPM_TOKEN for root app
-        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > %USERPROFILE%\.npmrc
+        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
+        echo registry=https://registry.npmjs.org/ >> .npmrc
     )
     
     REM Actual publish

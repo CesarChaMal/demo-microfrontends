@@ -258,3 +258,5 @@ ENV/
 env.bak/
 .venv/
 .venv.bak/
+# NPM authentication
+.npmrc
