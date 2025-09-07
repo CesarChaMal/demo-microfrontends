@@ -62,23 +62,27 @@ fi
 NEW_VERSION=$(node -e "console.log(require('./package.json').version)")
 echo "📋 New version: $NEW_VERSION"
 
-# Array of microfrontend directories (excluding root app)
-APPS=(
-  "single-spa-auth-app"
-  "single-spa-layout-app"
-  "single-spa-home-app"
-  "single-spa-angular-app"
-  "single-spa-vue-app"
-  "single-spa-react-app"
-  "single-spa-vanilla-app"
-  "single-spa-webcomponents-app"
-  "single-spa-typescript-app"
-  "single-spa-jquery-app"
-  "single-spa-svelte-app"
-)
-
-# Main package (root app) - handled separately in prod mode
-# MAIN_PACKAGE="single-spa-root"
+# Define packages based on environment
+if [ "$ENVIRONMENT" = "prod" ]; then
+    # Production: publish all 12 packages including root
+    APPS=(
+      "single-spa-auth-app"
+      "single-spa-layout-app"
+      "single-spa-home-app"
+      "single-spa-angular-app"
+      "single-spa-vue-app"
+      "single-spa-react-app"
+      "single-spa-vanilla-app"
+      "single-spa-webcomponents-app"
+      "single-spa-typescript-app"
+      "single-spa-jquery-app"
+      "single-spa-svelte-app"
+      "single-spa-root"
+    )
+else
+    # Development: publish nothing
+    APPS=()
+fi
 
 # Function to publish a single app
 publish_app() {
@@ -149,20 +153,13 @@ fi
 
 echo ""
 if [ "$ENVIRONMENT" = "prod" ]; then
-    echo "📋 Packages to publish (12 packages):"
-    echo "  📦 Microfrontend Applications (11):"
+    echo "📋 All packages to publish (12 packages):"
     for app in "${APPS[@]}"; do
-        echo "    - @cesarchamal/$app"
+        echo "  - @cesarchamal/$app"
     done
-    echo "  📦 Root Application (1) - Main Package:"
-    echo "    - @cesarchamal/single-spa-root"
 else
-    echo "📋 Microfrontends to publish (11 packages):"
-    echo "  📦 Microfrontend Applications:"
-    for app in "${APPS[@]}"; do
-        echo "    - @cesarchamal/$app"
-    done
-    echo "  📝 Note: Main package (root app) not published in dev mode"
+    echo "📋 Development mode: No packages will be published"
+    echo "  📝 Note: Use prod mode to publish all packages"
 fi
 echo ""
 echo "🔄 Version Synchronization:"
@@ -180,78 +177,58 @@ echo ""
 # fi
 echo "🚀 Proceeding with publishing automatically..."
 
-# Build all apps first
-echo ""
-echo "🔨 Building all apps..."
-npm run build
-
-# Publish each app
-FAILED_APPS=()
-SUCCESSFUL_APPS=()
-
-for app in "${APPS[@]}"; do
-  if publish_app "$app"; then
-    SUCCESSFUL_APPS+=("$app")
-  else
-    FAILED_APPS+=("$app")
-  fi
-done
-
-# Summary
-echo ""
-echo "📊 Publishing Summary:"
-echo "✅ Successful (${#SUCCESSFUL_APPS[@]}):"
-for app in "${SUCCESSFUL_APPS[@]}"; do
-  echo "  - @cesarchamal/$app"
-done
-
-if [ ${#FAILED_APPS[@]} -gt 0 ]; then
-  echo "❌ Failed (${#FAILED_APPS[@]}):"
-  for app in "${FAILED_APPS[@]}"; do
-    echo "  - @cesarchamal/$app"
-  done
-  exit 1
-fi
-
-# Publish root app in production mode
-if [ "$ENVIRONMENT" = "prod" ]; then
+if [ "$ENVIRONMENT" = "dev" ]; then
     echo ""
-    echo "📦 Production mode: Publishing root app to Nexus for public access"
-    cd single-spa-root
-    echo "🔍 DEBUG: Publishing root app from $(pwd)"
-    
-    # Dry run first
-    echo "🧪 Dry run for root app..."
-    npm publish --dry-run
-    
-    if [ $? -ne 0 ]; then
-        echo "❌ Root app dry run failed"
-        cd ..
-        exit 1
+    echo "📝 Development mode: Skipping publishing"
+    echo "✅ Version updated to $NEW_VERSION for all packages"
+    echo "💡 Use 'npm run publish:nexus:prod' to publish all packages"
+else
+    # Build all apps first
+    echo ""
+    echo "🔨 Building all apps..."
+    npm run build
+
+    # Publish each app
+    FAILED_APPS=()
+    SUCCESSFUL_APPS=()
+
+    for app in "${APPS[@]}"; do
+      if publish_app "$app"; then
+        SUCCESSFUL_APPS+=("$app")
+      else
+        FAILED_APPS+=("$app")
+      fi
+    done
+
+    # Summary
+    echo ""
+    echo "📊 Publishing Summary:"
+    echo "✅ Successful (${#SUCCESSFUL_APPS[@]}):"
+    for app in "${SUCCESSFUL_APPS[@]}"; do
+      echo "  - @cesarchamal/$app"
+    done
+
+    if [ ${#FAILED_APPS[@]} -gt 0 ]; then
+      echo "❌ Failed (${#FAILED_APPS[@]}):"
+      for app in "${FAILED_APPS[@]}"; do
+        echo "  - @cesarchamal/$app"
+      done
+      exit 1
     fi
-    
-    # Actual publish
-    echo "🚀 Publishing root app to Nexus..."
-    npm publish
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ Successfully published root app"
-        echo "🌍 Public Nexus Package: Available on Nexus registry"
-    else
-        echo "❌ Failed to publish root app"
-        cd ..
-        exit 1
-    fi
-    
-    cd ..
 fi
 
 echo ""
-echo "🎉 All packages published successfully!"
-echo ""
-echo "📝 Next steps:"
-echo "1. Switch to Nexus mode to test loading from Nexus packages"
-echo "2. Use 'npm run mode:nexus' to load microfrontends from registry"
 if [ "$ENVIRONMENT" = "prod" ]; then
-    echo "3. Root app is now publicly available on Nexus registry"
+    echo "🎉 All packages published successfully!"
+    echo ""
+    echo "📝 Next steps:"
+    echo "1. Switch to Nexus mode to test loading from Nexus packages"
+    echo "2. Use 'npm run mode:nexus' to load microfrontends from registry"
+    echo "3. All packages including root app are now available on Nexus registry"
+else
+    echo "✅ Version management completed!"
+    echo ""
+    echo "📝 Next steps:"
+    echo "1. Use 'npm run publish:nexus:prod' to publish all packages"
+    echo "2. Or continue with local development"
 fi

@@ -60,11 +60,14 @@ REM Get the new version
 for /f "delims=" %%i in ('node -e "console.log(require('./package.json').version)"') do set NEW_VERSION=%%i
 echo 📋 New version: %NEW_VERSION%
 
-REM Array of microfrontend directories (excluding root app)
-set APPS=single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app
-
-REM Main package (root app) - handled separately in prod mode
-REM set MAIN_PACKAGE=single-spa-root
+REM Define packages based on environment
+if "%ENVIRONMENT%"=="prod" (
+    REM Production: publish all 12 packages including root
+    set APPS=single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-root
+) else (
+    REM Development: publish nothing
+    set APPS=
+)
 
 echo 🔍 Checking Nexus authentication...
 echo 📝 Using .npmrc.nexus configuration for authentication

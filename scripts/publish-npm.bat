@@ -60,11 +60,14 @@ REM Get the new version
 for /f "delims=" %%i in ('node -e "console.log(require('./package.json').version)"') do set NEW_VERSION=%%i
 echo 📋 New version: %NEW_VERSION%
 
-REM Array of microfrontend directories (excluding root app)
-set APPS=single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app
-
-REM Main package (root app) - handled separately in prod mode
-REM set MAIN_PACKAGE=single-spa-root
+REM Define packages based on environment
+if "%ENVIRONMENT%"=="prod" (
+    REM Production: publish all 12 packages including root
+    set APPS=single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-root
+) else (
+    REM Development: publish nothing
+    set APPS=
+)
 
 echo 🔍 Checking NPM authentication...
 if defined NPM_TOKEN (
@@ -80,20 +83,13 @@ if defined NPM_TOKEN (
 
 echo.
 if "%ENVIRONMENT%"=="prod" (
-    echo 📋 Packages to publish (12 packages):
-    echo   📦 Microfrontend Applications (11):
+    echo 📋 All packages to publish (12 packages):
     for %%a in (%APPS%) do (
-        echo     - @cesarchamal/%%a
+        echo   - @cesarchamal/%%a
     )
-    echo   📦 Root Application (1) - Main Package:
-    echo     - @cesarchamal/single-spa-root
 ) else (
-    echo 📋 Microfrontends to publish (11 packages):
-    echo   📦 Microfrontend Applications:
-    for %%a in (%APPS%) do (
-        echo     - @cesarchamal/%%a
-    )
-    echo   📝 Note: Main package (root app) not published in dev mode
+    echo 📋 Development mode: No packages will be published
+    echo   📝 Note: Use prod mode to publish all packages
 )
 echo.
 echo 🔄 Version Synchronization:
@@ -110,140 +106,111 @@ REM     exit /b 1
 REM )
 echo 🚀 Proceeding with publishing automatically...
 
-REM Build all apps first
-echo.
-echo 🔨 Building all apps...
-npm run build
-
-REM Publish each app
-set FAILED_COUNT=0
-set SUCCESS_COUNT=0
-
-for %%a in (%APPS%) do (
+if "%ENVIRONMENT%"=="dev" (
     echo.
-    echo 📦 Publishing %%a...
-    
-    cd %%a
-    
-    if not exist package.json (
-        echo ❌ No package.json found in %%a
+    echo 📝 Development mode: Skipping publishing
+    echo ✅ Version updated to %NEW_VERSION% for all packages
+    echo 💡 Use 'npm run publish:npm:prod' to publish all packages
+) else (
+    REM Build all apps first
+    echo.
+    echo 🔨 Building all apps...
+    npm run build
+
+    REM Publish each app
+    set FAILED_COUNT=0
+    set SUCCESS_COUNT=0
+
+    for %%a in (%APPS%) do (
+        echo.
+        echo 📦 Publishing %%a...
+        
+        cd %%a
+        
+        if not exist package.json (
+            echo ❌ No package.json found in %%a
+            cd ..
+            set /a FAILED_COUNT+=1
+            goto :continue
+        )
+        
+        REM Build the app
+        echo 🔨 Building %%a...
+        npm run build:prod
+        if errorlevel 1 (
+            echo ❌ Build failed for %%a
+            cd ..
+            set /a FAILED_COUNT+=1
+            goto :continue
+        )
+        
+        REM Version is already updated by version-manager.js
+        echo 📋 Using centrally managed version: %NEW_VERSION%
+        
+        REM Dry run first
+        echo 🧪 Dry run for %%a...
+        npm publish --dry-run
+        if errorlevel 1 (
+            echo ❌ Dry run failed for %%a
+            cd ..
+            set /a FAILED_COUNT+=1
+            goto :continue
+        )
+        
+        REM Actual publish with authentication
+        echo 🚀 Publishing %%a to NPM...
+        if defined NPM_TOKEN (
+            echo 🔑 Using NPM_TOKEN for %%a
+            REM Create temporary .npmrc with auth token
+            echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
+            echo registry=https://registry.npmjs.org/ >> .npmrc
+            npm publish
+            REM Clean up temporary .npmrc
+            del .npmrc >nul 2>&1
+        ) else if defined NPM_OTP (
+            npm publish --otp="%NPM_OTP%"
+        ) else (
+            npm publish
+        )
+        if errorlevel 1 (
+            echo ❌ Failed to publish %%a
+            cd ..
+            set /a FAILED_COUNT+=1
+            goto :continue
+        ) else (
+            echo ✅ Successfully published %%a
+            set /a SUCCESS_COUNT+=1
+        )
+        
         cd ..
-        set /a FAILED_COUNT+=1
-        goto :continue
+        
+        :continue
     )
-    
-    REM Build the app
-    echo 🔨 Building %%a...
-    npm run build:prod
-    if errorlevel 1 (
-        echo ❌ Build failed for %%a
-        cd ..
-        set /a FAILED_COUNT+=1
-        goto :continue
-    )
-    
-    REM Version is already updated by version-manager.js
-    echo 📋 Using centrally managed version: %NEW_VERSION%
-    
-    REM Dry run first
-    echo 🧪 Dry run for %%a...
-    npm publish --dry-run
-    if errorlevel 1 (
-        echo ❌ Dry run failed for %%a
-        cd ..
-        set /a FAILED_COUNT+=1
-        goto :continue
-    )
-    
-    REM Actual publish with authentication
-    echo 🚀 Publishing %%a to NPM...
-    if defined NPM_TOKEN (
-        echo 🔑 Using NPM_TOKEN for %%a
-        REM Create temporary .npmrc with auth token
-        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
-        echo registry=https://registry.npmjs.org/ >> .npmrc
-        npm publish
-        REM Clean up temporary .npmrc
-        del .npmrc >nul 2>&1
-    ) else if defined NPM_OTP (
-        npm publish --otp="%NPM_OTP%"
-    ) else (
-        npm publish
-    )
-    if errorlevel 1 (
-        echo ❌ Failed to publish %%a
-        cd ..
-        set /a FAILED_COUNT+=1
-        goto :continue
-    ) else (
-        echo ✅ Successfully published %%a
-        set /a SUCCESS_COUNT+=1
-    )
-    
-    cd ..
-    
-    :continue
 )
 
-REM Publish root app in production mode
+REM Root app is now included in the main loop for prod mode
+
+echo.
 if "%ENVIRONMENT%"=="prod" (
-    echo.
-    echo 📦 Production mode: Publishing root app to NPM for public access
-    cd single-spa-root
-    echo 🔍 DEBUG: Publishing root app from %CD%
-    
-    REM Dry run first
-    echo 🧪 Dry run for root app...
-    npm publish --dry-run
-    if errorlevel 1 (
-        echo ❌ Root app dry run failed
-        cd ..
+    REM Summary
+    echo 📊 Publishing Summary:
+    echo ✅ Successful: %SUCCESS_COUNT%
+    echo ❌ Failed: %FAILED_COUNT%
+
+    if %FAILED_COUNT% gtr 0 (
         exit /b 1
     )
-    
-    REM Actual publish with authentication
-    echo 🚀 Publishing root app to NPM...
-    if defined NPM_TOKEN (
-        echo 🔑 Using NPM_TOKEN for root app
-        REM Create temporary .npmrc with auth token
-        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
-        echo registry=https://registry.npmjs.org/ >> .npmrc
-        npm publish
-        REM Clean up temporary .npmrc
-        del .npmrc >nul 2>&1
-    ) else if defined NPM_OTP (
-        npm publish --otp="%NPM_OTP%"
-    ) else (
-        npm publish
-    )
-    if errorlevel 1 (
-        echo ❌ Failed to publish root app
-        cd ..
-        exit /b 1
-    ) else (
-        echo ✅ Successfully published root app
-        echo 🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root
-    )
-    
-    cd ..
-)
 
-REM Summary
-echo.
-echo 📊 Publishing Summary:
-echo ✅ Successful: %SUCCESS_COUNT%
-echo ❌ Failed: %FAILED_COUNT%
-
-if %FAILED_COUNT% gtr 0 (
-    exit /b 1
-)
-
-echo.
-echo 🎉 All packages published successfully!
-echo.
-echo 📝 Next steps:
-echo 1. Switch to NPM mode to test loading from NPM packages
-echo 2. Use 'npm run mode:npm' to load microfrontends from registry
-if "%ENVIRONMENT%"=="prod" (
-    echo 3. Root app is now publicly available on NPM registry
+    echo 🎉 All packages published successfully!
+    echo.
+    echo 📝 Next steps:
+    echo 1. Switch to NPM mode to test loading from NPM packages
+    echo 2. Use 'npm run mode:npm' to load microfrontends from registry
+    echo 3. All packages including root app are now publicly available on NPM registry
+) else (
+    echo ✅ Version management completed!
+    echo.
+    echo 📝 Next steps:
+    echo 1. Use 'npm run publish:npm:prod' to publish all packages
+    echo 2. Or continue with local development
 )
