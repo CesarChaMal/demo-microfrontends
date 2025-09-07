@@ -1,6 +1,6 @@
 {
   "name": "demo-microfrontends",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Demo Microfrontends with Single-SPA",
   "engines": {
     "node": ">=18.0.0",
@@ -239,6 +239,9 @@
     "serve:aws": "cd single-spa-root && npm run serve:aws",
     "deploy:s3:dev": "bash ./scripts/deploy-s3.sh dev",
     "deploy:s3:prod": "bash ./scripts/deploy-s3.sh prod",
+    "deploy:aws": "npm run build:root:aws:prod && npm run deploy:s3:prod",
+    "deploy:aws:dev": "npm run build:root:aws:dev && npm run deploy:s3:dev",
+    "deploy:aws:prod": "npm run build:root:aws:prod && npm run deploy:s3:prod",
     "deploy:github:auth": "bash ./scripts/deploy-github.sh single-spa-auth-app",
     "deploy:github:layout": "bash ./scripts/deploy-github.sh single-spa-layout-app",
     "deploy:github:home": "bash ./scripts/deploy-github.sh single-spa-home-app",

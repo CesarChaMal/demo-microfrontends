@@ -8,7 +8,7 @@ This application demonstrates a comprehensive microfrontend architecture using S
 
 ## ▶️ Live Demo
 
-**Live Demo:** [http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com](http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com)
+**Live Demo:** [http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/](http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/)
 
 **Login credentials:**
 

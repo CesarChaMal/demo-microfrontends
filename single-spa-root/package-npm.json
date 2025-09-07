@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-root",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Single-spa application example which imports registered applications from NPM packages and manages authentication features as login.",
   "main": "root-application.js",
   "scripts": {
@@ -100,17 +100,17 @@
     "vue-router": "3.1.4",
     "vue-toastr": "2.1.2",
     "zone.js": "0.9.1",
-    "@cesarchamal/single-spa-auth-app": "^0.1.3",
-    "@cesarchamal/single-spa-layout-app": "^0.1.3",
-    "@cesarchamal/single-spa-home-app": "^0.1.3",
-    "@cesarchamal/single-spa-angular-app": "^0.1.3",
-    "@cesarchamal/single-spa-vue-app": "^0.1.3",
-    "@cesarchamal/single-spa-react-app": "^0.1.3",
-    "@cesarchamal/single-spa-vanilla-app": "^0.1.3",
-    "@cesarchamal/single-spa-webcomponents-app": "^0.1.3",
-    "@cesarchamal/single-spa-typescript-app": "^0.1.3",
-    "@cesarchamal/single-spa-jquery-app": "^0.1.3",
-    "@cesarchamal/single-spa-svelte-app": "^0.1.3"
+    "@cesarchamal/single-spa-auth-app": "^0.1.4",
+    "@cesarchamal/single-spa-layout-app": "^0.1.4",
+    "@cesarchamal/single-spa-home-app": "^0.1.4",
+    "@cesarchamal/single-spa-angular-app": "^0.1.4",
+    "@cesarchamal/single-spa-vue-app": "^0.1.4",
+    "@cesarchamal/single-spa-react-app": "^0.1.4",
+    "@cesarchamal/single-spa-vanilla-app": "^0.1.4",
+    "@cesarchamal/single-spa-webcomponents-app": "^0.1.4",
+    "@cesarchamal/single-spa-typescript-app": "^0.1.4",
+    "@cesarchamal/single-spa-jquery-app": "^0.1.4",
+    "@cesarchamal/single-spa-svelte-app": "^0.1.4"
   },
   "files": [
     "dist/",

@@ -280,14 +280,15 @@ start_aws() {
         exec_npm npm run build:root:aws:dev
     else
         echo "🔨 Building root application for AWS prod mode..."
-        exec_npm npm run build:root:aws:prod
-        exec_npm npm run build:root:aws:s3:prod
+#        exec_npm npm run build:root:aws:prod
+#        exec_npm npm run build:root:aws:s3:prod
+        exec_npm npm run deploy:aws:prod
     fi
 
     # Deploy all microfrontends to S3 in both dev and prod
     echo "🚀 AWS mode: Deploying all microfrontends to S3"
-    echo "🔍 DEBUG: Running npm run deploy:s3:$ENV"
-    if SKIP_BUILD=true npm run deploy:s3:$ENV; then
+    echo "🔍 DEBUG: Running npm run deploy:aws:$ENV"
+    if npm run deploy:aws:$ENV; then
         echo "✅ S3 deployment successful"
     else
         echo "❌ S3 deployment failed"
