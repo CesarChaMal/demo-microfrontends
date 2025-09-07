@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-svelte-app",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Svelte microfrontend for Single-SPA demonstrating compile-time optimization",
   "main": "dist/single-spa-svelte-app.js",
   "scripts": {
