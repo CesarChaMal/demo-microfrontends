@@ -32,13 +32,14 @@ This application is the **orchestrator** of **12 microfrontends** in the demo-mi
 
 ## ✍🏻 Motivation
 
-This application is a [demo](https://single-spa-with-npm-packages.herokuapp.com/) showing how to use single-spa with [Option 2: NPM packages](https://single-spa.js.org/docs/separating-applications#option-2-npm-packages) for splitting code.
+This application demonstrates a comprehensive microfrontend architecture using Single-SPA with multiple deployment strategies including local development, NPM packages, Nexus private registry, GitHub Pages, and AWS S3. It showcases 12 different microfrontends built with various frameworks and technologies.
 
 ---
 
 ## ▶️ Demo
 
-**Live Demo:** [http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com](https://single-spa-with-npm-packages.herokuapp.com/)
+**Live Demo:** [http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com](http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com)
+
 **Login credentials:**
 
 | User  | Password |
@@ -134,12 +135,26 @@ npm run lint-all:loose          # Lint all apps (loose mode)
 npm run clean                   # Clean all node_modules
 ```
 
+### Individual Publishing Scripts
+```bash
+# NPM Registry
+npm run publish:npm:root:patch  # Publish root app with patch version bump
+npm run publish:npm:auth:patch  # Publish auth app with patch version bump
+# ... (similar for all 12 apps)
+
+# Nexus Registry
+npm run publish:nexus:root:patch # Publish root app to Nexus with patch version bump
+# ... (similar for all 12 apps)
+```
+
 ### Mode-Specific Scripts
 ```bash
-npm run serve:local             # Local development mode
-npm run serve:npm               # NPM packages mode
+npm run serve:local:dev         # Local development mode (all apps)
+npm run serve:local:prod        # Local production mode (static files)
+npm run serve:npm               # NPM packages mode (CDN loading)
 npm run serve:nexus             # Nexus private registry mode
 npm run serve:github            # GitHub Pages mode
+npm run serve:aws               # AWS S3 mode (import map loading)
 ```
 
 ---
@@ -168,19 +183,17 @@ npm run serve:github            # GitHub Pages mode
 ## 🛠 How it works
 
 ### Core Files
-* **root-application-dynamic.js:** Dynamic mode-aware MFE registration with single-spa lifecycle rules
-* **root-application-local.js:** Local development configuration
-* **root-application-npm.js:** NPM packages configuration
-* **root-application-nexus.js:** Nexus private registry configuration
-* **root-application-github.js:** GitHub Pages remote loading configuration
+* **root-application-dynamic.js:** Unified dynamic mode-aware MFE registration supporting all deployment strategies
 * **server.js:** Express server for production mode
-* **webpack.config.js:** Bundles root app with TypeScript, CSS, and ESLint support
+* **webpack.config.js:** Bundles root app with mode-specific configurations and environment variables
+* **index.html:** Template with dynamic mode configuration injection
 
 ### Loading Strategies
-* **Local Mode:** SystemJS imports from localhost ports
-* **NPM Mode:** Direct NPM package imports
-* **Nexus Mode:** Scoped packages from private registry
-* **GitHub Mode:** Remote loading from GitHub Pages
+* **Local Mode:** SystemJS imports from localhost ports (dev) or static files (prod)
+* **NPM Mode:** CDN imports from jsdelivr for published NPM packages
+* **Nexus Mode:** CDN imports from private Nexus registry
+* **GitHub Mode:** Remote loading from GitHub Pages repositories
+* **AWS Mode:** Dynamic loading via S3-hosted import maps
 
 ---
 

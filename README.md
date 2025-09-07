@@ -2,6 +2,10 @@
 
 A comprehensive demonstration of microfrontend architecture using Single-SPA framework, showcasing multiple frontend technologies working together in a unified application.
 
+## ✍🏻 Motivation
+
+This application demonstrates a comprehensive microfrontend architecture using Single-SPA with multiple deployment strategies including local development, NPM packages, Nexus private registry, GitHub Pages, and AWS S3. It showcases 12 different microfrontends built with various frameworks and technologies.
+
 ## ▶️ Live Demo
 
 **Live Demo:** [http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com](http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com)
@@ -367,6 +371,12 @@ npm run build
 #### Publishing Mode Behavior
 - **Dev Mode**: Only updates package versions, no actual publishing
 - **Prod Mode**: Publishes all packages to registry for public/private access
+
+#### Individual Publishing Scripts
+- `npm run publish:npm:root:patch` - Publish root app to NPM with patch version bump
+- `npm run publish:npm:auth:patch` - Publish auth app to NPM with patch version bump
+- `npm run publish:nexus:root:patch` - Publish root app to Nexus with patch version bump
+- Similar scripts available for all 12 apps with :patch, :minor, :major variants
 
 #### Backward-Compatible Aliases
 - `npm run publish:all` - Publish all packages to NPM (alias for publish:npm)
@@ -919,10 +929,10 @@ Import Map: https://bucket.s3.region.amazonaws.com/@cesarchamal/importmap.json
 
 | Mode | Loading Strategy | Dependencies | Build Config | Deployment Target |
 |------|-----------------|--------------|--------------|-------------------|
-| **Local** | SystemJS from localhost | Local files | Standard webpack | Local servers |
-| **NPM** | ES6 imports from CDN | NPM packages in package.json | `--env.mode=npm` | NPM registry |
-| **Nexus** | ES6 imports from private CDN | Nexus packages | `--env.mode=nexus` | Nexus registry |
-| **GitHub** | ES6 imports from GitHub Pages | No special deps | `--env.mode=github` | GitHub repositories |
+| **Local** | SystemJS from localhost/static | Local files | Standard webpack | Local servers |
+| **NPM** | SystemJS from CDN | No special deps | `--env.mode=npm` | NPM registry |
+| **Nexus** | SystemJS from private CDN | No special deps | `--env.mode=nexus` | Nexus registry |
+| **GitHub** | SystemJS from GitHub Pages | No special deps | `--env.mode=github` | GitHub repositories |
 | **AWS** | SystemJS + Import Map | No special deps | `--env.mode=aws` + AWS config | S3 bucket |
 
 ### **Runtime Behavior**
