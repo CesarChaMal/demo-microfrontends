@@ -157,6 +157,9 @@ if "%ENVIRONMENT%"=="dev" (
             goto :continue
         )
         
+        REM Copy NPM .npmrc to app directory
+        copy "..\.npmrc" ".npmrc" >nul
+        
         REM Actual publish with authentication
         echo 🚀 Publishing %%a to NPM...
         if defined NPM_TOKEN (
@@ -171,6 +174,11 @@ if "%ENVIRONMENT%"=="dev" (
             npm publish --otp="%NPM_OTP%"
         ) else (
             npm publish
+        )
+        
+        REM Clean up .npmrc from app directory (if not using NPM_TOKEN)
+        if not defined NPM_TOKEN (
+            del .npmrc >nul 2>&1
         )
         if errorlevel 1 (
             echo ❌ Failed to publish %%a

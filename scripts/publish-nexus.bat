@@ -159,6 +159,9 @@ for %%a in (%APPS%) do (
         goto :continue
     )
     
+    REM Copy Nexus .npmrc to app directory
+    copy "..\.npmrc" ".npmrc" >nul
+    
     REM Actual publish to Nexus
     echo 🚀 Publishing %%a to Nexus...
     if defined NPM_OTP (
@@ -166,6 +169,9 @@ for %%a in (%APPS%) do (
     ) else (
         npm publish
     )
+    
+    REM Clean up .npmrc from app directory
+    del ".npmrc" >nul 2>&1
     if errorlevel 1 (
         echo ❌ Failed to publish %%a
         cd ..
@@ -197,6 +203,9 @@ if "%ENVIRONMENT%"=="prod" (
         exit /b 1
     )
     
+    REM Copy Nexus .npmrc to root directory
+    copy "..\.npmrc" ".npmrc" >nul
+    
     REM Actual publish
     echo 🚀 Publishing root app to Nexus...
     if defined NPM_OTP (
@@ -204,6 +213,9 @@ if "%ENVIRONMENT%"=="prod" (
     ) else (
         npm publish
     )
+    
+    REM Clean up .npmrc from root directory
+    del ".npmrc" >nul 2>&1
     if errorlevel 1 (
         echo ❌ Failed to publish root app
         cd ..

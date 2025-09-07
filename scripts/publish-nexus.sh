@@ -122,9 +122,15 @@ publish_app() {
     return 1
   fi
   
+  # Copy Nexus .npmrc to app directory
+  cp ../.npmrc .npmrc
+  
   # Actual publish to Nexus
   echo "🚀 Publishing $app_dir to Nexus..."
   npm publish
+  
+  # Clean up .npmrc from app directory
+  rm -f .npmrc
   
   if [ $? -eq 0 ]; then
     echo "✅ Successfully published $app_dir"
