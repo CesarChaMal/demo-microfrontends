@@ -155,15 +155,13 @@ for %%a in (%APPS%) do (
         goto :continue
     )
     
-    REM Setup authentication if needed
+    REM Actual publish with authentication
+    echo 🚀 Publishing %%a to NPM...
     if defined NPM_TOKEN (
         echo 🔑 Using NPM_TOKEN for %%a
-        npm config set //registry.npmjs.org/:_authToken %NPM_TOKEN%
-    )
-    
-    REM Actual publish
-    echo 🚀 Publishing %%a to NPM...
-    if defined NPM_OTP (
+        set "NPM_CONFIG_//registry.npmjs.org/:_authToken=%NPM_TOKEN%"
+        npm publish
+    ) else if defined NPM_OTP (
         npm publish --otp="%NPM_OTP%"
     ) else (
         npm publish
@@ -199,15 +197,13 @@ if "%ENVIRONMENT%"=="prod" (
         exit /b 1
     )
     
-    REM Setup authentication if needed
+    REM Actual publish with authentication
+    echo 🚀 Publishing root app to NPM...
     if defined NPM_TOKEN (
         echo 🔑 Using NPM_TOKEN for root app
-        npm config set //registry.npmjs.org/:_authToken %NPM_TOKEN%
-    )
-    
-    REM Actual publish
-    echo 🚀 Publishing root app to NPM...
-    if defined NPM_OTP (
+        set "NPM_CONFIG_//registry.npmjs.org/:_authToken=%NPM_TOKEN%"
+        npm publish
+    ) else if defined NPM_OTP (
         npm publish --otp="%NPM_OTP%"
     ) else (
         npm publish

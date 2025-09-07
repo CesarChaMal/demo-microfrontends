@@ -41,6 +41,7 @@ if not exist "dist\single-spa-auth-app.umd.js" (
 )
 
 echo 🧪 Running npm publish --dry-run...
+set "NPM_CONFIG_//registry.npmjs.org/:_authToken=%NPM_TOKEN%"
 npm publish --dry-run >nul 2>&1
 
 if errorlevel 1 (

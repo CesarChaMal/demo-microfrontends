@@ -27,6 +27,12 @@ if [ "${FROM_RUN_SCRIPT}" != "true" ]; then
     fi
 fi
 
+# Load environment variables from .env file if not called from run.sh
+if [ "${FROM_RUN_SCRIPT}" != "true" ] && [ -f "../.env" ]; then
+    echo "📄 Loading .env file..."
+    export $(grep -v '^#' "../.env" | xargs)
+fi
+
 echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
 echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
 
@@ -123,15 +129,13 @@ publish_app() {
     return 1
   fi
   
-  # Setup authentication if needed
+  # Actual publish with authentication
+  echo "🚀 Publishing $app_dir to NPM..."
   if [ -n "$NPM_TOKEN" ]; then
     echo "🔑 Using NPM_TOKEN for $app_dir"
-    npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-  fi
-  
-  # Actual publish
-  echo "🚀 Publishing $app_dir to NPM..."
-  if [ -n "$NPM_OTP" ]; then
+    export NPM_CONFIG_//registry.npmjs.org/:_authToken="$NPM_TOKEN"
+    npm publish
+  elif [ -n "$NPM_OTP" ]; then
     npm publish --otp="$NPM_OTP"
   else
     npm publish
@@ -244,15 +248,13 @@ if [ "$ENVIRONMENT" = "prod" ]; then
         exit 1
     fi
     
-    # Setup authentication if needed
+    # Actual publish with authentication
+    echo "🚀 Publishing root app to NPM..."
     if [ -n "$NPM_TOKEN" ]; then
       echo "🔑 Using NPM_TOKEN for root app"
-      npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-    fi
-    
-    # Actual publish
-    echo "🚀 Publishing root app to NPM..."
-    if [ -n "$NPM_OTP" ]; then
+      export NPM_CONFIG_//registry.npmjs.org/:_authToken="$NPM_TOKEN"
+      npm publish
+    elif [ -n "$NPM_OTP" ]; then
       npm publish --otp="$NPM_OTP"
     else
       npm publish
