@@ -12,7 +12,7 @@ fi
 
 ORG_NAME=${ORG_NAME:-cesarchamal}
 NEXUS_URL=${NEXUS_URL:-http://localhost:8081}
-NEXUS_REGISTRY=${NEXUS_REGISTRY:-${NEXUS_URL}/repository/npm-group/}
+NEXUS_REGISTRY=${NEXUS_REGISTRY:-${NEXUS_URL}/repository/npm-hosted-releases/}
 
 echo "🔍 Checking Nexus registry status for microfrontends..."
 echo "🏢 Organization: @$ORG_NAME"

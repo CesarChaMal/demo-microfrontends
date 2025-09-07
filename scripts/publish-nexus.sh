@@ -112,9 +112,15 @@ publish_app() {
   # Version is already updated by version-manager.js
   echo "📋 Using centrally managed version: $NEW_VERSION"
   
+  # Copy Nexus .npmrc to app directory for authentication
+  if [ -f "../.npmrc.nexus" ]; then
+    cp "../.npmrc.nexus" ".npmrc"
+    echo "   📋 Copied .npmrc.nexus to app directory"
+  fi
+  
   # Dry run first
   echo "🧪 Dry run for $app_dir..."
-  npm publish --dry-run
+  npm publish --dry-run --registry=http://localhost:8081/repository/npm-hosted-releases/
   
   if [ $? -ne 0 ]; then
     echo "❌ Dry run failed for $app_dir"
@@ -122,12 +128,9 @@ publish_app() {
     return 1
   fi
   
-  # Copy Nexus .npmrc to app directory
-  cp ../.npmrc .npmrc
-  
-  # Actual publish to Nexus
+  # Actual publish to Nexus hosted repository
   echo "🚀 Publishing $app_dir to Nexus..."
-  npm publish
+  npm publish --registry=http://localhost:8081/repository/npm-hosted-releases/
   
   # Clean up .npmrc from app directory
   rm -f .npmrc

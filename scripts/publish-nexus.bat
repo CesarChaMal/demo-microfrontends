@@ -149,9 +149,15 @@ for %%a in (%APPS%) do (
     REM Version is already updated by version-manager.js
     echo 📋 Using centrally managed version: %NEW_VERSION%
     
+    REM Copy Nexus .npmrc to app directory for authentication
+    if exist "..\.npmrc.nexus" (
+        copy "..\.npmrc.nexus" ".npmrc" >nul
+        echo    📋 Copied .npmrc.nexus to app directory
+    )
+    
     REM Dry run first
     echo 🧪 Dry run for %%a...
-    npm publish --dry-run
+    npm publish --dry-run --registry=http://localhost:8081/repository/npm-hosted-releases/
     if errorlevel 1 (
         echo ❌ Dry run failed for %%a
         cd ..
@@ -159,15 +165,12 @@ for %%a in (%APPS%) do (
         goto :continue
     )
     
-    REM Copy Nexus .npmrc to app directory
-    copy "..\.npmrc" ".npmrc" >nul
-    
-    REM Actual publish to Nexus
+    REM Actual publish to Nexus hosted repository
     echo 🚀 Publishing %%a to Nexus...
     if defined NPM_OTP (
-        npm publish --otp="%NPM_OTP%"
+        npm publish --otp="%NPM_OTP%" --registry=http://localhost:8081/repository/npm-hosted-releases/
     ) else (
-        npm publish
+        npm publish --registry=http://localhost:8081/repository/npm-hosted-releases/
     )
     
     REM Clean up .npmrc from app directory
@@ -196,22 +199,25 @@ if "%ENVIRONMENT%"=="prod" (
     
     REM Dry run first
     echo 🧪 Dry run for root app...
-    npm publish --dry-run
+    npm publish --dry-run --registry=http://localhost:8081/repository/npm-hosted-releases/
     if errorlevel 1 (
         echo ❌ Root app dry run failed
         cd ..
         exit /b 1
     )
     
-    REM Copy Nexus .npmrc to root directory
-    copy "..\.npmrc" ".npmrc" >nul
+    REM Copy Nexus .npmrc to root directory for authentication
+    if exist "..\.npmrc.nexus" (
+        copy "..\.npmrc.nexus" ".npmrc" >nul
+        echo    📋 Copied .npmrc.nexus to root directory
+    )
     
     REM Actual publish
     echo 🚀 Publishing root app to Nexus...
     if defined NPM_OTP (
-        npm publish --otp="%NPM_OTP%"
+        npm publish --otp="%NPM_OTP%" --registry=http://localhost:8081/repository/npm-hosted-releases/
     ) else (
-        npm publish
+        npm publish --registry=http://localhost:8081/repository/npm-hosted-releases/
     )
     
     REM Clean up .npmrc from root directory

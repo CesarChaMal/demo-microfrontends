@@ -337,30 +337,21 @@ switch (mode) {
     break;
 
   case MODES.NEXUS:
-    // Nexus private registry imports via unpkg-style URLs
+    // Nexus private registry imports - use webpack import() to avoid CORS issues
     loadApp = async (name) => {
       const scopedName = `@cesarchamal/${name}`;
-      // Use correct file names based on actual package structure
-      const fileMap = {
-        'single-spa-auth-app': 'single-spa-auth-app.umd.js',
-        'single-spa-layout-app': 'single-spa-layout-app.umd.js', 
-        'single-spa-home-app': 'single-spa-home-app.js',
-        'single-spa-angular-app': 'single-spa-angular-app.js',
-        'single-spa-vue-app': 'single-spa-vue-app.umd.js',
-        'single-spa-react-app': 'single-spa-react-app.js',
-        'single-spa-vanilla-app': 'single-spa-vanilla-app.js',
-        'single-spa-webcomponents-app': 'single-spa-webcomponents-app.js',
-        'single-spa-typescript-app': 'single-spa-typescript-app.js',
-        'single-spa-jquery-app': 'single-spa-jquery-app.js',
-        'single-spa-svelte-app': 'single-spa-svelte-app.js',
-      };
-      const fileName = fileMap[name];
-      const cdnUrl = `http://localhost:8081/repository/npm-group/${scopedName}@latest/dist/${fileName}`;
-      console.log(`Loading ${name} from Nexus: ${cdnUrl}`);
+      console.log(`Loading ${name} from Nexus package: ${scopedName}`);
       try {
-        const module = await loadModule(cdnUrl, { isCdnUrl: true });
+        // Use webpack import() which respects npm registry configuration
+        const module = await loadModule(scopedName, { isPackageName: true });
         return resolveLifecycles(module, name);
       } catch (error) {
+        console.error(`❌ Failed to load ${scopedName} from Nexus registry`);
+        console.error('💡 Make sure:');
+        console.error('   1. Package is published to Nexus: npm run publish:nexus:prod');
+        console.error('   2. Registry is set to Nexus: npm run registry:nexus');
+        console.error('   3. Nexus authentication is configured');
+        console.error('   4. Package dependencies are installed');
         throw handleNetworkError(error, `Nexus import for ${name}`);
       }
     };
