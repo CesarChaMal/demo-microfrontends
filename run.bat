@@ -44,6 +44,13 @@ REM Set OpenSSL legacy provider for Node.js 22 compatibility with older Webpack
 echo ⚠️  Setting OpenSSL legacy provider for Node.js 22 compatibility
 set NODE_OPTIONS=--openssl-legacy-provider
 
+REM Switch to appropriate mode first (before installing dependencies)
+if not "%MODE%"=="local" (
+    echo 🔄 Switching to %MODE% mode before installation...
+    call npm run mode:%MODE%
+    if errorlevel 1 exit /b 1
+)
+
 REM Install root dependencies first (needed for rimraf)
 echo 📦 Installing root dependencies...
 call npm install
@@ -70,6 +77,13 @@ if "%MODE%"=="local" (
     node --version
     echo 🔍 DEBUG: NPM_VERSION=
     npm --version
+    
+    REM Restore original .npmrc for local mode
+    if exist ".npmrc.backup" (
+        echo 🔄 Restoring original .npmrc configuration...
+        copy ".npmrc.backup" ".npmrc" >nul
+        del ".npmrc.backup" >nul
+    )
     
     if "%ENV%"=="prod" (
         echo 🌐 Starting production server...

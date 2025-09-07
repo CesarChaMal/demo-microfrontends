@@ -47,7 +47,7 @@ This project consists of **12 microfrontends** working together:
 
 ```
 demo-microfrontends/
-├── single-spa-login/  # Root application
+├── single-spa-root/                             # Root application
 ├── single-spa-auth-app/                         # Vue.js authentication app
 ├── single-spa-layout-app/                       # Vue.js layout components
 ├── single-spa-home-app/                         # AngularJS home page
@@ -58,7 +58,8 @@ demo-microfrontends/
 ├── single-spa-webcomponents-app/                # Web Components (Lit)
 ├── single-spa-typescript-app/                   # TypeScript application
 ├── single-spa-jquery-app/                       # jQuery legacy integration
-└── single-spa-svelte-app/                       # Svelte application
+├── single-spa-svelte-app/                       # Svelte application
+└── scripts/                                     # Utility scripts for deployment
 ```
 
 ## Microfrontends
@@ -270,14 +271,17 @@ run.bat local prod
 - `deploy-github.sh` / `deploy-github.bat` - GitHub Pages deployment
 - `create-github-repo.sh` / `create-github-repo.bat` - GitHub repository creation
 - `github-repo-server.js` - GitHub API server for repository management
-- `switch-mode.js` - Mode switching utility (local/npm/github/aws)
+- `switch-mode.js` - Mode switching utility (local/npm/nexus/github/aws)
 - `version-manager.js` - Centralized version management
 - `publish-npm.sh` / `publish-npm.bat` - NPM publishing automation
 - `publish-nexus.sh` / `publish-nexus.bat` - Nexus publishing automation
 - `setup-s3.sh` / `setup-s3.bat` - S3 bucket setup and configuration
 - `trigger-*.sh` / `trigger-*.bat` - GitHub Actions deployment triggers
 - `update-importmap.mjs` - Import map management for deployments
-- `test-build.sh` - Build testing utility
+- `test-npm-auth.sh` / `test-npm-auth.bat` - NPM authentication testing
+- `test-nexus-auth.sh` / `test-nexus-auth.bat` - Nexus authentication testing
+- `aws-hot-sync.sh` / `aws-hot-sync.bat` - AWS S3 hot reload sync
+- `github-hot-sync.sh` / `github-hot-sync.bat` - GitHub hot reload sync
 - `check-*.sh` / `check-*.bat` - Status checker scripts for all deployment modes
 
 ## Individual Application Setup
@@ -315,10 +319,16 @@ npm run build
 - `npm run test:nexus:auth` - Test Nexus authentication with .npmrc.nexus
 - `./scripts/test-npm-auth.sh` - Direct script execution (Linux/macOS/Git Bash)
 - `scripts\test-npm-auth.bat` - Direct script execution (Windows)
+- `./scripts/test-nexus-auth.sh` - Direct script execution (Linux/macOS/Git Bash)
+- `scripts\test-nexus-auth.bat` - Direct script execution (Windows)
 
 ### Hot Reload Scripts
 - `npm run aws:hot-sync` - Auto-sync file changes to AWS S3 bucket
 - `npm run github:hot-sync` - Auto-deploy file changes to GitHub repositories
+- `./scripts/aws-hot-sync.sh` - Direct script execution (Linux/macOS/Git Bash)
+- `scripts\aws-hot-sync.bat` - Direct script execution (Windows)
+- `./scripts/github-hot-sync.sh` - Direct script execution (Linux/macOS/Git Bash)
+- `scripts\github-hot-sync.bat` - Direct script execution (Windows)
 
 ### Registry Switching Scripts
 - `npm run registry:npm` - Switch to NPM registry
@@ -372,11 +382,31 @@ npm run build
 - **Dev Mode**: Only updates package versions, no actual publishing
 - **Prod Mode**: Publishes all packages to registry for public/private access
 
-#### Individual Publishing Scripts
+##### Individual Publishing Scripts
+
+**NPM Individual Publishing:**
 - `npm run publish:npm:root:patch` - Publish root app to NPM with patch version bump
 - `npm run publish:npm:auth:patch` - Publish auth app to NPM with patch version bump
+- `npm run publish:npm:layout:patch` - Publish layout app to NPM with patch version bump
+- `npm run publish:npm:home:patch` - Publish home app to NPM with patch version bump
+- `npm run publish:npm:angular:patch` - Publish Angular app to NPM with patch version bump
+- `npm run publish:npm:vue:patch` - Publish Vue app to NPM with patch version bump
+- `npm run publish:npm:react:patch` - Publish React app to NPM with patch version bump
+- `npm run publish:npm:vanilla:patch` - Publish Vanilla app to NPM with patch version bump
+- `npm run publish:npm:webcomponents:patch` - Publish Web Components app to NPM with patch version bump
+- `npm run publish:npm:typescript:patch` - Publish TypeScript app to NPM with patch version bump
+- `npm run publish:npm:jquery:patch` - Publish jQuery app to NPM with patch version bump
+- `npm run publish:npm:svelte:patch` - Publish Svelte app to NPM with patch version bump
+
+**Nexus Individual Publishing:**
 - `npm run publish:nexus:root:patch` - Publish root app to Nexus with patch version bump
-- Similar scripts available for all 12 apps with :patch, :minor, :major variants
+- `npm run publish:nexus:auth:patch` - Publish auth app to Nexus with patch version bump
+- Similar pattern for all 12 apps with :patch, :minor, :major variants
+
+**Version Variants Available:**
+- `:patch` - Bug fixes (0.1.0 → 0.1.1)
+- `:minor` - New features (0.1.0 → 0.2.0)
+- `:major` - Breaking changes (0.1.0 → 1.0.0)
 
 #### Backward-Compatible Aliases
 - `npm run publish:all` - Publish all packages to NPM (alias for publish:npm)
@@ -389,19 +419,58 @@ npm run build
 - `npm run build` - Build all microfrontends
 - `npm run build:dev` - Build all microfrontends for development
 - `npm run build:prod` - Build all microfrontends for production
+- `npm run build:apps` - Build root + all microfrontends
+- `npm run build:apps:dev` - Build root + all microfrontends for development
+- `npm run build:apps:prod` - Build root + all microfrontends for production
 - `npm run serve:root` - Start root development server
 - `npm run clean` - Clean all node_modules
+- `npm run clean:root` - Clean root application node_modules
+- `npm run clean:apps` - Clean all microfrontend node_modules
 - `npm start` - Start development environment
 - `npm run lint` - Lint and fix all JavaScript/JSON files
 - `npm run lint:check` - Check linting without fixing
 
 ### Individual App Scripts
+
+**Installation Scripts:**
+- `npm run install:root` - Install root app dependencies
 - `npm run install:auth` - Install auth app dependencies
-- `npm run build:auth` - Build auth application
-- `npm run build:auth:dev` - Build auth app for development
-- `npm run build:auth:prod` - Build auth app for production
+- `npm run install:layout` - Install layout app dependencies
+- `npm run install:home` - Install home app dependencies
+- `npm run install:angular` - Install Angular app dependencies
+- `npm run install:vue` - Install Vue app dependencies
+- `npm run install:react` - Install React app dependencies
+- `npm run install:vanilla` - Install Vanilla app dependencies
+- `npm run install:webcomponents` - Install Web Components app dependencies
+- `npm run install:typescript` - Install TypeScript app dependencies
+- `npm run install:jquery` - Install jQuery app dependencies
+- `npm run install:svelte` - Install Svelte app dependencies
+
+**Build Scripts (per app):**
+- `npm run build:auth` / `npm run build:auth:dev` / `npm run build:auth:prod`
+- `npm run build:layout` / `npm run build:layout:dev` / `npm run build:layout:prod`
+- Similar patterns for: home, angular, vue, react, vanilla, webcomponents, typescript, jquery, svelte
+
+**Root App Build Scripts:**
+- `npm run build:root` - Build root app (standard)
+- `npm run build:root:dev` - Build root app for development
+- `npm run build:root:prod` - Build root app for production
+- `npm run build:root:aws` - Build root app for AWS mode
+- `npm run build:root:aws:dev` - Build root app for AWS development
+- `npm run build:root:aws:prod` - Build root app for AWS production
+- `npm run build:root:npm` - Build root app for NPM mode
+- `npm run build:root:nexus` - Build root app for Nexus mode
+- `npm run build:root:github` - Build root app for GitHub mode
+
+**Serve Scripts:**
+- `npm run serve:root` - Serve root app
 - `npm run serve:auth` - Serve auth app individually
-- Similar patterns for: layout, home, angular, vue, react, vanilla, webcomponents, typescript, jquery, svelte
+- Similar patterns for all other apps
+
+**Clean Scripts (per app):**
+- `npm run clean:auth` - Clean auth app node_modules
+- `npm run clean:layout` - Clean layout app node_modules
+- Similar patterns for all other apps
 
 ## Technology Stack
 
@@ -537,9 +606,6 @@ Each microfrontend logs mount/unmount events to the browser console:
 | React | 4206 | http://localhost:4206 |
 | Vanilla | 4207 | http://localhost:4207 |
 | Web Components | 4208 | http://localhost:4208 |
-| TypeScript | 4209 | http://localhost:4209 |
-| jQuery | 4210 | http://localhost:4210 |
-| Svelte | 4211 | http://localhost:4211 |calhost:4208 |
 | TypeScript | 4209 | http://localhost:4209 |
 | jQuery | 4210 | http://localhost:4210 |
 | Svelte | 4211 | http://localhost:4211 |
@@ -1040,6 +1106,14 @@ npm run check:npm      # NPM packages & CDN accessibility
 npm run check:nexus    # Nexus registry & connectivity
 npm run check:github   # GitHub repos & Pages status
 npm run check:aws      # S3 bucket & file accessibility
+
+# Direct script execution
+# Linux/macOS/Git Bash
+./scripts/check-local-status.sh
+./scripts/check-npm-status.sh
+./scripts/check-nexus-status.sh
+./scripts/check-github-status.sh
+./scripts/check-aws-status.sh
 
 # Windows
 scripts\check-local-status.bat
