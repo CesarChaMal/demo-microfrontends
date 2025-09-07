@@ -20,6 +20,7 @@ if "%COMMAND%"=="" (
     echo 📋 Manual Version Management:
     echo   version-manager.bat bump [patch^|minor^|major]  - Increment version for all packages
     echo   version-manager.bat set ^<version^>             - Set specific version for all packages
+    echo   version-manager.bat reset [version]             - Reset all packages to base version (default: 0.1.0)
     echo   version-manager.bat current                     - Show current versions
     echo   version-manager.bat clean                       - Remove _trigger fields
     echo.
@@ -28,9 +29,12 @@ if "%COMMAND%"=="" (
     echo   version-manager.bat bump minor                  - 0.1.0 → 0.2.0 (new features)
     echo   version-manager.bat bump major                  - 0.1.0 → 1.0.0 (breaking changes)
     echo   version-manager.bat set 1.2.3                   - Set all to 1.2.3 (specific version)
+    echo   version-manager.bat reset                       - Reset all to 0.1.0 (base version)
+    echo   version-manager.bat reset 1.0.0                 - Reset all to 1.0.0 (custom base)
     echo.
     echo 🔍 Information Commands:
     echo   version-manager.bat current                     - Show all package versions
+    echo   version-manager.bat reset                       - Reset all to base version
     echo   version-manager.bat clean                       - Clean _trigger fields
     echo.
     echo 🎯 Complete Workflow Examples:

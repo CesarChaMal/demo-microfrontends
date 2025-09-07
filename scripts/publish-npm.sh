@@ -37,6 +37,11 @@ echo "🚀 Publishing to NPM..."
 echo "📦 Version bump type: $VERSION_TYPE"
 echo "🌐 Environment: $ENVIRONMENT"
 echo ""
+echo "🔑 Authentication Options:"
+echo "  - NPM_TOKEN: Use automation token (recommended for CI/CD)"
+echo "  - NPM_OTP: Provide 2FA code for interactive login"
+echo "  - Manual: Use 'npm login' without environment variables"
+echo ""
 echo "🔄 Publishing Workflow:"
 echo "  1. 📈 Bump version for all packages"
 echo "  2. 🔄 Sync cross-package dependencies"
@@ -120,7 +125,11 @@ publish_app() {
   
   # Actual publish
   echo "🚀 Publishing $app_dir to NPM..."
-  npm publish
+  if [ -n "$NPM_OTP" ]; then
+    npm publish --otp="$NPM_OTP"
+  else
+    npm publish
+  fi
   
   if [ $? -eq 0 ]; then
     echo "✅ Successfully published $app_dir"
@@ -135,10 +144,15 @@ publish_app() {
 
 # Main execution
 echo "🔍 Checking NPM authentication..."
-npm whoami
-if [ $? -ne 0 ]; then
-  echo "❌ Not logged in to NPM. Please run 'npm login' first."
-  exit 1
+if [ -n "$NPM_TOKEN" ]; then
+  echo "🔑 Using NPM_TOKEN for authentication"
+  echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+else
+  npm whoami
+  if [ $? -ne 0 ]; then
+    echo "❌ Not logged in to NPM. Please run 'npm login' first or set NPM_TOKEN environment variable."
+    exit 1
+  fi
 fi
 
 echo ""
@@ -226,7 +240,11 @@ if [ "$ENVIRONMENT" = "prod" ]; then
     
     # Actual publish
     echo "🚀 Publishing root app to NPM..."
-    npm publish
+    if [ -n "$NPM_OTP" ]; then
+      npm publish --otp="$NPM_OTP"
+    else
+      npm publish
+    fi
     
     if [ $? -eq 0 ]; then
         echo "✅ Successfully published root app"

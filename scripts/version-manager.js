@@ -213,6 +213,21 @@ function main() {
     
     console.log(`\n📊 Cleaned ${cleaned} packages`);
     
+  } else if (command === 'reset') {
+    const resetVersion = args[1] || '0.1.0';
+    
+    console.log(`🔄 Resetting all packages to version ${resetVersion}`);
+    
+    const result = updateAllVersions(resetVersion);
+    
+    if (result.failed === 0) {
+      console.log(`\n🎉 All packages successfully reset to ${resetVersion}!`);
+      process.exit(0);
+    } else {
+      console.log(`\n⚠️  Some packages failed to reset. Check the errors above.`);
+      process.exit(1);
+    }
+    
   } else {
     console.log(`
 📦 Version Manager for Demo Microfrontends
@@ -220,6 +235,7 @@ function main() {
 Usage:
   node version-manager.js bump [patch|minor|major]  - Increment version for all packages
   node version-manager.js set <version>             - Set specific version for all packages
+  node version-manager.js reset [version]           - Reset all packages to base version (default: 0.1.0)
   node version-manager.js current                   - Show current versions
   node version-manager.js clean                     - Remove _trigger fields
 
@@ -228,6 +244,8 @@ Examples:
   node version-manager.js bump minor               - 0.1.0 → 0.2.0
   node version-manager.js bump major               - 0.1.0 → 1.0.0
   node version-manager.js set 1.2.3                - Set all to 1.2.3
+  node version-manager.js reset                    - Reset all to 0.1.0
+  node version-manager.js reset 1.0.0              - Reset all to 1.0.0
   node version-manager.js current                  - Show all versions
   node version-manager.js clean                    - Clean _trigger fields
 `);

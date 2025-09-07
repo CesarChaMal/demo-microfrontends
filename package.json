@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "cd single-spa-root && npm run serve",
-    "install:all" : "npm run install:root && npm run install:apps",
+    "install:all": "npm run install:root && npm run install:apps",
     "install:root": "cd single-spa-root && npm install",
     "install:apps": "npm run install:auth && npm run install:layout && npm run install:home && npm run install:angular && npm run install:vue && npm run install:react && npm run install:vanilla && npm run install:webcomponents && npm run install:typescript && npm run install:jquery && npm run install:svelte",
     "install:auth": "cd single-spa-auth-app && npm install",
@@ -108,6 +108,7 @@
     "version:bump:minor": "node scripts/version-manager.js bump minor",
     "version:bump:major": "node scripts/version-manager.js bump major",
     "version:set": "node scripts/version-manager.js set",
+    "version:reset": "node scripts/version-manager.js reset",
     "version:current": "node scripts/version-manager.js current",
     "version:clean": "node scripts/version-manager.js clean",
     "publish:npm": "bash ./scripts/publish-npm.sh",

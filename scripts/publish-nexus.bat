@@ -30,6 +30,11 @@ echo 🚀 Publishing to Nexus...
 echo 📦 Version bump type: %VERSION_TYPE%
 echo 🌐 Environment: %ENVIRONMENT%
 echo.
+echo 🔑 Authentication Options:
+echo   - NPM_TOKEN: Use automation token (recommended for CI/CD)
+echo   - NPM_OTP: Provide 2FA code for interactive login
+echo   - Manual: Use 'npm login' without environment variables
+echo.
 echo 🔄 Publishing Workflow:
 echo   1. 📈 Bump version for all packages
 echo   2. 🔄 Sync cross-package dependencies
@@ -45,7 +50,7 @@ echo.
 
 REM Centralized version management
 echo 📈 Updating all package versions...
-node version-manager.js bump %VERSION_TYPE%
+node scripts\version-manager.js bump %VERSION_TYPE%
 if errorlevel 1 (
     echo ❌ Version update failed
     exit /b 1
@@ -62,11 +67,16 @@ REM Main package (root app) - handled separately in prod mode
 REM set MAIN_PACKAGE=single-spa-root
 
 echo 🔍 Checking Nexus authentication...
-npm whoami >nul 2>&1
-if errorlevel 1 (
-    echo ❌ Not logged in to Nexus. Please configure NPM registry and authenticate first.
-    echo 💡 Example: npm config set registry https://your-nexus-registry.com/repository/npm-group/
-    exit /b 1
+if defined NPM_TOKEN (
+    echo 🔑 Using NPM_TOKEN for authentication
+    echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > %USERPROFILE%\.npmrc
+) else (
+    npm whoami >nul 2>&1
+    if errorlevel 1 (
+        echo ❌ Not logged in to Nexus. Please configure NPM registry and authenticate first or set NPM_TOKEN environment variable.
+        echo 💡 Example: npm config set registry https://your-nexus-registry.com/repository/npm-group/
+        exit /b 1
+    )
 )
 
 echo.
@@ -93,11 +103,13 @@ echo   - Cross-package dependencies will be updated
 echo   - _trigger fields will be removed if present
 
 echo.
-set /p CONFIRM="Continue with publishing? (y/N): "
-if /i not "%CONFIRM%"=="y" (
-    echo ❌ Publishing cancelled.
-    exit /b 1
-)
+REM Interactive prompt (commented out for automation)
+REM set /p CONFIRM="Continue with publishing? (y/N): "
+REM if /i not "%CONFIRM%"=="y" (
+REM     echo ❌ Publishing cancelled.
+REM     exit /b 1
+REM )
+echo 🚀 Proceeding with publishing automatically...
 
 REM Build all apps first
 echo.
@@ -146,7 +158,11 @@ for %%a in (%APPS%) do (
     
     REM Actual publish to Nexus
     echo 🚀 Publishing %%a to Nexus...
-    npm publish
+    if defined NPM_OTP (
+        npm publish --otp="%NPM_OTP%"
+    ) else (
+        npm publish
+    )
     if errorlevel 1 (
         echo ❌ Failed to publish %%a
         cd ..
@@ -180,7 +196,11 @@ if "%ENVIRONMENT%"=="prod" (
     
     REM Actual publish
     echo 🚀 Publishing root app to Nexus...
-    npm publish
+    if defined NPM_OTP (
+        npm publish --otp="%NPM_OTP%"
+    ) else (
+        npm publish
+    )
     if errorlevel 1 (
         echo ❌ Failed to publish root app
         cd ..
