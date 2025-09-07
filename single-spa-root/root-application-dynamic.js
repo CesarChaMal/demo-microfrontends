@@ -49,7 +49,6 @@ if (window.location.hostname.includes('.s3-website-')
   detectedMode = envMode;
 }
 
-// Prioritize auto-detection for S3 websites, then URL parameter, then environment mode, then localStorage
 const mode = detectedMode === MODES.AWS
   ? detectedMode // 1. If S3 website detected → use AWS mode
   : (urlParams.get('mode') // 2. Otherwise, check URL parameter (?mode=aws)
