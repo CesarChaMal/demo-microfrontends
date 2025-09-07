@@ -47,8 +47,12 @@ if [ ! -f "dist/single-spa-auth-app.umd.js" ]; then
 fi
 
 echo "🧪 Running npm publish --dry-run..."
-export NPM_CONFIG_//registry.npmjs.org/:_authToken="$NPM_TOKEN"
+# Create temporary .npmrc with auth token
+echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+echo "registry=https://registry.npmjs.org/" >> .npmrc
 npm publish --dry-run
+# Clean up temporary .npmrc
+rm -f .npmrc
 
 if [ $? -eq 0 ]; then
     echo "✅ Dry run successful! NPM_TOKEN authentication is working."

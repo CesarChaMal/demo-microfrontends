@@ -133,8 +133,12 @@ publish_app() {
   echo "🚀 Publishing $app_dir to NPM..."
   if [ -n "$NPM_TOKEN" ]; then
     echo "🔑 Using NPM_TOKEN for $app_dir"
-    export NPM_CONFIG_//registry.npmjs.org/:_authToken="$NPM_TOKEN"
+    # Create temporary .npmrc with auth token
+    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+    echo "registry=https://registry.npmjs.org/" >> .npmrc
     npm publish
+    # Clean up temporary .npmrc
+    rm -f .npmrc
   elif [ -n "$NPM_OTP" ]; then
     npm publish --otp="$NPM_OTP"
   else
@@ -252,8 +256,12 @@ if [ "$ENVIRONMENT" = "prod" ]; then
     echo "🚀 Publishing root app to NPM..."
     if [ -n "$NPM_TOKEN" ]; then
       echo "🔑 Using NPM_TOKEN for root app"
-      export NPM_CONFIG_//registry.npmjs.org/:_authToken="$NPM_TOKEN"
+      # Create temporary .npmrc with auth token
+      echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+      echo "registry=https://registry.npmjs.org/" >> .npmrc
       npm publish
+      # Clean up temporary .npmrc
+      rm -f .npmrc
     elif [ -n "$NPM_OTP" ]; then
       npm publish --otp="$NPM_OTP"
     else
