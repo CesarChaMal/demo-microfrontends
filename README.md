@@ -296,6 +296,12 @@ npm run build
 - `npm run check:github` - Check GitHub repositories and Pages status
 - `npm run check:aws` - Check AWS S3 bucket and file accessibility
 
+### Authentication Testing Scripts
+- `npm run test:npm:auth` - Test NPM authentication with NPM_TOKEN
+- `npm run test:nexus:auth` - Test Nexus authentication with .npmrc.nexus
+- `./scripts/test-npm-auth.sh` - Direct script execution (Linux/macOS/Git Bash)
+- `scripts\test-npm-auth.bat` - Direct script execution (Windows)
+
 ### Hot Reload Scripts
 - `npm run aws:hot-sync` - Auto-sync file changes to AWS S3 bucket
 - `npm run github:hot-sync` - Auto-deploy file changes to GitHub repositories
@@ -327,6 +333,7 @@ npm run build
 - `npm run version:bump:minor` - Bump minor version (0.1.0 → 0.2.0)
 - `npm run version:bump:major` - Bump major version (0.1.0 → 1.0.0)
 - `npm run version:set 1.2.3` - Set specific version for all packages
+- `npm run version:reset` - Reset all packages to base version (default: 0.1.0)
 - `npm run version:clean` - Remove _trigger fields from packages
 
 ### Publishing Scripts
@@ -669,27 +676,39 @@ This project supports publishing all microfrontends as NPM packages for distribu
 
 ### Publishing Workflow
 
+**NPM Registry (with NPM_TOKEN):**
 ```bash
-# 1. Login to NPM
-npm login
+# 1. Set NPM automation token
+export NPM_TOKEN=npm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# 2. Publish packages with version bump
-# NPM Registry
+# 2. Test authentication (optional)
+npm run test:npm:auth
+
+# 3. Publish packages with version bump
 npm run publish:npm:patch    # Bug fixes (0.1.0 → 0.1.1)
 npm run publish:npm:minor    # New features (0.1.0 → 0.2.0)
 npm run publish:npm:major    # Breaking changes (0.1.0 → 1.0.0)
 
-# Nexus Registry (requires Nexus configuration)
+# 4. Test published packages
+npm run mode:npm && npm run serve:npm
+```
+
+**Nexus Registry (with .npmrc.nexus):**
+```bash
+# 1. Configure .npmrc.nexus with authentication
+# registry=http://localhost:8081/repository/npm-group/
+# //localhost:8081/repository/npm-group/:_auth=<base64-user:pass>
+
+# 2. Test authentication (optional)
+npm run test:nexus:auth
+
+# 3. Publish packages with version bump
 npm run publish:nexus:patch  # Bug fixes to Nexus
 npm run publish:nexus:minor  # New features to Nexus
 npm run publish:nexus:major  # Breaking changes to Nexus
 
-# 3. Switch to registry mode to test published packages
-npm run mode:npm      # Test NPM packages
-npm run serve:npm
-# OR
-npm run mode:nexus    # Test Nexus packages
-npm run serve:nexus
+# 4. Test published packages
+npm run mode:nexus && npm run serve:nexus
 ```
 
 ### Published Packages
@@ -718,8 +737,12 @@ All packages use synchronized versioning:
 npm run version:current
 
 # Manual version management
-npm run version:bump:patch
-npm run version:set 2.0.0
+npm run version:bump:patch   # 0.1.0 → 0.1.1
+npm run version:bump:minor   # 0.1.0 → 0.2.0
+npm run version:bump:major   # 0.1.0 → 1.0.0
+npm run version:set 2.0.0    # Set specific version
+npm run version:reset        # Reset to 0.1.0
+npm run version:reset 1.0.0  # Reset to custom version
 
 # Publishing automatically handles versioning
 npm run publish:npm:minor    # Bumps version + publishes to NPM
@@ -1007,7 +1030,11 @@ npm run version:clean
 ### NPM Publishing Issues
 
 ```bash
-# Check NPM authentication
+# Test NPM authentication with token
+export NPM_TOKEN=npm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+npm run test:npm:auth
+
+# Check NPM authentication manually
 npm whoami
 
 # Test publishing (dry run)
@@ -1015,6 +1042,22 @@ cd single-spa-auth-app
 npm publish --dry-run
 
 # Switch back to local mode if NPM packages fail
+npm run mode:local
+```
+
+### Nexus Publishing Issues
+
+```bash
+# Test Nexus authentication
+npm run test:nexus:auth
+
+# Check Nexus configuration
+cat .npmrc.nexus
+
+# Verify Nexus server is running
+curl http://localhost:8081/repository/npm-group/
+
+# Switch back to local mode if Nexus packages fail
 npm run mode:local
 ```
 
