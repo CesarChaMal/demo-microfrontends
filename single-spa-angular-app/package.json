@@ -7,12 +7,9 @@
     "ng": "ng",
     "test": "ng test",
     "lint": "ng lint",
-    "build": "ng build --prod",
+    "build": "ng build --configuration production",
     "build:dev": "ng build --configuration development",
     "build:prod": "ng build --configuration production",
-    "build:single-spa": "ng build --prod",
-    "build:single-spa:dev": "ng build --configuration development",
-    "build:single-spa:prod": "ng build --configuration production",
     "serve": "npm run build && npx http-server dist -p 4204 --cors"
   },
   "dependencies": {

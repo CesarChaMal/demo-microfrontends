@@ -41,21 +41,21 @@
 
 <!-- Set global configuration for different modes -->
 <script>
-    window.IMPORTMAP_URL = 'https://single-spa-demo-774145483743.s3.eu-central-1.amazonaws.com/@cesarchamal/importmap.json';
+    window.IMPORTMAP_URL = '<%= importmapUrl %>';
     window.AWS_CONFIG = {
-        s3Bucket: 'single-spa-demo-774145483743',
-        region: 'eu-central-1',
-        orgName: 'cesarchamal'
+        s3Bucket: '<%= s3Bucket %>',
+        region: '<%= awsRegion %>',
+        orgName: '<%= orgName %>'
     };
-    window.GITHUB_USERNAME = 'cesarchamal';
+    window.GITHUB_USERNAME = '<%= githubUsername %>';
     window.S3_WEBSITE_URL = '';
 
     // Debug information
     console.log('🔧 HTML Template Configuration:');
-    console.log('  - Mode:', 'github');
-    console.log('  - Production:', true);
-    console.log('  - Use S3 Paths:', false);
-    console.log('  - Public Path:', '/');
+    console.log('  - Mode:', '<%= mode %>');
+    console.log('  - Production:', <%= isProduction %>);
+    console.log('  - Use S3 Paths:', <%= useS3Paths %>);
+    console.log('  - Public Path:', '<%= publicPath %>');
     console.log('  - Import Map URL:', window.IMPORTMAP_URL);
     console.log('  - S3 Website URL:', window.S3_WEBSITE_URL);
 </script>

@@ -54,72 +54,84 @@ demo-microfrontends/
 - **Port**: 8080
 - **Purpose**: Manages routing and application lifecycle
 - **Technologies**: JavaScript, Webpack, SystemJS
+- **Build Scripts**: `build`, `build:dev`, `build:prod`, `build:aws:prod`
 
 ### 2. Authentication App (`single-spa-auth-app`)
 - **Framework**: Vue.js
 - **Port**: 4201
 - **Purpose**: Login functionality
 - **Route**: `/login`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 3. Layout App (`single-spa-layout-app`)
 - **Framework**: Vue.js
 - **Port**: 4202
 - **Purpose**: Shared header, navbar, and footer
 - **Active**: All routes except `/login`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 4. Home App (`single-spa-home-app`)
 - **Framework**: AngularJS 1.x
 - **Port**: 4203
 - **Purpose**: Landing page
 - **Route**: `/`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 5. Angular App (`single-spa-angular-app`)
 - **Framework**: Angular 8
 - **Port**: 4204
 - **Purpose**: Feature-rich application with routing
 - **Route**: `/angular/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 6. React App (`single-spa-react-app`)
 - **Framework**: React 16
 - **Port**: 4206
 - **Purpose**: React-based features
 - **Route**: `/react/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 7. Vue App (`single-spa-vue-app`)
 - **Framework**: Vue.js 2
 - **Port**: 4205
 - **Purpose**: Vue-based features
 - **Route**: `/vue/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 8. Vanilla App (`single-spa-vanilla-app`)
 - **Framework**: Pure JavaScript (ES2020+)
 - **Port**: 4207
 - **Purpose**: Modern vanilla JS with native APIs
 - **Route**: `/vanilla/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 9. Web Components App (`single-spa-webcomponents-app`)
 - **Framework**: Lit + Web Components
 - **Port**: 4208
 - **Purpose**: Browser-native components with Shadow DOM
 - **Route**: `/webcomponents/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 10. TypeScript App (`single-spa-typescript-app`)
 - **Framework**: TypeScript with strict typing
 - **Port**: 4209
 - **Purpose**: Type-safe development and compile-time validation
 - **Route**: `/typescript/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 11. jQuery App (`single-spa-jquery-app`)
 - **Framework**: jQuery 3.6.0 (Legacy library)
 - **Port**: 4210
 - **Purpose**: Legacy library integration and migration strategies
 - **Route**: `/jquery/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ### 12. Svelte App (`single-spa-svelte-app`)
 - **Framework**: Svelte 3 (Compile-time optimized)
 - **Port**: 4211
 - **Purpose**: Reactive programming with minimal runtime overhead
 - **Route**: `/svelte/*`
+- **Build Scripts**: `build`, `build:dev`, `build:prod`
 
 ## Prerequisites
 
@@ -284,6 +296,10 @@ npm run build
 - `npm run check:github` - Check GitHub repositories and Pages status
 - `npm run check:aws` - Check AWS S3 bucket and file accessibility
 
+### Hot Reload Scripts
+- `npm run aws:hot-sync` - Auto-sync file changes to AWS S3 bucket
+- `npm run github:hot-sync` - Auto-deploy file changes to GitHub repositories
+
 ### Registry Switching Scripts
 - `npm run registry:npm` - Switch to NPM registry
 - `npm run registry:nexus` - Switch to Nexus registry
@@ -382,6 +398,38 @@ npm run build
 - **Various CLI tools**: Angular CLI, Vue CLI, Create React App
 
 ## Development Workflow
+
+### Hot Reload Development
+
+For external deployment modes, use hot reload scripts to automatically sync changes:
+
+**AWS S3 Hot Sync:**
+```bash
+# Terminal 1: Start application
+./run.sh aws dev
+
+# Terminal 2: Start hot sync (auto-uploads changes to S3)
+npm run aws:hot-sync
+```
+
+**GitHub Hot Sync:**
+```bash
+# Terminal 1: Start application  
+./run.sh github dev
+
+# Terminal 2: Start hot sync (auto-deploys to GitHub repos)
+npm run github:hot-sync
+```
+
+**Features:**
+- **File watching** with `fswatch` (auto-installs on Linux/macOS)
+- **Smart deployment** - only syncs changed applications
+- **Cross-platform** - Linux, macOS, Windows, WSL support
+- **Fallback polling** when `fswatch` unavailable
+
+**Requirements:**
+- **AWS**: `S3_BUCKET`, `AWS_REGION`, `ORG_NAME` environment variables
+- **GitHub**: `GITHUB_USERNAME`, `GITHUB_API_TOKEN` environment variables
 
 ### Mode Selection
 

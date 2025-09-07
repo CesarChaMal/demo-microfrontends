@@ -317,18 +317,28 @@ switch (mode) {
 
   case MODES.GITHUB: {
     // GitHub Pages - different behavior for dev vs prod
-    const githubEnv = envEnvironment;
+    // Check environment variable first, then fallback to URL parameter
+    const urlEnv = urlParams.get('env');
+    const githubEnv = envEnvironment || urlEnv;
     const { GITHUB_USERNAME } = window;
     const githubUser = GITHUB_USERNAME || process.env.GITHUB_USERNAME || 'cesarchamal';
 
-    const usePages = githubEnv === 'prod';
+    // Always use GitHub Pages URLs to avoid MIME type issues with raw URLs
+    const usePages = true;
+    
+    console.log('🔍 GitHub mode environment detection:');
+    console.log(`  - Webpack env variable (priority): ${envEnvironment}`);
+    console.log(`  - URL env parameter (fallback): ${urlEnv}`);
+    console.log(`  - Final githubEnv: ${githubEnv}`);
+    console.log(`  - usePages (GitHub Pages): ${usePages}`);
+    console.log(`  - GitHub user: ${githubUser}`);
 
     if (githubEnv === 'prod') {
-      console.log('🔧 GitHub prod mode: Loading from GitHub Pages (deployed websites)');
+      console.log('🔧 GitHub prod mode: Creates repos + deploys to GitHub Pages');
       console.log('⏳ Note: GitHub Pages may take 5-10 minutes to become available after deployment');
     } else {
-      console.log('📖 GitHub dev mode: Loading from GitHub repositories (raw files)');
-      console.log('🔍 Source: Raw repository files from main branch');
+      console.log('📖 GitHub dev mode: Reading from existing GitHub Pages');
+      console.log('🔍 Source: GitHub Pages (proper MIME types)');
     }
 
     // Retry mechanism for external URLs

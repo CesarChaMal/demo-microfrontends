@@ -15,7 +15,7 @@
     "@fortawesome/react-fontawesome": "0.1.9"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js --mode development",
+    "build": "webpack --config webpack.config.js --mode production",
     "build:dev": "webpack --config webpack.config.js --mode development",
     "build:prod": "webpack --config webpack.config.js --mode production",
     "serve": "npm run build && npx http-server dist -p 4206 --cors",

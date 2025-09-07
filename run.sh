@@ -196,8 +196,8 @@ start_github() {
         fi
         
         # Build root application with GitHub mode configuration
-        echo "🔨 Building root application for GitHub deployment..."
-        exec_npm npm run build:root:github
+        echo "🔨 Building root application for GitHub prod mode..."
+        exec_npm npm run build:root:github:prod
         
         # Deploy each microfrontend using existing scripts
         APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
@@ -241,8 +241,8 @@ start_github() {
         echo "🔍 Assumes repositories already exist and are deployed"
         
         # Build root application with GitHub mode configuration
-        echo "🔨 Building root application for GitHub mode..."
-        exec_npm npm run build:root:github
+        echo "🔨 Building root application for GitHub dev mode..."
+        exec_npm npm run build:root:github:dev
     fi
     
     echo "🌐 Main application: http://localhost:8080?mode=github"
@@ -268,17 +268,18 @@ start_aws() {
     fi
 
     # Build root application with AWS mode configuration
-    echo "🔨 Building root application for AWS deployment..."
+#    cd single-spa-root
 #    if [ "$ENV" = "dev" ]; then
-#        exec_npm npm run build -- --env.mode=aws
+#        exec_npm npm run build:dev -- --env.mode=aws
 #    else
-#        exec_npm npm run build -- --env.mode=aws
+#        exec_npm npm run build:prod -- --env.mode=aws
 #        exec_npm npm run build:aws:prod
 #    fi
     if [ "$ENV" = "dev" ]; then
-        exec_npm npm run build:root:aws
+        echo "🔨 Building root application for AWS dev mode..."
+        exec_npm npm run build:root:aws:dev
     else
-        exec_npm npm run build:root:aws
+        echo "🔨 Building root application for AWS prod mode..."
         exec_npm npm run build:root:aws:prod
     fi
 
@@ -333,8 +334,13 @@ start_npm() {
     echo "🔍 DEBUG: NPM user: $(npm whoami)"
     
     # Build root application with NPM mode configuration
-    echo "🔨 Building root application for NPM deployment..."
-    exec_npm npm run build:root:npm
+    if [ "$ENV" = "dev" ]; then
+        echo "🔨 Building root application for NPM dev mode..."
+        exec_npm npm run build:root:npm:dev
+    else
+        echo "🔨 Building root application for NPM prod mode..."
+        exec_npm npm run build:root:npm:prod
+    fi
     
     # Verify .npmrc is correctly set for NPM publishing
     echo "🔍 DEBUG: Current registry: $(npm config get registry)"
@@ -389,8 +395,13 @@ start_nexus() {
     echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
     
     # Build root application with Nexus mode configuration
-    echo "🔨 Building root application for Nexus deployment..."
-    exec_npm npm run build:root:nexus
+    if [ "$ENV" = "dev" ]; then
+        echo "🔨 Building root application for Nexus dev mode..."
+        exec_npm npm run build:root:nexus:dev
+    else
+        echo "🔨 Building root application for Nexus prod mode..."
+        exec_npm npm run build:root:nexus:prod
+    fi
     
     # Verify .npmrc is correctly set for Nexus publishing
     echo "🔍 DEBUG: Current registry: $(npm config get registry)"

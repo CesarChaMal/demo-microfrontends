@@ -13,9 +13,20 @@ try {
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
-  const isProduction = argv.mode === 'production' || process.env.SPA_ENV === 'prod';
+  // Check multiple sources for production mode detection
+  const isProduction = argv.mode === 'production' || 
+                      process.argv.includes('-p') || 
+                      process.env.SPA_ENV === 'prod';
   const mode = env && env.mode ? env.mode : (process.env.SPA_MODE || 'local');
   const isDevServer = process.argv.includes('webpack-dev-server');
+  
+  console.log('🔍 Webpack Debug Info:');
+  console.log(`  - argv.mode: ${argv.mode}`);
+  console.log(`  - process.argv includes -p: ${process.argv.includes('-p')}`);
+  console.log(`  - process.env.SPA_ENV: ${process.env.SPA_ENV}`);
+  console.log(`  - Final isProduction: ${isProduction}`);
+  console.log(`  - SPA mode: ${mode}`);
+  console.log(`  - isDevServer: ${isDevServer}`);
   
   return {
   entry: {
