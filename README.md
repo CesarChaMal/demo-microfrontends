@@ -252,6 +252,7 @@ run.bat local prod
 - `trigger-*.sh` / `trigger-*.bat` - GitHub Actions deployment triggers
 - `update-importmap.mjs` - Import map management for deployments
 - `test-build.sh` - Build testing utility
+- `check-*.sh` / `check-*.bat` - Status checker scripts for all deployment modes
 
 ## Individual Application Setup
 
@@ -275,6 +276,13 @@ npm run build
 - `npm run trigger:actions` - Trigger all GitHub Actions deployments
 - `npm run trigger:deploy:aws` - Trigger AWS S3 deployment
 - `npm run trigger:deploy:github` - Trigger GitHub Pages deployment
+
+### Status Checker Scripts
+- `npm run check:local` - Check local development servers and built files
+- `npm run check:npm` - Check NPM packages and CDN accessibility
+- `npm run check:nexus` - Check Nexus registry and package availability
+- `npm run check:github` - Check GitHub repositories and Pages status
+- `npm run check:aws` - Check AWS S3 bucket and file accessibility
 
 ### Registry Switching Scripts
 - `npm run registry:npm` - Switch to NPM registry
@@ -875,6 +883,47 @@ MIT License - see individual LICENSE files in each application directory.
 - Cesar Francisco Chavez Maldonado (Original author)
 - Various contributors
 
+## Status Checking
+
+Comprehensive status checker scripts are available for all deployment modes to help diagnose issues and verify deployments:
+
+### Quick Status Checks
+
+```bash
+# Check all modes
+npm run check:local    # Local dev servers & built files
+npm run check:npm      # NPM packages & CDN accessibility
+npm run check:nexus    # Nexus registry & connectivity
+npm run check:github   # GitHub repos & Pages status
+npm run check:aws      # S3 bucket & file accessibility
+
+# Windows
+scripts\check-local-status.bat
+scripts\check-npm-status.bat
+scripts\check-nexus-status.bat
+scripts\check-github-status.bat
+scripts\check-aws-status.bat
+```
+
+### What Each Checker Tests
+
+| Mode | Tests | Key Checks |
+|------|-------|------------|
+| **Local** | Dev servers, ports, built files | Port availability, HTTP endpoints, dist/ files |
+| **NPM** | Package registry, CDN access | Package existence, unpkg/jsdelivr CDN |
+| **Nexus** | Registry connectivity, packages | Nexus server, direct access, NPM proxy |
+| **GitHub** | Repositories, Pages status | Repo existence, Pages enablement, file access |
+| **AWS** | S3 bucket, import map | Website URLs, API URLs, import map |
+
+### Status Output
+
+Each checker provides:
+- ✅ **Success indicators** with HTTP status codes
+- ❌ **Error indicators** with specific failure reasons
+- ⚠️ **Warning indicators** for partial success (e.g., 403 forbidden)
+- 📊 **Summary tables** with all results
+- 🔧 **Actionable recommendations** for fixing issues
+
 ## Troubleshooting
 
 ### Common Issues
@@ -885,6 +934,7 @@ MIT License - see individual LICENSE files in each application directory.
 4. **CORS Issues**: Applications are configured with CORS support
 5. **Registry Issues**: Run scripts automatically switch NPM registries
 6. **GitHub Actions Failures**: Individual apps use public NPM registry automatically
+7. **Deployment Issues**: Use status checkers to identify missing files or configuration problems
 
 ### Debug Mode
 

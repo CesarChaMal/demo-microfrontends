@@ -38,65 +38,95 @@ git config --global user.email "cesarchamal@gmail.com"
 
 echo 🚀 Deploying %APP_NAME% to GitHub Pages...
 
-REM Handle root app deployment
+REM Handle different deployment types
 if "%APP_NAME%"=="root" (
     set APP_DIR=single-spa-root
+    set REPO_NAME=single-spa-root
+) else if "%APP_NAME%"=="main" (
+    set APP_DIR=.
     set REPO_NAME=demo-microfrontends
 ) else (
     set APP_DIR=%APP_NAME%
     set REPO_NAME=%APP_NAME%
 )
 
-REM Check if app directory exists
-if not exist "%APP_DIR%" (
-    echo ❌ Error: Directory %APP_DIR% not found
-    exit /b 1
-)
-
-cd "%APP_DIR%"
-
-REM Configure git user
-git config user.name "Cesar Francisco Chavez Maldonado - GitHub Actions"
-git config user.email "cesarchamal@gmail.com"
-
-REM Build the application
-echo 🔨 Building %APP_NAME%...
-if exist "package.json" (
-    call npm install
-    call npm run build
+REM Handle main package deployment (no build needed)
+if "%APP_NAME%"=="main" (
+    echo 📁 Main package deployment - no build required
+    echo ✅ Using existing project files for GitHub Pages
 ) else (
-    echo ❌ Error: package.json not found in %APP_NAME%
-    exit /b 1
-)
-
-REM Check if dist directory exists
-if not exist "dist" (
-    echo ❌ Error: dist directory not found after build
-    exit /b 1
-)
-
-REM Create GitHub repository if it doesn't exist
-echo 🔧 Creating GitHub repository if needed...
-curl -s -X POST -H "Authorization: token %GITHUB_TOKEN%" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/user/repos" -d "{\"name\":\"%REPO_NAME%\",\"description\":\"%REPO_NAME%\",\"private\":false}" > repo_response.json 2>nul
-
-findstr /C:"Resource not accessible" repo_response.json >nul
-if !errorlevel! equ 0 (
-    echo ⚠️  Warning: GitHub token lacks repository creation permissions
-    echo 📝 Please create repository manually: https://github.com/new
-    echo    Repository name: %REPO_NAME%
-    echo    Make it public and continue...
-    pause
-) else (
-    findstr /C:"already exists" repo_response.json >nul
-    if !errorlevel! equ 0 (
-        echo ✅ Repository %REPO_NAME% already exists
+    REM Check if app directory exists
+    if not exist "%APP_DIR%" (
+        echo ❌ Error: Directory %APP_DIR% not found
+        exit /b 1
+    )
+    
+    cd "%APP_DIR%"
+    
+    REM Configure git user
+    git config user.name "Cesar Francisco Chavez Maldonado - GitHub Actions"
+    git config user.email "cesarchamal@gmail.com"
+    
+    REM Build the application
+    echo 🔨 Building %APP_NAME%...
+    if exist "package.json" (
+        call npm install
+        call npm run build
     ) else (
-        echo ✅ Repository %REPO_NAME% created successfully
-        echo ⏳ Waiting for repository to be ready...
-        timeout /t 5 /nobreak >nul
+        echo ❌ Error: package.json not found in %APP_NAME%
+        exit /b 1
+    )
+    
+    REM Check if build output exists
+    if "%APP_NAME%"=="root" (
+        REM Root app builds to current directory
+        if not exist "index.html" (
+            echo ❌ Error: Root app build files not found
+            exit /b 1
+        )
+    ) else (
+        REM Other apps build to dist directory
+        if not exist "dist" (
+            echo ❌ Error: dist directory not found after build
+            exit /b 1
+        )
     )
 )
-del repo_response.json 2>nul
+
+REM Check if repository already exists first
+echo 🔍 Checking if GitHub repository exists...
+curl -s -H "Authorization: token %GITHUB_TOKEN%" "https://api.github.com/repos/%GITHUB_USERNAME%/%REPO_NAME%" > repo_check.json 2>nul
+
+findstr /C:"Not Found" repo_check.json >nul
+if !errorlevel! equ 0 (
+    REM Repository doesn't exist, create it
+    echo 🔧 Creating GitHub repository...
+    curl -s -X POST -H "Authorization: token %GITHUB_TOKEN%" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/user/repos" -d "{\"name\":\"%REPO_NAME%\",\"description\":\"%REPO_NAME%\",\"private\":false}" > repo_response.json 2>nul
+    
+    findstr /C:"Resource not accessible" repo_response.json >nul
+    if !errorlevel! equ 0 (
+        echo ⚠️  Warning: GitHub token lacks repository creation permissions
+        echo 📝 Please create repository manually: https://github.com/new
+        echo    Repository name: %REPO_NAME%
+        echo    Make it public and continue...
+        pause
+    ) else (
+        findstr /C:"id" repo_response.json >nul
+        if !errorlevel! equ 0 (
+            echo ✅ Repository %REPO_NAME% created successfully
+            echo ⏳ Waiting for repository to be ready...
+            timeout /t 5 /nobreak >nul
+        ) else (
+            echo ❌ Error creating repository
+            type repo_response.json
+            exit /b 1
+        )
+    )
+    del repo_response.json 2>nul
+) else (
+    echo ✅ Repository %REPO_NAME% already exists
+)
+del repo_check.json 2>nul
 
 REM Initialize git if not already initialized
 if not exist ".git" (
@@ -109,24 +139,21 @@ REM Configure git with token authentication
 git remote remove origin 2>nul || echo >nul
 git remote add origin "https://x-access-token:%GITHUB_TOKEN%@github.com/%GITHUB_USERNAME%/%REPO_NAME%.git"
 
-REM Verify repository exists before proceeding
-echo 🔍 Verifying repository exists...
-curl -s -H "Authorization: token %GITHUB_TOKEN%" "https://api.github.com/repos/%GITHUB_USERNAME%/%REPO_NAME%" > repo_check.json
-findstr /C:"Not Found" repo_check.json >nul
-if !errorlevel! equ 0 (
-    echo ❌ Error: Repository %REPO_NAME% not found after creation
-    echo 📝 Please create repository manually: https://github.com/new
-    echo    Repository name: %REPO_NAME%
-    del repo_check.json 2>nul
-    exit /b 1
-) else (
-    echo ✅ Repository verified: %REPO_NAME%
-)
-del repo_check.json 2>nul
+REM Final verification
+echo ✅ Repository verified: %REPO_NAME%
 
 REM Copy dist contents to root for GitHub Pages
 echo 📁 Preparing files for GitHub Pages...
-xcopy /E /Y dist\* . >nul
+if "%APP_NAME%"=="main" (
+    REM Main package - files already in place
+    echo 📁 Main package files already in place
+) else if "%APP_NAME%"=="root" (
+    REM Root app builds to current directory, no need to copy
+    echo 📁 Root app files already in place
+) else (
+    REM Other apps build to dist directory
+    xcopy /E /Y dist\* . >nul
+)
 
 REM Only commit if there are changes
 git status --porcelain >temp_status.txt
@@ -151,7 +178,8 @@ REM Enable GitHub Pages via API
 echo 🌐 Enabling GitHub Pages...
 curl -X POST -H "Authorization: token %GITHUB_TOKEN%" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/%GITHUB_USERNAME%/%REPO_NAME%/pages" -d "{\"source\":{\"branch\":\"main\",\"path\":\"/\"}}" 2>nul || echo GitHub Pages may already be enabled
 
-cd ..
+REM Return to original directory if we changed it
+if not "%APP_NAME%"=="main" cd ..
 
 echo ✅ %APP_NAME% deployed to https://%GITHUB_USERNAME%.github.io/%REPO_NAME%/
 echo ⏳ GitHub Pages may take a few minutes to become available

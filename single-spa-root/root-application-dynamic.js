@@ -170,6 +170,17 @@ function resolveLifecycles(module, name) {
   return lifecycles;
 }
 
+// Unified module loading strategy
+function createModuleLoader(url, isExternalUrl = false) {
+  if (isExternalUrl) {
+    // Use SystemJS for external URLs (GitHub, AWS, Local URLs)
+    return window.System.import(url);
+  } else {
+    // Use webpack import() for package names (NPM, Nexus)
+    return import(url);
+  }
+}
+
 // Configure loading strategy based on mode
 let loadApp;
 let importMapPromise;
@@ -281,7 +292,7 @@ switch (mode) {
     loadApp = async (name) => {
       console.log(`Loading ${name} from NPM`);
       try {
-        const module = await import(name);
+        const module = await createModuleLoader(name, false); // Package name, not URL
         return resolveLifecycles(module, name);
       } catch (error) {
         throw handleNetworkError(error, `NPM import for ${name}`);
@@ -296,7 +307,7 @@ switch (mode) {
       const scopedName = `@cesarchamal/${name}`;
       console.log(`Loading ${name} from Nexus: ${scopedName}`);
       try {
-        const module = await import(scopedName);
+        const module = await createModuleLoader(scopedName, false); // Package name, not URL
         return resolveLifecycles(module, name);
       } catch (error) {
         throw handleNetworkError(error, `Nexus import for ${name}`);
@@ -320,12 +331,12 @@ switch (mode) {
       console.log('🔍 Source: Raw repository files from main branch');
     }
 
-    // Retry mechanism
+    // Retry mechanism for external URLs
     async function loadWithRetry(url, maxRetries = 3, delay = 2000) {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           console.log(`📡 Attempt ${attempt}/${maxRetries} loading: ${url}`);
-          const module = await import(url);
+          const module = await createModuleLoader(url, true); // External URL
           console.log(`✅ Successfully loaded on attempt ${attempt}`);
           return module;
         } catch (error) {
@@ -447,8 +458,8 @@ switch (mode) {
         console.log(`🔍 Module name: ${moduleName}`);
         console.log(`🔍 Resolved URL: ${url}`);
 
-        // Use direct URL import to avoid SystemJS resolution issues
-        const module = await window.System.import(url);
+        // Use unified module loader for external URLs
+        const module = await createModuleLoader(url, true);
         console.log(`✅ SystemJS import successful for ${moduleName}:`, module);
         return resolveLifecycles(module, name);
       } catch (error) {
@@ -480,7 +491,7 @@ switch (mode) {
       console.log(`🚀 Loading ${name} from ${url}`);
       console.log(`🔍 Debug: Using ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} URLs for ${name}`);
 
-      return window.System.import(url).then((module) => {
+      return createModuleLoader(url, true).then((module) => {
         console.log(`✅ Successfully loaded ${name}:`, module);
         const lifecycles = resolveLifecycles(module, name);
         console.log(`✅ ${name} lifecycles resolved:`, {
