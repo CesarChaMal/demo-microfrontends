@@ -159,8 +159,12 @@ for %%a in (%APPS%) do (
     echo 🚀 Publishing %%a to NPM...
     if defined NPM_TOKEN (
         echo 🔑 Using NPM_TOKEN for %%a
-        set "NPM_CONFIG_//registry.npmjs.org/:_authToken=%NPM_TOKEN%"
+        REM Create temporary .npmrc with auth token
+        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
+        echo registry=https://registry.npmjs.org/ >> .npmrc
         npm publish
+        REM Clean up temporary .npmrc
+        del .npmrc >nul 2>&1
     ) else if defined NPM_OTP (
         npm publish --otp="%NPM_OTP%"
     ) else (
@@ -201,8 +205,12 @@ if "%ENVIRONMENT%"=="prod" (
     echo 🚀 Publishing root app to NPM...
     if defined NPM_TOKEN (
         echo 🔑 Using NPM_TOKEN for root app
-        set "NPM_CONFIG_//registry.npmjs.org/:_authToken=%NPM_TOKEN%"
+        REM Create temporary .npmrc with auth token
+        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > .npmrc
+        echo registry=https://registry.npmjs.org/ >> .npmrc
         npm publish
+        REM Clean up temporary .npmrc
+        del .npmrc >nul 2>&1
     ) else if defined NPM_OTP (
         npm publish --otp="%NPM_OTP%"
     ) else (
