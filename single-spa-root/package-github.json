@@ -118,7 +118,8 @@
     "microfrontends",
     "root",
     "orchestrator",
-    "npm",
+    "github",
+    "pages",
     "webpack"
   ],
   "bugs": {

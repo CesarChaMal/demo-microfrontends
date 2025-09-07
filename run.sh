@@ -114,6 +114,12 @@ case "$PLATFORM" in
         ;;
 esac
 
+# Switch to appropriate mode first (before installing dependencies)
+if [ "$MODE" != "local" ]; then
+    echo "🔄 Switching to $MODE mode before installation..."
+    npm run mode:$MODE
+fi
+
 # Install root dependencies first (needed for rimraf)
 echo "📦 Installing root dependencies..."
 exec_npm npm install
@@ -372,9 +378,11 @@ start_npm() {
     fi
     
     # Switch to NPM mode and start server for both dev and prod
-    echo "📦 Switching to NPM mode and starting server..."
-    echo "🔍 DEBUG: Switching to NPM mode"
-    npm run mode:npm
+    # echo "📦 Switching to NPM mode and starting server..."
+    # echo "🔍 DEBUG: Switching to NPM mode"
+    # npm run mode:npm  # Already done at the beginning
+    echo "📦 Starting NPM mode server..."
+    echo "🔍 DEBUG: NPM mode already active"
     
     echo "✅ NPM mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=npm"
@@ -432,9 +440,11 @@ start_nexus() {
     fi
     
     # Switch to Nexus mode and start server for both dev and prod
-    echo "📦 Switching to Nexus mode and starting server..."
-    echo "🔍 DEBUG: Switching to Nexus mode"
-    npm run mode:nexus
+    # echo "📦 Switching to Nexus mode and starting server..."
+    # echo "🔍 DEBUG: Switching to Nexus mode"
+    # npm run mode:nexus  # Already done at the beginning
+    echo "📦 Starting Nexus mode server..."
+    echo "🔍 DEBUG: Nexus mode already active"
     
     echo "✅ Nexus mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=nexus"
