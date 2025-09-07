@@ -67,16 +67,16 @@ REM Main package (root app) - handled separately in prod mode
 REM set MAIN_PACKAGE=single-spa-root
 
 echo 🔍 Checking Nexus authentication...
-if defined NPM_TOKEN (
-    echo 🔑 Using NPM_TOKEN for authentication
-    echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > %USERPROFILE%\.npmrc
-) else (
-    npm whoami >nul 2>&1
-    if errorlevel 1 (
-        echo ❌ Not logged in to Nexus. Please configure NPM registry and authenticate first or set NPM_TOKEN environment variable.
-        echo 💡 Example: npm config set registry https://your-nexus-registry.com/repository/npm-group/
-        exit /b 1
-    )
+echo 📝 Using .npmrc.nexus configuration for authentication
+npm whoami >nul 2>&1
+if errorlevel 1 (
+    echo ❌ Nexus authentication failed. Please check .npmrc.nexus configuration.
+    for /f "tokens=*" %%i in ('npm config get registry') do echo 💡 Current registry: %%i
+    echo 💡 Make sure .npmrc.nexus contains proper authentication:
+    echo    - registry=http://localhost:8081/repository/npm-group/
+    echo    - //localhost:8081/repository/npm-group/:_auth=^<base64-user:pass^>
+    echo    - //localhost:8081/repository/npm-group/:always-auth=true
+    exit /b 1
 )
 
 echo.

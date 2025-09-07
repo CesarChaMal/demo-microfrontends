@@ -155,6 +155,12 @@ for %%a in (%APPS%) do (
         goto :continue
     )
     
+    REM Setup authentication if needed
+    if defined NPM_TOKEN (
+        echo 🔑 Using NPM_TOKEN for %%a
+        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > %USERPROFILE%\.npmrc
+    )
+    
     REM Actual publish
     echo 🚀 Publishing %%a to NPM...
     if defined NPM_OTP (
@@ -191,6 +197,12 @@ if "%ENVIRONMENT%"=="prod" (
         echo ❌ Root app dry run failed
         cd ..
         exit /b 1
+    )
+    
+    REM Setup authentication if needed
+    if defined NPM_TOKEN (
+        echo 🔑 Using NPM_TOKEN for root app
+        echo //registry.npmjs.org/:_authToken=%NPM_TOKEN% > %USERPROFILE%\.npmrc
     )
     
     REM Actual publish

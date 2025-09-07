@@ -123,6 +123,12 @@ publish_app() {
     return 1
   fi
   
+  # Setup authentication if needed
+  if [ -n "$NPM_TOKEN" ]; then
+    echo "🔑 Using NPM_TOKEN for $app_dir"
+    echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+  fi
+  
   # Actual publish
   echo "🚀 Publishing $app_dir to NPM..."
   if [ -n "$NPM_OTP" ]; then
@@ -236,6 +242,12 @@ if [ "$ENVIRONMENT" = "prod" ]; then
         echo "❌ Root app dry run failed"
         cd ..
         exit 1
+    fi
+    
+    # Setup authentication if needed
+    if [ -n "$NPM_TOKEN" ]; then
+      echo "🔑 Using NPM_TOKEN for root app"
+      echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
     fi
     
     # Actual publish

@@ -135,10 +135,15 @@ publish_app() {
 
 # Main execution
 echo "🔍 Checking Nexus authentication..."
+echo "📝 Using .npmrc.nexus configuration for authentication"
 npm whoami
 if [ $? -ne 0 ]; then
-  echo "❌ Not logged in to Nexus. Please configure NPM registry and authenticate first."
-  echo "💡 Example: npm config set registry https://your-nexus-registry.com/repository/npm-group/"
+  echo "❌ Nexus authentication failed. Please check .npmrc.nexus configuration."
+  echo "💡 Current registry: $(npm config get registry)"
+  echo "💡 Make sure .npmrc.nexus contains proper authentication:"
+  echo "   - registry=http://localhost:8081/repository/npm-group/"
+  echo "   - //localhost:8081/repository/npm-group/:_auth=<base64-user:pass>"
+  echo "   - //localhost:8081/repository/npm-group/:always-auth=true"
   exit 1
 fi
 
