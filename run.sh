@@ -326,31 +326,29 @@ start_npm() {
     cp .npmrc.npm .npmrc
     echo "📝 Registry switched to: $(npm config get registry)"
     
-    # Check if user is logged in to NPM for both dev and prod
-    if ! npm whoami >/dev/null 2>&1; then
-        echo "❌ Error: Not logged in to NPM. Run 'npm login' first"
-        exit 1
-    fi
-    
-    echo "🔍 DEBUG: NPM user: $(npm whoami)"
-    
-    # Build root application with NPM mode configuration
-    if [ "$ENV" = "dev" ]; then
-        echo "🔨 Building root application for NPM dev mode..."
-        exec_npm npm run build:root:npm:dev
-    else
+    if [ "$ENV" = "prod" ]; then
+        # Production mode: Publish packages then read them
+        echo "🚀 NPM Production: Publishing packages to NPM registry"
+        
+        # Check if user is logged in to NPM for publishing
+        if ! npm whoami >/dev/null 2>&1; then
+            echo "❌ Error: Not logged in to NPM. Run 'npm login' first or set NPM_TOKEN"
+            exit 1
+        fi
+        
+        echo "🔍 DEBUG: NPM user: $(npm whoami)"
+        
+        # Build root application with NPM mode configuration
         echo "🔨 Building root application for NPM prod mode..."
         exec_npm npm run build:root:npm:prod
-    fi
-    
-    # Verify .npmrc is correctly set for NPM publishing
-    echo "🔍 DEBUG: Current registry: $(npm config get registry)"
-    echo "🔍 DEBUG: Current .npmrc contents:"
-    head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
-    
-    # Publish packages (microfrontends + root app in prod)
-    echo "📦 NPM mode: Publishing packages to NPM"
-    if [ "$ENV" = "prod" ]; then
+        
+        # Verify .npmrc is correctly set for NPM publishing
+        echo "🔍 DEBUG: Current registry: $(npm config get registry)"
+        echo "🔍 DEBUG: Current .npmrc contents:"
+        head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
+        
+        # Publish packages (microfrontends + root app)
+        echo "📦 Publishing all packages to NPM..."
         echo "🔍 DEBUG: Running npm run publish:npm:prod"
         if FROM_RUN_SCRIPT=true npm run publish:npm:prod; then
             echo "✅ NPM publishing successful"
@@ -361,14 +359,15 @@ start_npm() {
             exit 1
         fi
     else
-        echo "🔍 DEBUG: Running npm run publish:npm:dev"
-        if FROM_RUN_SCRIPT=true npm run publish:npm:dev; then
-            echo "✅ NPM publishing successful"
-            echo "📖 Development: Local server loading microfrontends from NPM registry"
-        else
-            echo "❌ NPM publishing failed"
-            exit 1
-        fi
+        # Development mode: Only read existing packages (no publishing)
+        echo "📖 NPM Development: Reading existing packages from NPM registry (no publishing)"
+        echo "🔍 Assumes packages already exist on NPM registry"
+        
+        # Build root application with NPM mode configuration
+        echo "🔨 Building root application for NPM dev mode..."
+        exec_npm npm run build:root:npm:dev
+        
+        echo "📝 Note: Skipping publishing in development mode"
     fi
     
     # Switch to NPM mode and start server for both dev and prod
@@ -393,25 +392,23 @@ start_nexus() {
     cp .npmrc.nexus .npmrc
     echo "📝 Registry switched to: $(npm config get registry)"
     
-    echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
-    
-    # Build root application with Nexus mode configuration
-    if [ "$ENV" = "dev" ]; then
-        echo "🔨 Building root application for Nexus dev mode..."
-        exec_npm npm run build:root:nexus:dev
-    else
+    if [ "$ENV" = "prod" ]; then
+        # Production mode: Publish packages then read them
+        echo "🚀 Nexus Production: Publishing packages to Nexus registry"
+        
+        echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
+        
+        # Build root application with Nexus mode configuration
         echo "🔨 Building root application for Nexus prod mode..."
         exec_npm npm run build:root:nexus:prod
-    fi
-    
-    # Verify .npmrc is correctly set for Nexus publishing
-    echo "🔍 DEBUG: Current registry: $(npm config get registry)"
-    echo "🔍 DEBUG: Current .npmrc contents:"
-    head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
-    
-    # Publish packages (microfrontends + root app in prod)
-    echo "📦 Nexus mode: Publishing packages to Nexus registry"
-    if [ "$ENV" = "prod" ]; then
+        
+        # Verify .npmrc is correctly set for Nexus publishing
+        echo "🔍 DEBUG: Current registry: $(npm config get registry)"
+        echo "🔍 DEBUG: Current .npmrc contents:"
+        head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
+        
+        # Publish packages (microfrontends + root app)
+        echo "📦 Publishing all packages to Nexus..."
         echo "🔍 DEBUG: Running npm run publish:nexus:prod"
         if FROM_RUN_SCRIPT=true npm run publish:nexus:prod; then
             echo "✅ Nexus publishing successful"
@@ -422,14 +419,15 @@ start_nexus() {
             exit 1
         fi
     else
-        echo "🔍 DEBUG: Running npm run publish:nexus:dev"
-        if FROM_RUN_SCRIPT=true npm run publish:nexus:dev; then
-            echo "✅ Nexus publishing successful"
-            echo "📖 Development: Local server loading microfrontends from Nexus registry"
-        else
-            echo "❌ Nexus publishing failed"
-            exit 1
-        fi
+        # Development mode: Only read existing packages (no publishing)
+        echo "📖 Nexus Development: Reading existing packages from Nexus registry (no publishing)"
+        echo "🔍 Assumes packages already exist on Nexus registry"
+        
+        # Build root application with Nexus mode configuration
+        echo "🔨 Building root application for Nexus dev mode..."
+        exec_npm npm run build:root:nexus:dev
+        
+        echo "📝 Note: Skipping publishing in development mode"
     fi
     
     # Switch to Nexus mode and start server for both dev and prod

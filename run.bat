@@ -127,21 +127,24 @@ if "%MODE%"=="local" (
             if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
             copy ".npmrc.npm" ".npmrc" >nul
             
-            REM Check if user is logged in to NPM
-            npm whoami >nul 2>&1
-            if errorlevel 1 (
-                echo ❌ Error: Not logged in to NPM. Run 'npm login' first
-                exit /b 1
-            )
-            
-            REM Build root application with NPM mode configuration
-            echo 🔨 Building root application for NPM deployment...
-            call npm run build:root:npm
-            if errorlevel 1 exit /b 1
-            
-            REM Publish packages
-            echo 📦 NPM mode: Publishing packages to NPM registry
             if "%ENV%"=="prod" (
+                REM Production mode: Publish packages then read them
+                echo 🚀 NPM Production: Publishing packages to NPM registry
+                
+                REM Check if user is logged in to NPM for publishing
+                npm whoami >nul 2>&1
+                if errorlevel 1 (
+                    echo ❌ Error: Not logged in to NPM. Run 'npm login' first or set NPM_TOKEN
+                    exit /b 1
+                )
+                
+                REM Build root application with NPM mode configuration
+                echo 🔨 Building root application for NPM prod mode...
+                call npm run build:root:npm:prod
+                if errorlevel 1 exit /b 1
+                
+                REM Publish packages (microfrontends + root app)
+                echo 📦 Publishing all packages to NPM...
                 echo 🔍 DEBUG: Running npm run publish:npm:prod
                 set FROM_RUN_SCRIPT=true
                 call npm run publish:npm:prod
@@ -153,15 +156,16 @@ if "%MODE%"=="local" (
                 echo 🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root
                 echo 🌐 Production: Local server + root app available on NPM registry
             ) else (
-                echo 🔍 DEBUG: Running npm run publish:npm:dev
-                set FROM_RUN_SCRIPT=true
-                call npm run publish:npm:dev
-                if errorlevel 1 (
-                    echo ❌ NPM publishing failed
-                    exit /b 1
-                )
-                echo ✅ NPM publishing successful
-                echo 📖 Development: Local server loading microfrontends from NPM registry
+                REM Development mode: Only read existing packages (no publishing)
+                echo 📖 NPM Development: Reading existing packages from NPM registry (no publishing)
+                echo 🔍 Assumes packages already exist on NPM registry
+                
+                REM Build root application with NPM mode configuration
+                echo 🔨 Building root application for NPM dev mode...
+                call npm run build:root:npm:dev
+                if errorlevel 1 exit /b 1
+                
+                echo 📝 Note: Skipping publishing in development mode
             )
             
             REM Switch to NPM mode and start server
@@ -180,14 +184,17 @@ if "%MODE%"=="local" (
             if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
             copy ".npmrc.nexus" ".npmrc" >nul
             
-            REM Build root application with Nexus mode configuration
-            echo 🔨 Building root application for Nexus deployment...
-            call npm run build:root:nexus
-            if errorlevel 1 exit /b 1
-            
-            REM Publish packages
-            echo 📦 Nexus mode: Publishing packages to Nexus registry
             if "%ENV%"=="prod" (
+                REM Production mode: Publish packages then read them
+                echo 🚀 Nexus Production: Publishing packages to Nexus registry
+                
+                REM Build root application with Nexus mode configuration
+                echo 🔨 Building root application for Nexus prod mode...
+                call npm run build:root:nexus:prod
+                if errorlevel 1 exit /b 1
+                
+                REM Publish packages (microfrontends + root app)
+                echo 📦 Publishing all packages to Nexus...
                 echo 🔍 DEBUG: Running npm run publish:nexus:prod
                 set FROM_RUN_SCRIPT=true
                 call npm run publish:nexus:prod
@@ -199,15 +206,16 @@ if "%MODE%"=="local" (
                 echo 🌍 Public Nexus Package: Available on Nexus registry
                 echo 🌐 Production: Local server + root app available on Nexus registry
             ) else (
-                echo 🔍 DEBUG: Running npm run publish:nexus:dev
-                set FROM_RUN_SCRIPT=true
-                call npm run publish:nexus:dev
-                if errorlevel 1 (
-                    echo ❌ Nexus publishing failed
-                    exit /b 1
-                )
-                echo ✅ Nexus publishing successful
-                echo 📖 Development: Local server loading microfrontends from Nexus registry
+                REM Development mode: Only read existing packages (no publishing)
+                echo 📖 Nexus Development: Reading existing packages from Nexus registry (no publishing)
+                echo 🔍 Assumes packages already exist on Nexus registry
+                
+                REM Build root application with Nexus mode configuration
+                echo 🔨 Building root application for Nexus dev mode...
+                call npm run build:root:nexus:dev
+                if errorlevel 1 exit /b 1
+                
+                echo 📝 Note: Skipping publishing in development mode
             )
             
             REM Switch to Nexus mode and start server
