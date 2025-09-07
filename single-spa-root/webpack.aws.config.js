@@ -30,14 +30,26 @@ module.exports = (env, argv) => {
   const useS3Paths = (mode === 'aws' && isProduction);
   let publicPath = '/';
 
+  // ORIGINAL LOGIC (commented out - was causing blank page on S3)
+  // if (useS3Paths) {
+  //   const s3Bucket = process.env.S3_BUCKET || 'single-spa-demo-774145483743';
+  //   const awsRegion = process.env.AWS_REGION || 'eu-central-1';
+  //   // Use S3 website URL format, not S3 API format
+  //   publicPath = `https://${s3Bucket}.s3-website-${awsRegion}.amazonaws.com/`;
+  //   console.log('🔍 S3 Mode Activated:');
+  //   console.log('  - useS3Paths:', useS3Paths);
+  //   console.log('  - publicPath:', publicPath);
+  // } else {
+  //   console.log('🔍 Local Mode:');
+  //   console.log('  - useS3Paths:', useS3Paths);
+  //   console.log('  - publicPath:', publicPath);
+  // }
+
+  // FIX: Always use relative paths for S3 static websites
   if (useS3Paths) {
-    const s3Bucket = process.env.S3_BUCKET || 'single-spa-demo-774145483743';
-    const awsRegion = process.env.AWS_REGION || 'eu-central-1';
-    // Use S3 website URL format, not S3 API format
-    publicPath = `https://${s3Bucket}.s3-website-${awsRegion}.amazonaws.com/`;
     console.log('🔍 S3 Mode Activated:');
     console.log('  - useS3Paths:', useS3Paths);
-    console.log('  - publicPath:', publicPath);
+    console.log('  - publicPath: / (relative for S3 static website)');
   } else {
     console.log('🔍 Local Mode:');
     console.log('  - useS3Paths:', useS3Paths);
@@ -119,6 +131,11 @@ module.exports = (env, argv) => {
           to: path.resolve(__dirname, 'dist/img'),
           noErrorOnMissing: true,
         },
+        {
+          from: path.resolve(__dirname, '../single-spa-angular-app/dist/favicon.ico'),
+          to: path.resolve(__dirname, 'dist/favicon.ico'),
+          noErrorOnMissing: true,
+        },
       ]),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'index.html'),
@@ -134,6 +151,7 @@ module.exports = (env, argv) => {
             awsRegion: process.env.AWS_REGION || 'eu-central-1',
             orgName: process.env.ORG_NAME || 'cesarchamal',
             githubUsername: process.env.GITHUB_USERNAME || 'cesarchamal',
+            s3WebsiteUrl: process.env.S3_WEBSITE_URL || `http://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3-website-${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com`,
             publicPath: publicPath
           };
           console.log('🔍 Template Parameters:');

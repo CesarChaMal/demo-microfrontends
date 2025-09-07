@@ -281,6 +281,7 @@ start_aws() {
     else
         echo "🔨 Building root application for AWS prod mode..."
         exec_npm npm run build:root:aws:prod
+        exec_npm npm run build:root:aws:s3:prod
     fi
 
     # Deploy all microfrontends to S3 in both dev and prod

@@ -604,6 +604,12 @@ if (currentPath === '/index.html') {
   // Don't redirect, just let single-spa handle it
 }
 
+// Debug authentication and routing
+console.log('🔍 Authentication Debug:');
+console.log('  - isAuthenticated():', isAuthenticated());
+console.log('  - currentPath:', currentPath);
+console.log('  - sessionStorage token:', sessionStorage.getItem('token'));
+
 // Auto-redirect to login if not authenticated and at root
 if (!isAuthenticated() && (currentPath === '/' || currentPath === '/index.html')) {
   console.log('🔄 Not authenticated, redirecting to /login');
@@ -611,10 +617,35 @@ if (!isAuthenticated() && (currentPath === '/' || currentPath === '/index.html')
 }
 
 console.log('🚀 Starting Single-SPA...');
-singleSpa.start();
-console.log('✅ Single-SPA started');
+console.log('🔍 Single-SPA Debug:');
+console.log('  - singleSpa object:', singleSpa);
+console.log('  - singleSpa.start function:', typeof singleSpa.start);
+console.log('  - window.singleSpa:', window.singleSpa);
+
+try {
+  singleSpa.start();
+  console.log('✅ Single-SPA started successfully');
+} catch (error) {
+  console.error('❌ Single-SPA start failed:', error);
+  // Try alternative start methods
+  if (window.singleSpa && window.singleSpa.start) {
+    console.log('🔄 Trying window.singleSpa.start()...');
+    window.singleSpa.start();
+    console.log('✅ Single-SPA started via window.singleSpa');
+  } else {
+    console.error('❌ No alternative single-spa start method found');
+    throw error;
+  }
+}
 
 // Log current location
 console.log('📍 Current location:', window.location.pathname);
 console.log('📍 Current search:', window.location.search);
 console.log('📍 Authentication status:', isAuthenticated() ? 'Authenticated' : 'Not authenticated');
+
+// Debug which apps should be active
+console.log('🔍 App Activity Check:');
+const location = { pathname: window.location.pathname };
+console.log('  - login app should show:', !isAuthenticated() || location.pathname === '/login');
+console.log('  - layout app should show:', isAuthenticated() && location.pathname !== '/login');
+console.log('  - home app should show:', isAuthenticated() && (location.pathname === '/' || location.pathname === '/index.html'));

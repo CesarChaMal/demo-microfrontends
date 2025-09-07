@@ -283,12 +283,13 @@ if "%MODE%"=="local" (
             )
             
             REM Build root application with AWS mode configuration
-            echo 🔨 Building root application for AWS deployment...
             if "%ENV%"=="dev" (
-                call npm run build:root:aws
+                echo 🔨 Building root application for AWS dev mode...
+                call npm run build:root:aws:dev
             ) else (
-                call npm run build:root:aws
+                echo 🔨 Building root application for AWS prod mode...
                 call npm run build:root:aws:prod
+                call npm run build:root:aws:s3:prod
             )
             if errorlevel 1 exit /b 1
             
