@@ -182,7 +182,7 @@ function loadModule(url, options = {}) {
   const { 
     isExternalUrl = false, 
     isCdnUrl = false, 
-    isPackageName = false 
+    isPackageName = false, 
   } = options;
   
   if (isCdnUrl || isExternalUrl) {
@@ -191,13 +191,12 @@ function loadModule(url, options = {}) {
   } else if (isPackageName) {
     // Use webpack import() for package names (direct NPM/Nexus imports)
     return import(url);
+  } else if (url.startsWith('http') || url.startsWith('/')) {
+    // Default: auto-detect based on URL format - external URL
+    return window.System.import(url);
   } else {
-    // Default: auto-detect based on URL format
-    if (url.startsWith('http') || url.startsWith('/')) {
-      return window.System.import(url);
-    } else {
-      return import(url);
-    }
+    // Default: auto-detect based on URL format - package name
+    return import(url);
   }
 }
 
@@ -311,7 +310,22 @@ switch (mode) {
     // NPM package imports via CDN
     loadApp = async (name) => {
       const scopedName = `@cesarchamal/${name}`;
-      const cdnUrl = `https://cdn.jsdelivr.net/npm/${scopedName}@latest/dist/${name.replace('single-spa-', '')}.${name.includes('auth') || name.includes('vue') || name.includes('layout') ? 'umd.' : ''}js`;
+      // Use correct file names based on actual package structure
+      const fileMap = {
+        'single-spa-auth-app': 'single-spa-auth-app.umd.js',
+        'single-spa-layout-app': 'single-spa-layout-app.umd.js', 
+        'single-spa-home-app': 'single-spa-home-app.js',
+        'single-spa-angular-app': 'single-spa-angular-app.js',
+        'single-spa-vue-app': 'single-spa-vue-app.umd.js',
+        'single-spa-react-app': 'single-spa-react-app.js',
+        'single-spa-vanilla-app': 'single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': 'single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': 'single-spa-typescript-app.js',
+        'single-spa-jquery-app': 'single-spa-jquery-app.js',
+        'single-spa-svelte-app': 'single-spa-svelte-app.js',
+      };
+      const fileName = fileMap[name];
+      const cdnUrl = `https://cdn.jsdelivr.net/npm/${scopedName}@latest/dist/${fileName}`;
       console.log(`Loading ${name} from NPM CDN: ${cdnUrl}`);
       try {
         const module = await loadModule(cdnUrl, { isCdnUrl: true });
@@ -326,8 +340,22 @@ switch (mode) {
     // Nexus private registry imports via unpkg-style URLs
     loadApp = async (name) => {
       const scopedName = `@cesarchamal/${name}`;
-      // Use unpkg-style URL format for Nexus
-      const cdnUrl = `http://localhost:8081/repository/npm-group/${scopedName}@latest/dist/${name.replace('single-spa-', '')}.${name.includes('auth') || name.includes('vue') || name.includes('layout') ? 'umd.' : ''}js`;
+      // Use correct file names based on actual package structure
+      const fileMap = {
+        'single-spa-auth-app': 'single-spa-auth-app.umd.js',
+        'single-spa-layout-app': 'single-spa-layout-app.umd.js', 
+        'single-spa-home-app': 'single-spa-home-app.js',
+        'single-spa-angular-app': 'single-spa-angular-app.js',
+        'single-spa-vue-app': 'single-spa-vue-app.umd.js',
+        'single-spa-react-app': 'single-spa-react-app.js',
+        'single-spa-vanilla-app': 'single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': 'single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': 'single-spa-typescript-app.js',
+        'single-spa-jquery-app': 'single-spa-jquery-app.js',
+        'single-spa-svelte-app': 'single-spa-svelte-app.js',
+      };
+      const fileName = fileMap[name];
+      const cdnUrl = `http://localhost:8081/repository/npm-group/${scopedName}@latest/dist/${fileName}`;
       console.log(`Loading ${name} from Nexus: ${cdnUrl}`);
       try {
         const module = await loadModule(cdnUrl, { isCdnUrl: true });
