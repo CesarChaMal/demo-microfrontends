@@ -178,13 +178,26 @@ function resolveLifecycles(module, name) {
 }
 
 // Unified module loading strategy
-function createModuleLoader(url, isExternalUrl = false) {
-  if (isExternalUrl) {
-    // Use SystemJS for external URLs (GitHub, AWS, Local URLs)
+function loadModule(url, options = {}) {
+  const { 
+    isExternalUrl = false, 
+    isCdnUrl = false, 
+    isPackageName = false 
+  } = options;
+  
+  if (isCdnUrl || isExternalUrl) {
+    // Use SystemJS for external URLs (GitHub, AWS, Local URLs, CDN URLs)
     return window.System.import(url);
-  } else {
-    // Use webpack import() for package names (NPM, Nexus)
+  } else if (isPackageName) {
+    // Use webpack import() for package names (direct NPM/Nexus imports)
     return import(url);
+  } else {
+    // Default: auto-detect based on URL format
+    if (url.startsWith('http') || url.startsWith('/')) {
+      return window.System.import(url);
+    } else {
+      return import(url);
+    }
   }
 }
 
@@ -295,26 +308,29 @@ function handleNetworkError(error, context) {
 
 switch (mode) {
   case MODES.NPM:
-    // NPM package imports
+    // NPM package imports via CDN
     loadApp = async (name) => {
-      console.log(`Loading ${name} from NPM`);
+      const scopedName = `@cesarchamal/${name}`;
+      const cdnUrl = `https://cdn.jsdelivr.net/npm/${scopedName}@latest/dist/${name.replace('single-spa-', '')}.${name.includes('auth') || name.includes('vue') || name.includes('layout') ? 'umd.' : ''}js`;
+      console.log(`Loading ${name} from NPM CDN: ${cdnUrl}`);
       try {
-        const module = await createModuleLoader(name, false); // Package name, not URL
+        const module = await loadModule(cdnUrl, { isCdnUrl: true });
         return resolveLifecycles(module, name);
       } catch (error) {
-        throw handleNetworkError(error, `NPM import for ${name}`);
+        throw handleNetworkError(error, `NPM CDN import for ${name}`);
       }
     };
     break;
 
   case MODES.NEXUS:
-    // Nexus private registry imports (scoped packages)
+    // Nexus private registry imports via unpkg-style URLs
     loadApp = async (name) => {
-      // Convert package name to scoped Nexus package
       const scopedName = `@cesarchamal/${name}`;
-      console.log(`Loading ${name} from Nexus: ${scopedName}`);
+      // Use unpkg-style URL format for Nexus
+      const cdnUrl = `http://localhost:8081/repository/npm-group/${scopedName}@latest/dist/${name.replace('single-spa-', '')}.${name.includes('auth') || name.includes('vue') || name.includes('layout') ? 'umd.' : ''}js`;
+      console.log(`Loading ${name} from Nexus: ${cdnUrl}`);
       try {
-        const module = await createModuleLoader(scopedName, false); // Package name, not URL
+        const module = await loadModule(cdnUrl, { isCdnUrl: true });
         return resolveLifecycles(module, name);
       } catch (error) {
         throw handleNetworkError(error, `Nexus import for ${name}`);
@@ -353,7 +369,7 @@ switch (mode) {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           console.log(`📡 Attempt ${attempt}/${maxRetries} loading: ${url}`);
-          const module = await createModuleLoader(url, true); // External URL
+          const module = await loadModule(url, { isExternalUrl: true });
           console.log(`✅ Successfully loaded on attempt ${attempt}`);
           return module;
         } catch (error) {
@@ -476,7 +492,7 @@ switch (mode) {
         console.log(`🔍 Resolved URL: ${url}`);
 
         // Use unified module loader for external URLs
-        const module = await createModuleLoader(url, true);
+        const module = await loadModule(url, { isExternalUrl: true });
         console.log(`✅ SystemJS import successful for ${moduleName}:`, module);
         return resolveLifecycles(module, name);
       } catch (error) {
@@ -508,7 +524,7 @@ switch (mode) {
       console.log(`🚀 Loading ${name} from ${url}`);
       console.log(`🔍 Debug: Using ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'} URLs for ${name}`);
 
-      return createModuleLoader(url, true).then((module) => {
+      return loadModule(url, { isExternalUrl: true }).then((module) => {
         console.log(`✅ Successfully loaded ${name}:`, module);
         const lifecycles = resolveLifecycles(module, name);
         console.log(`✅ ${name} lifecycles resolved:`, {
