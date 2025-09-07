@@ -113,7 +113,8 @@ module.exports = (env, argv) => {
           s3Bucket: process.env.S3_BUCKET || 'single-spa-demo-774145483743',
           awsRegion: process.env.AWS_REGION || 'eu-central-1',
           orgName: process.env.ORG_NAME || 'cesarchamal',
-          githubUsername: process.env.GITHUB_USERNAME || 'cesarchamal'
+          githubUsername: process.env.GITHUB_USERNAME || 'cesarchamal',
+          s3WebsiteUrl: process.env.S3_WEBSITE_URL || `http://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3-website-${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com`
         }
     }),
   ], 
