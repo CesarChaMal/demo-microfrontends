@@ -35,6 +35,49 @@
       <router-view></router-view>
     </div>
 
+    <!-- Shared State Showcase -->
+    <div class="shared-state-showcase">
+      <h4>🔄 Shared State Management (Vue)</h4>
+      
+      <div class="state-info">
+        <strong>👤 User State:</strong><br>
+        <span v-if="userState">
+          ✅ Logged in as: <strong>{{ userState.user?.username || 'Unknown' }}</strong>
+        </span>
+        <span v-else>❌ Not logged in</span>
+      </div>
+      
+      <div class="state-info">
+        <strong>👥 Employee Data:</strong><br>
+        📊 Count: <strong>{{ employees.length }}</strong><br>
+        👀 Preview: 
+        <span v-if="employees.length > 0">
+          {{ employees.slice(0, 3).map(emp => emp.name).join(', ') }}
+          <span v-if="employees.length > 3">(+{{ employees.length - 3 }} more)</span>
+        </span>
+        <span v-else>No employees loaded</span>
+      </div>
+      
+      <div class="showcase-buttons">
+        <button class="btn-employees" @click="loadEmployees">
+          👥 Load Employees
+        </button>
+        <button class="btn-broadcast" @click="broadcastMessage">
+          📡 Broadcast from Vue
+        </button>
+        <button class="btn-clear" @click="clearEmployees">
+          🗑️ Clear Data
+        </button>
+      </div>
+      
+      <div v-if="events.length > 0" class="events-info">
+        <strong>📨 Recent Events:</strong><br>
+        <div v-for="(event, i) in events.slice(-3)" :key="i" class="event-item">
+          {{ event.source }}: {{ event.data?.message || event.type }}
+        </div>
+      </div>
+    </div>
+
     <div class="features-section">
       <strong>Vue.js Features:</strong>
       <ul>
@@ -52,6 +95,8 @@ export default {
       count: 0,
       mountedAt: new Date().toLocaleString(),
       userState: null,
+      employees: [],
+      events: [],
       features: [
         'Reactive Data Binding',
         'Component-based Architecture',
@@ -71,15 +116,22 @@ export default {
       this.userStateSub = window.stateManager.userState$.subscribe((state) => {
         this.userState = state;
       });
+      this.employeesSub = window.stateManager.employees$.subscribe((employees) => {
+        this.employees = employees;
+      });
       this.eventsSub = window.stateManager.events$.subscribe((event) => {
         // eslint-disable-next-line no-console
         console.log('💚 Vue received event:', event);
+        this.events = [...this.events.slice(-4), event]; // Keep last 5 events
       });
     }
   },
   beforeDestroy() {
     if (this.userStateSub) {
       this.userStateSub.unsubscribe();
+    }
+    if (this.employeesSub) {
+      this.employeesSub.unsubscribe();
     }
     if (this.eventsSub) {
       this.eventsSub.unsubscribe();
@@ -98,6 +150,22 @@ export default {
     loadEmployees() {
       if (window.stateManager) {
         window.stateManager.loadEmployees();
+      }
+    },
+    broadcastMessage() {
+      if (window.stateManager) {
+        const event = {
+          type: 'user-interaction',
+          source: 'Vue',
+          timestamp: new Date().toISOString(),
+          data: { message: 'Hello from Vue!' }
+        };
+        window.stateManager.emit('cross-app-message', event);
+      }
+    },
+    clearEmployees() {
+      if (window.stateManager) {
+        window.stateManager.employees$.next([]);
       }
     },
   },
@@ -177,6 +245,74 @@ export default {
 .active-link {
   background-color: #4fc08d !important;
   color: white !important;
+}
+
+.shared-state-showcase {
+  margin: 15px 0;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  color: white;
+
+  h4 {
+    margin: 0 0 15px 0;
+    color: white;
+  }
+
+  .state-info {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+
+  .showcase-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .btn-employees {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .btn-broadcast {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .btn-clear {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .events-info {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+
+    .event-item {
+      margin-top: 5px;
+    }
+  }
 }
 
 .features-section {

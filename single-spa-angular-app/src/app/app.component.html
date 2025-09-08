@@ -47,6 +47,57 @@
     <router-outlet></router-outlet>
   </div>
   
+  <!-- Shared State Showcase -->
+  <div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+    <h4 style="margin: 0 0 15px 0; color: white;">🔄 Shared State Management (Angular)</h4>
+    
+    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+      <strong>👤 User State:</strong><br>
+      <span *ngIf="userState; else notLoggedIn">
+        ✅ Logged in as: <strong>{{ userState.user?.username || 'Unknown' }}</strong>
+      </span>
+      <ng-template #notLoggedIn>❌ Not logged in</ng-template>
+    </div>
+    
+    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+      <strong>👥 Employee Data:</strong><br>
+      📊 Count: <strong>{{ employees.length }}</strong><br>
+      👀 Preview: 
+      <span *ngIf="employees.length > 0; else noEmployees">
+        {{ employeePreview }}
+      </span>
+      <ng-template #noEmployees>No employees loaded</ng-template>
+    </div>
+    
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+      <button 
+        (click)="loadEmployees()"
+        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+      >
+        👥 Load Employees
+      </button>
+      <button 
+        (click)="broadcastMessage()"
+        style="background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+      >
+        📡 Broadcast from Angular
+      </button>
+      <button 
+        (click)="clearEmployees()"
+        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+      >
+        🗑️ Clear Data
+      </button>
+    </div>
+    
+    <div *ngIf="events.length > 0" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; font-size: 12px;">
+      <strong>📨 Recent Events:</strong><br>
+      <div *ngFor="let event of recentEvents" style="margin-top: 5px;">
+        {{ event.source }}: {{ event.data?.message || event.type }}
+      </div>
+    </div>
+  </div>
+  
   <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
     <strong>Angular Features:</strong>
     <ul style="margin: 5px 0; padding-left: 20px;">

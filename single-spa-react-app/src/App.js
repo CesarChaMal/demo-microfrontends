@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
+import { useSharedStateShowcase } from '../../../shared/shared-state-showcase.js';
 
 // Custom hook for global state
 function useGlobalState() {
@@ -34,6 +35,7 @@ function App() {
   const [count, setCount] = React.useState(0);
   const [mounted] = React.useState(new Date().toLocaleString());
   const userState = useGlobalState();
+  const { userState: sharedUserState, employees, events } = useSharedStateShowcase() || {};
   
   const features = [
     'Hooks and Functional Components',
@@ -160,6 +162,117 @@ function App() {
           <Route exact path="/" component={List} />
           <Route path="/detail" component={Detail} />
         </Switch>
+      </div>
+      
+      {/* Shared State Showcase */}
+      <div style={{
+        margin: '15px 0',
+        padding: '15px',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <h4 style={{ margin: '0 0 15px 0', color: 'white' }}>🔄 Shared State Management (React)</h4>
+        
+        <div style={{
+          background: 'rgba(255,255,255,0.1)',
+          padding: '10px',
+          borderRadius: '6px',
+          marginBottom: '10px'
+        }}>
+          <strong>👤 User State:</strong><br/>
+          {sharedUserState ? 
+            `✅ Logged in as: ${sharedUserState.user?.username || 'Unknown'}` :
+            '❌ Not logged in'
+          }
+        </div>
+        
+        <div style={{
+          background: 'rgba(255,255,255,0.1)',
+          padding: '10px',
+          borderRadius: '6px',
+          marginBottom: '10px'
+        }}>
+          <strong>👥 Employee Data:</strong><br/>
+          📊 Count: <strong>{employees?.length || 0}</strong><br/>
+          👀 Preview: {employees && employees.length > 0 ? 
+            employees.slice(0, 3).map(emp => emp.name).join(', ') + 
+            (employees.length > 3 ? ` (+${employees.length - 3} more)` : '') : 
+            'No employees loaded'
+          }
+        </div>
+        
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => window.stateManager?.loadEmployees()}
+            style={{
+              background: '#28a745',
+              color: 'white',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            👥 Load Employees
+          </button>
+          <button 
+            onClick={() => {
+              if (window.stateManager) {
+                const event = {
+                  type: 'user-interaction',
+                  source: 'React',
+                  timestamp: new Date().toISOString(),
+                  data: { message: 'Hello from React!' }
+                };
+                window.stateManager.emit('cross-app-message', event);
+              }
+            }}
+            style={{
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            📡 Broadcast from React
+          </button>
+          <button 
+            onClick={() => window.stateManager?.employees$.next([])}
+            style={{
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            🗑️ Clear Data
+          </button>
+        </div>
+        
+        {events && events.length > 0 && (
+          <div style={{
+            background: 'rgba(255,255,255,0.1)',
+            padding: '10px',
+            borderRadius: '6px',
+            marginTop: '10px',
+            fontSize: '12px'
+          }}>
+            <strong>📨 Recent Events:</strong><br/>
+            {events.slice(-3).map((event, i) => (
+              <div key={i} style={{ marginTop: '5px' }}>
+                {event.source}: {event.data?.message || event.type}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       
       <div style={{ marginTop: '15px', fontSize: '0.9em', color: '#6c757d' }}>

@@ -77,8 +77,8 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.js?$/,
-          exclude: [path.resolve(__dirname, 'node_modules')],
-          loader: ['babel-loader', 'eslint-loader'],
+          exclude: [/node_modules/],
+          loader: ['babel-loader'],
         },
         {
           test: /\.tsx?$/,
@@ -100,6 +100,9 @@ module.exports = (env, argv) => {
     },
     resolve: {
       modules: [__dirname, 'node_modules'],
+      alias: {
+        'rxjs': path.resolve(__dirname, 'node_modules/rxjs'),
+      },
     },
     plugins: [
       new webpack.DefinePlugin({

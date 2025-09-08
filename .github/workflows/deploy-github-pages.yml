@@ -47,16 +47,17 @@ jobs:
 
       - name: Clear npm cache and lock file
         run: |
-          cd ${{ matrix.app.name }}
           npm cache clean --force
           rm -f package-lock.json
-          
+
       - name: Switch to local mode
-        run: node scripts/switch-mode.js local
-        
+        run: |
+          cd ..
+          node scripts/switch-mode.js local
+          
       - name: Install shared dependencies
         run: |
-          cd shared
+          cd ../shared
           npm config delete registry || true
           npm config set registry https://registry.npmjs.org/
           npm cache clean --force
@@ -64,9 +65,7 @@ jobs:
           npm install --legacy-peer-deps
           
       - name: Install dependencies
-        run: |
-          cd ${{ matrix.app.name }}
-          npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
 
@@ -150,17 +149,16 @@ jobs:
       - name: Clear npm cache and lock file
         run: |
           npm cache clean --force
-          cd single-spa-root
-          npm cache clean --force
           rm -f package-lock.json
-          rm -rf node_modules
-          
+
       - name: Switch to local mode
-        run: node scripts/switch-mode.js local
-        
+        run: |
+          cd ..
+          node scripts/switch-mode.js local
+          
       - name: Install shared dependencies
         run: |
-          cd shared
+          cd ../shared
           npm config delete registry || true
           npm config set registry https://registry.npmjs.org/
           npm cache clean --force
@@ -168,9 +166,7 @@ jobs:
           npm install --legacy-peer-deps
           
       - name: Install dependencies
-        run: |
-          cd single-spa-root
-          npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
 

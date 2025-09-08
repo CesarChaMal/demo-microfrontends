@@ -12,6 +12,58 @@
     <p ng-bind="home.text" style="margin: 0; line-height: 1.5;"></p>
   </div>
   
+  <!-- Shared State Showcase -->
+  <div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+    <h4 style="margin: 0 0 15px 0; color: white;">🔄 Shared State Management (AngularJS)</h4>
+    
+    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+      <strong>👤 User State:</strong><br>
+      <span ng-if="home.userState">
+        ✅ Logged in as: <strong>{{home.userState.user.username || 'Unknown'}}</strong>
+      </span>
+      <span ng-if="!home.userState">❌ Not logged in</span>
+    </div>
+    
+    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+      <strong>👥 Employee Data:</strong><br>
+      📊 Count: <strong>{{home.employees.length}}</strong><br>
+      👀 Preview: 
+      <span ng-if="home.employees.length > 0">
+        {{home.employees.slice(0, 3).map(function(emp) { return emp.name; }).join(', ')}}
+        <span ng-if="home.employees.length > 3">(+{{home.employees.length - 3}} more)</span>
+      </span>
+      <span ng-if="home.employees.length === 0">No employees loaded</span>
+    </div>
+    
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+      <button 
+        ng-click="home.loadEmployees()"
+        style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+      >
+        👥 Load Employees
+      </button>
+      <button 
+        ng-click="home.broadcastMessage()"
+        style="background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+      >
+        📡 Broadcast from AngularJS
+      </button>
+      <button 
+        ng-click="home.clearEmployees()"
+        style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+      >
+        🗑️ Clear Data
+      </button>
+    </div>
+    
+    <div ng-if="home.events.length > 0" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; font-size: 12px;">
+      <strong>📨 Recent Events:</strong><br>
+      <div ng-repeat="event in home.events.slice(-3)" style="margin-top: 5px;">
+        {{event.source}}: {{event.data.message || event.type}}
+      </div>
+    </div>
+  </div>
+  
   <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
     <strong>AngularJS Features:</strong>
     <ul style="margin: 5px 0; padding-left: 20px;">
