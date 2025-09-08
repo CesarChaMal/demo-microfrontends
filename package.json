@@ -1,6 +1,6 @@
 {
   "name": "demo-microfrontends",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Demo Microfrontends with Single-SPA",
   "engines": {
     "node": ">=18.0.0",
@@ -239,7 +239,7 @@
     "serve:local:prod": "npm run mode:local && npm run build:prod && cd single-spa-root && npm run build && npm run start",
     "serve:npm": "npm run mode:npm && cd single-spa-root && npm run serve:npm",
     "serve:nexus": "npm run mode:nexus && cd single-spa-root && npm run serve:nexus",
-    "serve:nexus:dev": "npm run mode:nexus && npm run dev:all",
+    "serve:nexus:dev": "npm run mode:nexus && cd single-spa-root && npm run serve",
     "serve:nexus:prod": "npm run mode:nexus && cd single-spa-root && npm run serve",
     "nexus:setup": "bash ./scripts/setup-nexus.sh",
     "serve:github": "npm run mode:github && cd single-spa-root && npm run serve:github",
