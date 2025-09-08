@@ -127,7 +127,7 @@
     "publish:nexus:prod": "npm run fix:nexus:deps && bash ./scripts/publish-nexus.sh patch prod",
     "publish:nexus:nobump": "bash ./scripts/publish-nexus.sh patch prod nobump",
     "publish:nexus:prod:nobump": "bash ./scripts/publish-nexus.sh patch prod nobump",
-    "publish:all": "bash ./scripts/publish-npm.sh",
+    "publish:all": "bash npm run fix:npm:deps &&  ./scripts/publish-npm.sh",
     "publish:patch": "bash ./scripts/publish-npm.sh patch",
     "publish:minor": "bash ./scripts/publish-npm.sh minor",
     "publish:major": "bash ./scripts/publish-npm.sh major",
