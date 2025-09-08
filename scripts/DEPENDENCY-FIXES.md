@@ -84,6 +84,11 @@ npm run publish:nexus:nobump
 
 ## Available Fix Scripts
 
+### Auto-Fix (Recommended)
+- `npm run fix:auto` - Auto-detect mode and fix dependencies
+- `npm run fix:auto:npm` - Auto-fix for NPM mode
+- `npm run fix:auto:nexus` - Auto-fix for Nexus mode
+
 ### NPM Fixes
 - `npm run fix:npm:deps` - Fix any app's NPM dependencies
 - `npm run fix:npm:deps:root` - Fix root app NPM dependencies
@@ -112,6 +117,13 @@ npm run publish:nexus:nobump
 3. Updates package.json dependencies to exact version
 4. Installs dependencies using Nexus authentication
 
+### Auto-Fix Script
+1. **Auto-detects current mode** from registry configuration
+2. **Checks if packages exist** in target registry
+3. **Publishes missing packages** using current version (nobump)
+4. **Fixes dependencies** automatically using appropriate fix script
+5. **Provides next steps** for running the application
+
 ## Prevention Tips
 
 ### Before Switching Modes
@@ -138,7 +150,17 @@ npm run fix:nexus:deps:root   # Before Nexus mode
 
 ## Troubleshooting
 
-### "No matching version found" Error
+### "Cannot find module" Error (Runtime)
+```bash
+# Auto-fix for runtime module loading errors
+npm run fix:auto
+
+# Or target specific mode
+npm run fix:auto:nexus    # For Nexus mode
+npm run fix:auto:npm      # For NPM mode
+```
+
+### "No matching version found" Error (Install)
 ```bash
 # Quick fix - let script handle it
 npm run fix:npm:deps:root

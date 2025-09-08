@@ -315,6 +315,9 @@ npm run build
 - `npm run check:aws` - Check AWS S3 bucket and file accessibility
 
 ### Dependency Fix Scripts
+- `npm run fix:auto` - Auto-detect mode and fix dependencies
+- `npm run fix:auto:npm` - Auto-fix for NPM mode
+- `npm run fix:auto:nexus` - Auto-fix for Nexus mode
 - `npm run fix:nexus:deps` - Fix Nexus dependency version mismatches
 - `npm run fix:nexus:deps:root` - Fix root app Nexus dependencies
 - `npm run fix:npm:deps` - Fix NPM dependency version mismatches
