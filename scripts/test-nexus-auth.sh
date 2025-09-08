@@ -6,20 +6,63 @@
 echo "🧪 Testing Nexus Authentication..."
 echo "🔍 Current directory: $(pwd)"
 
-# Check if .npmrc.nexus exists
-if [ ! -f ".npmrc.nexus" ]; then
-    echo "❌ .npmrc.nexus not found. Please create it first."
+# Load environment variables from .env file
+echo "🔍 DEBUG: Looking for .env file in current directory: $(pwd)"
+if [ -f ".env" ]; then
+    echo "📄 Loading environment variables from .env..."
+    export $(grep -v '^#' ".env" | xargs)
+    echo "🔍 DEBUG: Environment variables loaded from .env"
+elif [ -f "../.env" ]; then
+    echo "📄 Loading environment variables from ../.env..."
+    export $(grep -v '^#' "../.env" | xargs)
+    echo "🔍 DEBUG: Environment variables loaded from ../.env"
+else
+    echo "⚠️ Warning: No .env file found, using environment variables only"
+fi
+
+# Set Nexus configuration with fallback to environment variables
+NEXUS_USER=${NEXUS_USER:-admin}
+NEXUS_PASS=${NEXUS_PASS:-}
+NEXUS_URL=${NEXUS_URL:-http://localhost:8081}
+NEXUS_REGISTRY=${NEXUS_REGISTRY:-http://localhost:8081/repository/npm-group/}
+NEXUS_PUBLISH_REGISTRY=${NEXUS_PUBLISH_REGISTRY:-http://localhost:8081/repository/npm-hosted-releases/}
+
+echo "🔍 DEBUG: Nexus configuration - USER=$NEXUS_USER, URL=$NEXUS_URL"
+echo "🔍 DEBUG: Registry: $NEXUS_REGISTRY"
+echo "🔍 DEBUG: Publish Registry: $NEXUS_PUBLISH_REGISTRY"
+
+if [ -z "$NEXUS_PASS" ]; then
+    echo "❌ Error: NEXUS_PASS not set in .env file or environment variables"
+    echo "💡 Please set NEXUS_PASS in .env file or export NEXUS_PASS=your-password"
     exit 1
 fi
 
-echo "✅ .npmrc.nexus found"
-
-# Switch to Nexus registry
-echo "🔄 Switching to Nexus registry..."
-if [ -f ".npmrc" ]; then
-    cp .npmrc .npmrc.backup
+# Check if .npmrc.nexus exists or create from environment variables
+if [ -f ".npmrc.nexus" ]; then
+    echo "✅ .npmrc.nexus found"
+    # Switch to Nexus registry
+    echo "🔄 Switching to Nexus registry..."
+    if [ -f ".npmrc" ]; then
+        cp .npmrc .npmrc.backup
+    fi
+    cp .npmrc.nexus .npmrc
+else
+    echo "📋 .npmrc.nexus not found, generating from environment variables..."
+    # Backup existing .npmrc
+    if [ -f ".npmrc" ]; then
+        cp .npmrc .npmrc.backup
+    fi
+    # Generate .npmrc from environment variables
+    AUTH_TOKEN=$(echo -n "$NEXUS_USER:$NEXUS_PASS" | base64)
+    cat > .npmrc << EOF
+registry=$NEXUS_REGISTRY
+//localhost:8081/repository/npm-group/:_auth=$AUTH_TOKEN
+//localhost:8081/repository/npm-hosted-releases/:_auth=$AUTH_TOKEN
+//localhost:8081/repository/npm-group/:always-auth=true
+//localhost:8081/repository/npm-hosted-releases/:always-auth=true
+EOF
+    echo "✅ Generated .npmrc from NEXUS_USER and NEXUS_PASS"
 fi
-cp .npmrc.nexus .npmrc
 
 echo "📝 Registry switched to: $(npm config get registry)"
 

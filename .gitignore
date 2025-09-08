@@ -226,6 +226,13 @@ junit.xml
 # Memory dumps
 *.hprof
 
+# Terraform
+**/terraform.tfvars
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/.terraform
+**/mykey*
+
 # Application specific ignores
 single-spa-root/dist/
 single-spa-auth-app/dist/

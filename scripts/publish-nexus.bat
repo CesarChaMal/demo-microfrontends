@@ -13,6 +13,40 @@ if "%ENVIRONMENT%"=="" set ENVIRONMENT=dev
 
 echo 🔍 DEBUG: Called from run.bat: %FROM_RUN_SCRIPT%
 
+REM Load environment variables from .env file
+echo 🔍 DEBUG: Looking for .env file in current directory: %CD%
+if exist ".env" (
+    echo 📄 Loading environment variables from .env...
+    for /f "usebackq tokens=1,2 delims==" %%a in (".env") do (
+        if not "%%a"=="" if not "%%a:~0,1"=="#" set %%a=%%b
+    )
+    echo 🔍 DEBUG: Environment variables loaded from .env
+) else if exist "../.env" (
+    echo 📄 Loading environment variables from ../.env...
+    for /f "usebackq tokens=1,2 delims==" %%a in ("../.env") do (
+        if not "%%a"=="" if not "%%a:~0,1"=="#" set %%a=%%b
+    )
+    echo 🔍 DEBUG: Environment variables loaded from ../.env
+) else (
+    echo ⚠️ Warning: No .env file found, using environment variables only
+)
+
+REM Set Nexus configuration with fallback to environment variables
+if "%NEXUS_USER%"=="" set NEXUS_USER=admin
+if "%NEXUS_URL%"=="" set NEXUS_URL=http://localhost:8081
+if "%NEXUS_REGISTRY%"=="" set NEXUS_REGISTRY=http://localhost:8081/repository/npm-group/
+if "%NEXUS_PUBLISH_REGISTRY%"=="" set NEXUS_PUBLISH_REGISTRY=http://localhost:8081/repository/npm-hosted-releases/
+
+echo 🔍 DEBUG: Nexus configuration - USER=%NEXUS_USER%, URL=%NEXUS_URL%
+echo 🔍 DEBUG: Registry: %NEXUS_REGISTRY%
+echo 🔍 DEBUG: Publish Registry: %NEXUS_PUBLISH_REGISTRY%
+
+if "%NEXUS_PASS%"=="" (
+    echo ❌ Error: NEXUS_PASS not set in .env file or environment variables
+    echo 💡 Please set NEXUS_PASS in .env file or set NEXUS_PASS=your-password
+    exit /b 1
+)
+
 REM Auto-switch to Nexus registry if not called from run.bat
 if not "%FROM_RUN_SCRIPT%"=="true" (
     echo 🔄 Auto-switching to Nexus registry...
@@ -149,15 +183,28 @@ for %%a in (%APPS%) do (
     REM Version is already updated by version-manager.js
     echo 📋 Using centrally managed version: %NEW_VERSION%
     
-    REM Copy Nexus .npmrc to app directory for authentication
+    REM Create .npmrc with Nexus authentication
     if exist "..\.npmrc.nexus" (
         copy "..\.npmrc.nexus" ".npmrc" >nul
         echo    📋 Copied .npmrc.nexus to app directory
+    ) else (
+        REM Generate .npmrc from environment variables
+        echo    📋 Generating .npmrc from environment variables
+        powershell -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('%NEXUS_USER%:%NEXUS_PASS%'))" > temp_auth.txt
+        set /p AUTH_TOKEN=<temp_auth.txt
+        del temp_auth.txt
+        (
+            echo registry=%NEXUS_REGISTRY%
+            echo //localhost:8081/repository/npm-group/:_auth=!AUTH_TOKEN!
+            echo //localhost:8081/repository/npm-hosted-releases/:_auth=!AUTH_TOKEN!
+            echo //localhost:8081/repository/npm-group/:always-auth=true
+            echo //localhost:8081/repository/npm-hosted-releases/:always-auth=true
+        ) > .npmrc
     )
     
     REM Dry run first
     echo 🧪 Dry run for %%a...
-    npm publish --dry-run --registry=http://localhost:8081/repository/npm-hosted-releases/
+    npm publish --dry-run --registry=%NEXUS_PUBLISH_REGISTRY%
     if errorlevel 1 (
         echo ❌ Dry run failed for %%a
         cd ..
@@ -168,9 +215,9 @@ for %%a in (%APPS%) do (
     REM Actual publish to Nexus hosted repository
     echo 🚀 Publishing %%a to Nexus...
     if defined NPM_OTP (
-        npm publish --otp="%NPM_OTP%" --registry=http://localhost:8081/repository/npm-hosted-releases/
+        npm publish --otp="%NPM_OTP%" --registry=%NEXUS_PUBLISH_REGISTRY%
     ) else (
-        npm publish --registry=http://localhost:8081/repository/npm-hosted-releases/
+        npm publish --registry=%NEXUS_PUBLISH_REGISTRY%
     )
     
     REM Clean up .npmrc from app directory
@@ -199,25 +246,38 @@ if "%ENVIRONMENT%"=="prod" (
     
     REM Dry run first
     echo 🧪 Dry run for root app...
-    npm publish --dry-run --registry=http://localhost:8081/repository/npm-hosted-releases/
+    npm publish --dry-run --registry=%NEXUS_PUBLISH_REGISTRY%
     if errorlevel 1 (
         echo ❌ Root app dry run failed
         cd ..
         exit /b 1
     )
     
-    REM Copy Nexus .npmrc to root directory for authentication
+    REM Create .npmrc with Nexus authentication
     if exist "..\.npmrc.nexus" (
         copy "..\.npmrc.nexus" ".npmrc" >nul
         echo    📋 Copied .npmrc.nexus to root directory
+    ) else (
+        REM Generate .npmrc from environment variables
+        echo    📋 Generating .npmrc from environment variables
+        powershell -Command "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('%NEXUS_USER%:%NEXUS_PASS%'))" > temp_auth.txt
+        set /p AUTH_TOKEN=<temp_auth.txt
+        del temp_auth.txt
+        (
+            echo registry=%NEXUS_REGISTRY%
+            echo //localhost:8081/repository/npm-group/:_auth=!AUTH_TOKEN!
+            echo //localhost:8081/repository/npm-hosted-releases/:_auth=!AUTH_TOKEN!
+            echo //localhost:8081/repository/npm-group/:always-auth=true
+            echo //localhost:8081/repository/npm-hosted-releases/:always-auth=true
+        ) > .npmrc
     )
     
     REM Actual publish
     echo 🚀 Publishing root app to Nexus...
     if defined NPM_OTP (
-        npm publish --otp="%NPM_OTP%" --registry=http://localhost:8081/repository/npm-hosted-releases/
+        npm publish --otp="%NPM_OTP%" --registry=%NEXUS_PUBLISH_REGISTRY%
     ) else (
-        npm publish --registry=http://localhost:8081/repository/npm-hosted-releases/
+        npm publish --registry=%NEXUS_PUBLISH_REGISTRY%
     )
     
     REM Clean up .npmrc from root directory

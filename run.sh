@@ -392,6 +392,20 @@ start_npm() {
 
 start_nexus() {
     echo "🔍 DEBUG: Nexus mode - ENV=$ENV, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
+    echo "🔍 DEBUG: CORS Proxy - PORT=${NEXUS_CORS_PROXY_PORT:-NOT_SET}, ENABLED=${NEXUS_CORS_PROXY_ENABLED:-NOT_SET}"
+    echo "🔍 DEBUG: CORS Registry - ${NEXUS_CORS_REGISTRY:-NOT_SET}"
+    
+    # Start CORS proxy for Nexus Community Edition if enabled
+    if [ "${NEXUS_CORS_PROXY_ENABLED:-true}" = "true" ]; then
+        echo "🚀 Starting Nexus CORS proxy..."
+        if npm run nexus:start-proxy; then
+            echo "✅ CORS proxy started successfully on port ${NEXUS_CORS_PROXY_PORT:-8082}"
+        else
+            echo "⚠️ CORS proxy failed to start, continuing anyway..."
+        fi
+    else
+        echo "⚠️ CORS proxy disabled in configuration"
+    fi
     
     # Switch to Nexus .npmrc configuration
     echo "🔄 Switching to Nexus .npmrc configuration..."

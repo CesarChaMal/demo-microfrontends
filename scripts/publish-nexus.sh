@@ -12,6 +12,37 @@ echo "🔍 DEBUG: NPM version: $(npm --version)"
 echo "🔍 DEBUG: Node version: $(node --version)"
 echo "🔍 DEBUG: Called from run.sh: ${FROM_RUN_SCRIPT:-false}"
 
+# Load environment variables from .env file
+echo "🔍 DEBUG: Looking for .env file in current directory: $(pwd)"
+if [ -f ".env" ]; then
+    echo "📄 Loading environment variables from .env..."
+    export $(grep -v '^#' ".env" | xargs)
+    echo "🔍 DEBUG: Environment variables loaded from .env"
+elif [ -f "../.env" ]; then
+    echo "📄 Loading environment variables from ../.env..."
+    export $(grep -v '^#' "../.env" | xargs)
+    echo "🔍 DEBUG: Environment variables loaded from ../.env"
+else
+    echo "⚠️ Warning: No .env file found, using environment variables only"
+fi
+
+# Set Nexus configuration with fallback to environment variables
+NEXUS_USER=${NEXUS_USER:-admin}
+NEXUS_PASS=${NEXUS_PASS:-}
+NEXUS_URL=${NEXUS_URL:-http://localhost:8081}
+NEXUS_REGISTRY=${NEXUS_REGISTRY:-http://localhost:8081/repository/npm-group/}
+NEXUS_PUBLISH_REGISTRY=${NEXUS_PUBLISH_REGISTRY:-http://localhost:8081/repository/npm-hosted-releases/}
+
+echo "🔍 DEBUG: Nexus configuration - USER=$NEXUS_USER, URL=$NEXUS_URL"
+echo "🔍 DEBUG: Registry: $NEXUS_REGISTRY"
+echo "🔍 DEBUG: Publish Registry: $NEXUS_PUBLISH_REGISTRY"
+
+if [ -z "$NEXUS_PASS" ]; then
+    echo "❌ Error: NEXUS_PASS not set in .env file or environment variables"
+    echo "💡 Please set NEXUS_PASS in .env file or export NEXUS_PASS=your-password"
+    exit 1
+fi
+
 # Auto-switch to Nexus registry if not called from run.sh
 if [ "${FROM_RUN_SCRIPT}" != "true" ]; then
     echo "🔄 Auto-switching to Nexus registry..."
@@ -116,15 +147,26 @@ publish_app() {
   # Version is already updated by version-manager.js
   echo "📋 Using centrally managed version: $NEW_VERSION"
   
-  # Copy Nexus .npmrc to app directory for authentication
+  # Create .npmrc with Nexus authentication
   if [ -f "../.npmrc.nexus" ]; then
     cp "../.npmrc.nexus" ".npmrc"
     echo "   📋 Copied .npmrc.nexus to app directory"
+  else
+    # Generate .npmrc from environment variables
+    echo "   📋 Generating .npmrc from environment variables"
+    AUTH_TOKEN=$(echo -n "$NEXUS_USER:$NEXUS_PASS" | base64)
+    cat > .npmrc << EOF
+registry=$NEXUS_REGISTRY
+//localhost:8081/repository/npm-group/:_auth=$AUTH_TOKEN
+//localhost:8081/repository/npm-hosted-releases/:_auth=$AUTH_TOKEN
+//localhost:8081/repository/npm-group/:always-auth=true
+//localhost:8081/repository/npm-hosted-releases/:always-auth=true
+EOF
   fi
   
   # Dry run first
   echo "🧪 Dry run for $app_dir..."
-  npm publish --dry-run --registry=http://localhost:8081/repository/npm-hosted-releases/
+  npm publish --dry-run --registry=$NEXUS_PUBLISH_REGISTRY
   
   if [ $? -ne 0 ]; then
     echo "❌ Dry run failed for $app_dir"
@@ -134,7 +176,7 @@ publish_app() {
   
   # Actual publish to Nexus hosted repository
   echo "🚀 Publishing $app_dir to Nexus..."
-  npm publish --registry=http://localhost:8081/repository/npm-hosted-releases/
+  npm publish --registry=$NEXUS_PUBLISH_REGISTRY
   
   # Clean up .npmrc from app directory
   rm -f .npmrc

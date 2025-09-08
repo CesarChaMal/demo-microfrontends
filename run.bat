@@ -191,7 +191,22 @@ if "%MODE%"=="local" (
             echo 🌐 Main application: http://localhost:8080?mode=npm
         )
         if "%MODE%"=="nexus" (
-            echo 🔍 DEBUG: Nexus mode - ENV=%ENV%, NEXUS_REGISTRY=SET
+            echo 🔍 DEBUG: Nexus mode - ENV=%ENV%, NEXUS_REGISTRY=%NEXUS_REGISTRY%
+            echo 🔍 DEBUG: CORS Proxy - PORT=%NEXUS_CORS_PROXY_PORT%, ENABLED=%NEXUS_CORS_PROXY_ENABLED%
+            echo 🔍 DEBUG: CORS Registry - %NEXUS_CORS_REGISTRY%
+            
+            REM Start CORS proxy for Nexus Community Edition if enabled
+            if "%NEXUS_CORS_PROXY_ENABLED%"=="true" (
+                echo 🚀 Starting Nexus CORS proxy...
+                call npm run nexus:start-proxy
+                if errorlevel 1 (
+                    echo ⚠️ CORS proxy failed to start, continuing anyway...
+                ) else (
+                    echo ✅ CORS proxy started successfully on port %NEXUS_CORS_PROXY_PORT%
+                )
+            ) else (
+                echo ⚠️ CORS proxy disabled in configuration
+            )
             
             REM Switch to Nexus .npmrc configuration
             echo 🔄 Switching to Nexus .npmrc configuration...

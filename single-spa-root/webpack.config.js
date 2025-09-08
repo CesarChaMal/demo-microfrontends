@@ -73,6 +73,9 @@ module.exports = (env, argv) => {
     new webpack.DefinePlugin({
       'process.env.SPA_MODE': JSON.stringify(process.env.SPA_MODE || 'local'),
       'process.env.SPA_ENV': JSON.stringify(process.env.SPA_ENV || 'dev'),
+      'process.env.NEXUS_CORS_REGISTRY': JSON.stringify(process.env.NEXUS_CORS_REGISTRY),
+      'process.env.NEXUS_CORS_PUBLISH_REGISTRY': JSON.stringify(process.env.NEXUS_CORS_PUBLISH_REGISTRY),
+      'process.env.NEXUS_CORS_PROXY_URL': JSON.stringify(process.env.NEXUS_CORS_PROXY_URL),
       AWS_CONFIG: JSON.stringify({
         s3Bucket: process.env.S3_BUCKET,
         region: process.env.AWS_REGION,
