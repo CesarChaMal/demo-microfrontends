@@ -1,6 +1,9 @@
-registry=http://localhost:8081/repository/npm-hosted-releases/
+registry=http://localhost:8081/repository/npm-group/
 
-# Scoped authentication for Nexus registry
+# Authentication for both npm-group (install) and npm-hosted-releases (publish)
+//localhost:8081/repository/npm-group/:_auth=<base64-encoded-username:password>
+//localhost:8081/repository/npm-group/:email=<your-email>
+//localhost:8081/repository/npm-group/:always-auth=true
 //localhost:8081/repository/npm-hosted-releases/:_auth=<base64-encoded-username:password>
 //localhost:8081/repository/npm-hosted-releases/:email=<your-email>
 //localhost:8081/repository/npm-hosted-releases/:always-auth=true

@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-webcomponents-app",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "description": "Web Components microfrontend using Lit for Single-SPA",
   "main": "dist/single-spa-webcomponents-app.js",
   "type": "module",
