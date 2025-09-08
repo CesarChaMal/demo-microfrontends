@@ -298,8 +298,7 @@
     "registry:nexus": "cp .npmrc.nexus .npmrc && echo 'Switched to Nexus registry'",
     "registry:status": "echo 'Current registry:' && npm config get registry",
     "registry:restore": "cp .npmrc.backup .npmrc && echo 'Restored original registry'",
-    "version:help": "echo '📦 Version Manager' && echo '' && echo '🔄 Publishing:' && echo '  npm run publish:npm:patch - Auto-bump patch + publish to NPM' && echo '  npm run publish:nexus:patch - Auto-bump patch + publish to Nexus' && echo '' && echo '📋 Manual Version:' && echo '  npm run version:bump:patch - 0.1.0 → 0.1.1' && echo '  npm run version:bump:minor - 0.1.0 → 0.2.0' && echo '  npm run version:set 1.2.3 - Set all to 1.2.3' && echo '' && echo '🔍 Info:' && echo '  npm run version:current - Show versions' && echo '  npm run version:clean - Remove _trigger fields'",
-
+    "version:help": "echo '📦 Version Manager' && echo '' && echo '🔄 Publishing:' && echo '  npm run publish:npm:patch - Auto-bump patch + publish to NPM' && echo '  npm run publish:nexus:patch - Auto-bump patch + publish to Nexus' && echo '' && echo '📋 Manual Version:' && echo '  npm run version:bump:patch - 0.1.0 → 0.1.1' && echo '  npm run version:bump:minor - 0.1.0 → 0.2.0' && echo '  npm run version:set 1.2.3 - Set all to 1.2.3' && echo '' && echo '🔍 Info:' && echo '  npm run version:current - Show versions' && echo '  npm run version:clean - Remove _trigger fields'"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
