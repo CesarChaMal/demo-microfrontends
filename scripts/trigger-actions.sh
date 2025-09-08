@@ -9,6 +9,7 @@ echo "🚀 Triggering GitHub Actions for all microfrontend apps..."
 
 # List of all microfrontend directories
 APPS=(
+    "shared"
     "single-spa-root"
     "single-spa-auth-app"
     "single-spa-layout-app"

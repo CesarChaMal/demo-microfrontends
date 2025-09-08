@@ -294,6 +294,7 @@
     "aws:hot-sync": "bash ./scripts/aws-hot-sync.sh",
     "github:hot-sync": "bash ./scripts/github-hot-sync.sh",
     "trigger:actions": "bash ./scripts/trigger-actions.sh",
+    "trigger:shared": "bash ./scripts/trigger-shared.sh",
     "trigger:root": "bash ./scripts/trigger-root.sh",
     "trigger:auth": "bash ./scripts/trigger-auth.sh",
     "trigger:layout": "bash ./scripts/trigger-layout.sh",

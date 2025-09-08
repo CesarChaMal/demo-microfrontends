@@ -37,6 +37,11 @@ jobs:
         npm cache clean --force
         rm -f package-lock.json
 
+    - name: Install shared dependencies
+      run: |
+        cd ../shared
+        npm install
+        
     - name: Install dependencies
       run: npm install --legacy-peer-deps
       

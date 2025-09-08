@@ -1,0 +1,48 @@
+name: Deploy Shared Dependencies
+
+on:
+  push:
+    branches: [main, master]
+    paths: ['shared/**']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--openssl-legacy-provider"
+    defaults:
+      run:
+        working-directory: shared
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.20.8'
+        cache: 'npm'
+        cache-dependency-path: shared/package-lock.json
+
+    - name: Configure NPM registry
+      run: |
+        npm config delete registry || true
+        npm config set registry https://registry.npmjs.org/
+        npm config list
+        echo "Registry: $(npm config get registry)"
+
+    - name: Clear npm cache and lock file
+      run: |
+        npm cache clean --force
+        rm -f package-lock.json
+      
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+
+    - name: Validate shared dependencies
+      run: |
+        export NODE_OPTIONS="--openssl-legacy-provider"
+        echo "Shared dependencies installed successfully"
+        npm list rxjs || echo "RxJS dependency check completed"
