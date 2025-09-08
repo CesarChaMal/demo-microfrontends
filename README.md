@@ -317,6 +317,8 @@ npm run build
 ### Dependency Fix Scripts
 - `npm run fix:nexus:deps` - Fix Nexus dependency version mismatches
 - `npm run fix:nexus:deps:root` - Fix root app Nexus dependencies
+- `npm run fix:npm:deps` - Fix NPM dependency version mismatches
+- `npm run fix:npm:deps:root` - Fix root app NPM dependencies
 
 ### Authentication Testing Scripts
 - `npm run test:npm:auth` - Test NPM authentication with NPM_TOKEN

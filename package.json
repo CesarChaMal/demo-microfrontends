@@ -1,6 +1,6 @@
 {
   "name": "demo-microfrontends",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Demo Microfrontends with Single-SPA",
   "engines": {
     "node": ">=18.0.0",
@@ -279,6 +279,8 @@
     "check:aws": "bash ./scripts/check-aws-status.sh",
     "fix:nexus:deps": "bash ./scripts/fix-nexus-deps.sh",
     "fix:nexus:deps:root": "bash ./scripts/fix-nexus-deps.sh single-spa-root",
+    "fix:npm:deps": "bash ./scripts/fix-npm-deps.sh",
+    "fix:npm:deps:root": "bash ./scripts/fix-npm-deps.sh single-spa-root",
     "test:npm:auth": "bash ./scripts/test-npm-auth.sh",
     "test:nexus:auth": "bash ./scripts/test-nexus-auth.sh",
     "aws:hot-sync": "bash ./scripts/aws-hot-sync.sh",
