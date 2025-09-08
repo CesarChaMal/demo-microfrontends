@@ -314,6 +314,10 @@ npm run build
 - `npm run check:github` - Check GitHub repositories and Pages status
 - `npm run check:aws` - Check AWS S3 bucket and file accessibility
 
+### Dependency Fix Scripts
+- `npm run fix:nexus:deps` - Fix Nexus dependency version mismatches
+- `npm run fix:nexus:deps:root` - Fix root app Nexus dependencies
+
 ### Authentication Testing Scripts
 - `npm run test:npm:auth` - Test NPM authentication with NPM_TOKEN
 - `npm run test:nexus:auth` - Test Nexus authentication with .npmrc.nexus
@@ -369,6 +373,8 @@ npm run build
 - `npm run publish:npm:major` - Publish to NPM with major version bump
 - `npm run publish:npm:dev` - Version management only (no publishing)
 - `npm run publish:npm:prod` - Publish all 12 packages (11 microfrontends + root app)
+- `npm run publish:npm:nobump` - Publish without version bump
+- `npm run publish:npm:prod:nobump` - Publish all packages without version bump
 
 #### Nexus Registry Publishing
 - `npm run publish:nexus` - Publish to Nexus (default: patch version, dev environment)
@@ -377,10 +383,23 @@ npm run build
 - `npm run publish:nexus:major` - Publish to Nexus with major version bump
 - `npm run publish:nexus:dev` - Version management only (no publishing)
 - `npm run publish:nexus:prod` - Publish all 12 packages (11 microfrontends + root app)
+- `npm run publish:nexus:nobump` - Publish without version bump
+- `npm run publish:nexus:prod:nobump` - Publish all packages without version bump
 
 #### Publishing Mode Behavior
 - **Dev Mode**: Only updates package versions, no actual publishing
 - **Prod Mode**: Publishes all packages to registry for public/private access
+- **Nobump Mode**: Publishes using current version without bumping
+
+#### Version Control Workflow
+```bash
+# Set specific version then publish without bumping
+npm run version:set 1.0.0
+npm run publish:nexus:nobump
+
+# Or let it auto-bump
+npm run publish:nexus:patch  # 1.0.0 → 1.0.1
+```
 
 ##### Individual Publishing Scripts
 

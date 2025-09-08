@@ -51,15 +51,19 @@ fi
 echo ""
 
 # Centralized version management
-echo "📈 Updating all package versions..."
-node scripts/version-manager.js bump $VERSION_TYPE
-if [ $? -ne 0 ]; then
-  echo "❌ Version update failed"
-  exit 1
+if [ "$3" = "nobump" ]; then
+    echo "📋 Skipping version bump (nobump flag)"
+    NEW_VERSION=$(node -e "console.log(require('./package.json').version)")
+else
+    echo "📈 Updating all package versions..."
+    node scripts/version-manager.js bump $VERSION_TYPE
+    if [ $? -ne 0 ]; then
+      echo "❌ Version update failed"
+      exit 1
+    fi
+    NEW_VERSION=$(node -e "console.log(require('./package.json').version)")
 fi
 
-# Get the new version
-NEW_VERSION=$(node -e "console.log(require('./package.json').version)")
 echo "📋 New version: $NEW_VERSION"
 
 # Define packages based on environment
