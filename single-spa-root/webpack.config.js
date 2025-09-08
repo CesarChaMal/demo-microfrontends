@@ -103,7 +103,7 @@ module.exports = (env, argv) => {
       },
     ]),
     new HtmlWebpackPlugin({
-      template: 'ejs-compiled-loader!' + path.resolve(__dirname, 'index.html'),
+      template: path.resolve(__dirname, 'index.html'),
       inject: false,
       templateParameters: {
         mode: mode,

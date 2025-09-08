@@ -149,9 +149,11 @@ jobs:
 
       - name: Clear npm cache and lock file
         run: |
+          npm cache clean --force
           cd single-spa-root
           npm cache clean --force
           rm -f package-lock.json
+          rm -rf node_modules
           
       - name: Switch to local mode
         run: node scripts/switch-mode.js local

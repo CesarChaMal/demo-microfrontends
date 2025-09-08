@@ -31,6 +31,7 @@ jobs:
         run: |
           npm cache clean --force
           rm -f package-lock.json
+          rm -rf node_modules
           
       - name: Switch to local mode
         run: node scripts/switch-mode.js local
