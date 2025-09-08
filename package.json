@@ -238,7 +238,7 @@
     "serve:local:dev": "cd single-spa-root && npm run serve",
     "serve:local:prod": "npm run mode:local && npm run build:prod && cd single-spa-root && npm run build && npm run start",
     "serve:npm": "npm run mode:npm && cd single-spa-root && npm run serve:npm",
-    "serve:nexus": "npm run nexus:start-proxy && npm run mode:nexus && cd single-spa-root && npm run serve:nexus",
+    "serve:nexus": "npm run mode:nexus && concurrently \"npm run nexus:start-proxy\" \"cd single-spa-root && npm run serve:nexus\"",
     "nexus:start-proxy": "node scripts/cors-proxy.js",
     "nexus:stop-proxy": "pkill -f cors-proxy.js || pkill -f 'node.*cors-proxy' || lsof -ti:${NEXUS_CORS_PROXY_PORT:-8082} | xargs kill -9 2>/dev/null || echo 'No CORS proxy running'",
     "nexus:setup": "bash ./scripts/setup-nexus.sh",
