@@ -4,15 +4,16 @@
   "description": "React application with two example pages for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-react-app.js",
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "1.2.27",
+    "@fortawesome/free-brands-svg-icons": "5.12.1",
+    "@fortawesome/free-solid-svg-icons": "5.12.0",
+    "@fortawesome/react-fontawesome": "0.1.9",
     "react": "16.12.0",
     "react-dom": "16.12.0",
     "react-router-dom": "5.1.2",
     "react-scripts": "4.0.0",
-    "single-spa-react": "2.11.0",
-    "@fortawesome/fontawesome-svg-core": "1.2.27",
-    "@fortawesome/free-brands-svg-icons": "5.12.1",
-    "@fortawesome/free-solid-svg-icons": "5.12.0",
-    "@fortawesome/react-fontawesome": "0.1.9"
+    "rxjs": "^6.4.0",
+    "single-spa-react": "2.11.0"
   },
   "scripts": {
     "build": "webpack --config webpack.config.js --mode production",
