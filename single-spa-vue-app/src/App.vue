@@ -68,10 +68,11 @@ export default {
   },
   mounted() {
     if (window.stateManager) {
-      this.userStateSub = window.stateManager.userState$.subscribe(state => {
+      this.userStateSub = window.stateManager.userState$.subscribe((state) => {
         this.userState = state;
       });
-      this.eventsSub = window.stateManager.events$.subscribe(event => {
+      this.eventsSub = window.stateManager.events$.subscribe((event) => {
+        // eslint-disable-next-line no-console
         console.log('💚 Vue received event:', event);
       });
     }

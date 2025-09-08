@@ -15,7 +15,7 @@
 /* eslint-disable no-param-reassign */
 import * as singleSpa from 'single-spa';
 import 'zone.js';
-import stateManager from '../shared/state-manager.js';
+import stateManager from '../shared/state-manager';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -137,9 +137,12 @@ function resolveLifecycles(module, name) {
     lifecycles = module;
   } else if (module.default && module.default.bootstrap) {
     lifecycles = module.default;
-  } else if (window['single-spa-layout-app']) {
+  // } else if (window['single-spa-layout-app']) {
+  //   // Check if it's exposed on window (UMD)
+  //   lifecycles = window['single-spa-layout-app'];
+  } else if (window[name]) {
     // Check if it's exposed on window (UMD)
-    lifecycles = window['single-spa-layout-app'];
+    lifecycles = window[name];
   } else if (window[name.replace(/-/g, '')]) {
     // Check if it's exposed on window (UMD)
     const globalName = name.replace(/-/g, '');

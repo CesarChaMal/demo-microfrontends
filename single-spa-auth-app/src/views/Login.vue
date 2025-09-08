@@ -67,7 +67,7 @@ export default {
     onSubmit(user, password) {
       if (user === 'admin' && password === '12345') {
         const token = `vue-auth-token-${Date.now()}`;
-        
+
         // Use global state manager if available
         if (window.stateManager) {
           window.stateManager.setUser({ username: user }, token);
@@ -76,7 +76,7 @@ export default {
           sessionStorage.setItem('user', JSON.stringify({ username: user }));
           sessionStorage.setItem('token', token);
         }
-        
+
         // eslint-disable-next-line no-alert
         alert('Login successful! Welcome to the microfrontend demo.');
         setTimeout(() => {
