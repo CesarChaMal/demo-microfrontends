@@ -42,6 +42,11 @@ jobs:
         cd ..
         node scripts/switch-mode.js local
         
+    - name: Install shared dependencies
+      run: |
+        cd ../shared
+        npm install --legacy-peer-deps
+        
     - name: Install dependencies
       run: npm install --legacy-peer-deps
       
