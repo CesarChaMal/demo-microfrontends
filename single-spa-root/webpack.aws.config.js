@@ -138,7 +138,7 @@ module.exports = (env, argv) => {
         },
       ]),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, 'index.html'),
+        template: 'ejs-compiled-loader!' + path.resolve(__dirname, 'index.html'),
         inject: false,
         templateParameters: (() => {
           const params = {
