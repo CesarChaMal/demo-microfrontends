@@ -357,7 +357,39 @@ switch (mode) {
       const fileName = fileMap[name];
       // Use CORS proxy URL from environment variables
       const nexusBaseUrl = process.env.NEXUS_CORS_REGISTRY || 'http://localhost:8082/repository/npm-group';
-      const nexusUrl = `${nexusBaseUrl}/${encodeURIComponent(scopedName)}/-/${fileName}`;
+      // Nexus mode: Use same file serving approach as local mode
+      // Dev: Individual dev servers, Prod: Static files from root server
+      // Nexus publishing happens in the background but file serving is local
+      const isProduction = envEnvironment === 'prod';
+      console.log(`🔧 Nexus mode (${envEnvironment}): Using ${isProduction ? 'static files' : 'dev servers'} + Nexus registry`);
+      
+      const nexusUrl = isProduction ? {
+        // Production: Load from root server static files
+        'single-spa-auth-app': '/single-spa-auth-app.umd.js',
+        'single-spa-layout-app': '/single-spa-layout-app.umd.js',
+        'single-spa-home-app': '/single-spa-home-app.js',
+        'single-spa-angular-app': '/single-spa-angular-app.js',
+        'single-spa-vue-app': '/single-spa-vue-app.umd.js',
+        'single-spa-react-app': '/single-spa-react-app.js',
+        'single-spa-vanilla-app': '/single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': '/single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': '/single-spa-typescript-app.js',
+        'single-spa-jquery-app': '/single-spa-jquery-app.js',
+        'single-spa-svelte-app': '/single-spa-svelte-app.js',
+      }[name] : {
+        // Development: Load from individual ports
+        'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
+        'single-spa-layout-app': 'http://localhost:4202/single-spa-layout-app.umd.js',
+        'single-spa-home-app': 'http://localhost:4203/single-spa-home-app.js',
+        'single-spa-angular-app': 'http://localhost:4204/single-spa-angular-app.js',
+        'single-spa-vue-app': 'http://localhost:4205/single-spa-vue-app.umd.js',
+        'single-spa-react-app': 'http://localhost:4206/single-spa-react-app.js',
+        'single-spa-vanilla-app': 'http://localhost:4207/single-spa-vanilla-app.js',
+        'single-spa-webcomponents-app': 'http://localhost:4208/single-spa-webcomponents-app.js',
+        'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
+        'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
+        'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
+      }[name];
       console.log(`Loading ${name} from Nexus CDN: ${nexusUrl}`);
       try {
         const module = await loadModule(nexusUrl, { isCdnUrl: true });

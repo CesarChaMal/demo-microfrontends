@@ -392,11 +392,8 @@ start_npm() {
 
 start_nexus() {
     echo "🔍 DEBUG: Nexus mode - ENV=$ENV, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
-    echo "🔍 DEBUG: CORS Proxy - PORT=${NEXUS_CORS_PROXY_PORT:-NOT_SET}, ENABLED=${NEXUS_CORS_PROXY_ENABLED:-NOT_SET}"
-    echo "🔍 DEBUG: CORS Registry - ${NEXUS_CORS_REGISTRY:-NOT_SET}"
-    
-    # CORS proxy will be started by serve:nexus script using concurrently
-    echo "📝 CORS proxy will be started automatically with the server"
+    # Nexus mode uses local file serving, no CORS proxy needed
+    echo "📝 Nexus mode: Using local file serving + Nexus registry"
     
     # Switch to Nexus .npmrc configuration
     echo "🔄 Switching to Nexus .npmrc configuration..."
@@ -453,8 +450,13 @@ start_nexus() {
     
     echo "✅ Nexus mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=nexus"
-    echo "🔍 DEBUG: Loading microfrontends from Nexus: @cesarchamal/single-spa-*"
-    exec_npm npm run serve:nexus
+    if [ "$ENV" = "prod" ]; then
+        echo "🔍 DEBUG: Nexus prod mode - static files + Nexus registry"
+        exec_npm npm run serve:nexus:prod
+    else
+        echo "🔍 DEBUG: Nexus dev mode - individual servers + Nexus registry"
+        exec_npm npm run serve:nexus:dev
+    fi
 }
 
 start_other() {
