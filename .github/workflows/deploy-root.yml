@@ -37,10 +37,10 @@ jobs:
         npm cache clean --force
         rm -f package-lock.json
 
-    - name: Install shared dependencies
+    - name: Switch to local mode
       run: |
-        cd ../shared
-        npm install
+        cd ..
+        node scripts/switch-mode.js local
         
     - name: Install dependencies
       run: npm install --legacy-peer-deps
