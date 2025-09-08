@@ -148,6 +148,11 @@ elif [ "$APP_NAME" = "root" ]; then
 else
     # Other apps build to dist directory
     cp -r dist/* .
+    # Copy employees.json for shared state management
+    if [ -f "employees.json" ]; then
+        echo "📊 Adding employees.json for shared state..."
+        cp employees.json .
+    fi
 fi
 
 # Only commit if there are changes

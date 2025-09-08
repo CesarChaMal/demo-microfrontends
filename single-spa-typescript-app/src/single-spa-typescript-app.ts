@@ -24,6 +24,8 @@ interface AppState {
 
 class TypeScriptApp {
   private container: HTMLElement | null = null;
+  private userStateSub: any = null;
+  private eventsSub: any = null;
   private state: AppState = {
     users: [],
     selectedUser: null,
@@ -39,6 +41,15 @@ class TypeScriptApp {
         return resolve();
       }
 
+      if ((window as any).stateManager) {
+        this.userStateSub = (window as any).stateManager.userState$.subscribe(
+          (state: any) => console.log('📘 TypeScript: User state changed:', state)
+        );
+        this.eventsSub = (window as any).stateManager.events$.subscribe(
+          (event: any) => console.log('📘 TypeScript received event:', event)
+        );
+      }
+
       this.render();
       this.attachEventListeners();
       console.log('📘 TypeScript App mounted');
@@ -48,6 +59,12 @@ class TypeScriptApp {
 
   public unmount(): Promise<void> {
     return new Promise((resolve) => {
+      if (this.userStateSub) {
+        this.userStateSub.unsubscribe();
+      }
+      if (this.eventsSub) {
+        this.eventsSub.unsubscribe();
+      }
       if (this.container) {
         this.container.innerHTML = '';
       }

@@ -15,9 +15,11 @@
 /* eslint-disable no-param-reassign */
 import * as singleSpa from 'single-spa';
 import 'zone.js';
-
+import stateManager from '../shared/state-manager.js';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+
+window.stateManager = stateManager;
 
 // Configuration modes
 const MODES = {

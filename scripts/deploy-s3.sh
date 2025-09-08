@@ -163,6 +163,10 @@ EOF
 aws s3 cp importmap.json s3://$BUCKET_NAME/@${ORG_NAME}/importmap.json
 rm importmap.json
 
+# Upload employees.json for shared state management
+echo "📊 Uploading employees.json for shared state..."
+aws s3 cp single-spa-root/public/employees.json s3://$BUCKET_NAME/employees.json
+
 # Upload each microfrontend
 APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
 

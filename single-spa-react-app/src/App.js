@@ -1,5 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.scss';
+
+// Custom hook for global state
+function useGlobalState() {
+  const [userState, setUserState] = useState(null);
+  
+  useEffect(() => {
+    if (window.stateManager) {
+      const userSub = window.stateManager.userState$.subscribe(setUserState);
+      const eventsSub = window.stateManager.events$.subscribe(event => {
+        console.log('⚛️ React received event:', event);
+      });
+      return () => {
+        userSub.unsubscribe();
+        eventsSub.unsubscribe();
+      };
+    }
+  }, []);
+  
+  return userState;
+}
 
 import {
   Route,
@@ -13,6 +33,7 @@ import Detail from './components/Detail';
 function App() {
   const [count, setCount] = React.useState(0);
   const [mounted] = React.useState(new Date().toLocaleString());
+  const userState = useGlobalState();
   
   const features = [
     'Hooks and Functional Components',
@@ -53,7 +74,12 @@ function App() {
       }}>
         <h4 style={{ color: '#495057', margin: '0 0 10px 0' }}>Interactive Counter</h4>
         <button 
-          onClick={() => setCount(count + 1)}
+          onClick={() => {
+            setCount(count + 1);
+            if (window.stateManager) {
+              window.stateManager.emit('react-counter', { count: count + 1, app: 'React' });
+            }
+          }}
           style={{
             background: '#61dafb',
             color: 'white',
@@ -65,6 +91,23 @@ function App() {
           }}
         >
           Count: {count}
+        </button>
+        <button 
+          onClick={() => {
+            if (window.stateManager) {
+              window.stateManager.loadEmployees();
+            }
+          }}
+          style={{
+            background: '#28a745',
+            color: 'white',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Load Employees
         </button>
         <button 
           onClick={() => setCount(0)}

@@ -68,6 +68,30 @@ class MicroWidget extends LitElement {
     this.count = 0;
     this.data = null;
     this.loading = false;
+    this.userState = null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (window.stateManager) {
+      this.userStateSub = window.stateManager.userState$.subscribe(state => {
+        this.userState = state;
+        this.requestUpdate();
+      });
+      this.eventsSub = window.stateManager.events$.subscribe(event => {
+        console.log('🧩 Web Components received event:', event);
+      });
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.userStateSub) {
+      this.userStateSub.unsubscribe();
+    }
+    if (this.eventsSub) {
+      this.eventsSub.unsubscribe();
+    }
   }
 
   render() {
@@ -119,6 +143,9 @@ class MicroWidget extends LitElement {
 
   _incrementCounter() {
     this.count++;
+    if (window.stateManager) {
+      window.stateManager.emit('webcomponents-counter', { count: this.count, app: 'WebComponents' });
+    }
   }
 
   async _fetchData() {

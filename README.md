@@ -23,6 +23,8 @@ This project demonstrates a microfrontend architecture with:
 - **Multiple Microfrontends**: Independent applications built with different frameworks
 - **Authentication**: Centralized login system
 - **Shared Layout**: Common header, navigation, and footer components
+- **RxJS State Management**: Real-time cross-app communication and shared state
+- **Employee Data API**: Shared JSON data accessible across all microfrontends
 
 ## 🏗️ Microfrontend Architecture
 
@@ -1082,6 +1084,100 @@ Import Map: https://bucket.s3.region.amazonaws.com/@cesarchamal/importmap.json
 
 Each mode provides a complete microfrontend deployment strategy suitable for different organizational needs and infrastructure requirements.
 
+## 🔄 RxJS State Management
+
+All 12 applications are integrated with a centralized RxJS-based state management system:
+
+### **Global State Manager**
+```javascript
+// Available globally in all microfrontends
+window.stateManager
+```
+
+### **User Authentication State**
+```javascript
+// Subscribe to user state changes
+window.stateManager.userState$.subscribe(state => {
+  console.log('User state:', state); // {user, isAuthenticated, token}
+});
+
+// Login (from auth app)
+window.stateManager.setUser({username: 'admin'}, 'token');
+
+// Logout (from layout app)
+window.stateManager.logout();
+```
+
+### **Cross-App Event Communication**
+```javascript
+// Listen to events from other apps
+window.stateManager.events$.subscribe(event => {
+  console.log('Event received:', event);
+});
+
+// Broadcast events to other apps
+window.stateManager.emit('custom-event', {data: 'hello'});
+```
+
+### **Shared Employee Data**
+```javascript
+// Load employee data from /employees.json
+window.stateManager.loadEmployees();
+
+// Subscribe to employee updates
+window.stateManager.employees$.subscribe(employees => {
+  console.log('Employees:', employees);
+});
+
+// Get current employees
+const employees = window.stateManager.getEmployees();
+```
+
+### **Integration Status**
+| App | State Subscriptions | Event Broadcasting | Event Listening | Employee Loading |
+|-----|--------------------|--------------------|-----------------|------------------|
+| 🔐 Auth App | ✅ Login/Logout | ✅ login-success | ✅ All events | ❌ |
+| 🎨 Layout App | ✅ User display | ✅ logout | ✅ All events | ❌ |
+| 🏠 Home App | ✅ User state | ❌ | ✅ All events | ❌ |
+| 🅰️ Angular App | ✅ User state | ✅ angular-counter | ✅ All events | ❌ |
+| 💚 Vue App | ✅ User state | ✅ vue-counter | ✅ All events | ✅ Load button |
+| ⚛️ React App | ✅ Custom hooks | ✅ react-counter | ✅ All events | ✅ Load button |
+| 🍦 Vanilla App | ✅ User state | ✅ vanilla-counter | ✅ All events | ✅ Load button |
+| 🧩 Web Components | ✅ User state | ✅ webcomponents-counter | ✅ All events | ❌ |
+| 📘 TypeScript App | ✅ User state | ❌ | ✅ All events | ❌ |
+| 💎 jQuery App | ✅ User state | ✅ jquery-todo-added | ✅ All events | ❌ |
+| 🔥 Svelte App | ✅ User state | ✅ svelte-counter | ✅ All events | ✅ Load button |
+
+### **Live Demo Features**
+1. **Login Synchronization**: Login in auth app → All apps receive user state
+2. **Counter Events**: Click counters in any app → All apps receive events
+3. **Employee Data**: Load employees in any app → Shared across all apps
+4. **Real-time Updates**: All state changes propagate instantly
+5. **Console Logging**: Each app logs received events with unique emojis
+
+### **Employee API Endpoint**
+- **URL**: `http://localhost:8080/employees.json`
+- **Data**: 6 employee records with id, name, email, avatar
+- **Integration**: Load via "Load Employees" buttons in React, Vue, Vanilla, Svelte apps
+- **State**: Shared across all microfrontends via `employees$` observable
+
+### **Mode Compatibility**
+
+| Mode | State Manager | Cross-App Events | Employee API | Full Support |
+|------|---------------|------------------|--------------|-------------|
+| **Local** | ✅ | ✅ | ✅ `/employees.json` | ✅ **100%** |
+| **NPM** | ✅ | ✅ | ✅ `/employees.json` | ✅ **100%** |
+| **Nexus** | ✅ | ✅ | ✅ `/employees.json` | ✅ **100%** |
+| **GitHub** | ✅ | ✅ | ✅ `/{repo}/employees.json` | ✅ **100%** |
+| **AWS** | ✅ | ✅ | ✅ `/employees.json` | ✅ **100%** |
+
+**All deployment modes fully support:**
+- ✅ Login/logout state synchronization across all apps
+- ✅ Real-time event broadcasting between microfrontends
+- ✅ Shared employee data loading via `/employees.json`
+- ✅ Console logging with unique app emojis
+- ✅ Cross-framework communication (React ↔ Vue ↔ Angular ↔ etc.)
+
 ## Features
 
 - **Framework Agnostic**: Multiple frontend frameworks coexisting
@@ -1098,6 +1194,10 @@ Each mode provides a complete microfrontend deployment strategy suitable for dif
 - **Routing**: Client-side routing across applications
 - **Hot Reloading**: Development-friendly setup
 - **ESLint Integration**: Code quality and consistency across all packages
+- **🔄 RxJS State Management**: Real-time cross-microfrontend communication
+- **📊 Shared Employee API**: JSON data accessible at `/employees.json`
+- **🎪 Event Broadcasting**: Apps can send/receive events across frameworks
+- **⚡ Live State Synchronization**: Login/logout updates all apps instantly
 
 ## Contributing
 

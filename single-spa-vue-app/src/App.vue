@@ -16,6 +16,9 @@
       <button class="btn-secondary" @click="reset">
         Reset
       </button>
+      <button class="btn-success" @click="loadEmployees">
+        Load Employees
+      </button>
       <p class="counter-info">Double: {{ doubleCount }}</p>
     </div>
 
@@ -48,6 +51,7 @@ export default {
     return {
       count: 0,
       mountedAt: new Date().toLocaleString(),
+      userState: null,
       features: [
         'Reactive Data Binding',
         'Component-based Architecture',
@@ -62,12 +66,38 @@ export default {
       return this.count * 2;
     },
   },
+  mounted() {
+    if (window.stateManager) {
+      this.userStateSub = window.stateManager.userState$.subscribe(state => {
+        this.userState = state;
+      });
+      this.eventsSub = window.stateManager.events$.subscribe(event => {
+        console.log('💚 Vue received event:', event);
+      });
+    }
+  },
+  beforeDestroy() {
+    if (this.userStateSub) {
+      this.userStateSub.unsubscribe();
+    }
+    if (this.eventsSub) {
+      this.eventsSub.unsubscribe();
+    }
+  },
   methods: {
     increment() {
       this.count += 1;
+      if (window.stateManager) {
+        window.stateManager.emit('vue-counter', { count: this.count, app: 'Vue' });
+      }
     },
     reset() {
       this.count = 0;
+    },
+    loadEmployees() {
+      if (window.stateManager) {
+        window.stateManager.loadEmployees();
+      }
     },
   },
   components: {},
@@ -113,6 +143,16 @@ export default {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 
 .counter-info {

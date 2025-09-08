@@ -1,21 +1,45 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   
   let count = 0;
   let name = '';
   let items = [];
   let loading = false;
   let mounted = false;
+  let userState = null;
+  let userStateSub = null;
+  let eventsSub = null;
   
   onMount(() => {
     mounted = true;
+    if (window.stateManager) {
+      userStateSub = window.stateManager.userState$.subscribe(state => {
+        userState = state;
+        console.log('🔥 Svelte: User state changed:', state);
+      });
+      eventsSub = window.stateManager.events$.subscribe(event => {
+        console.log('🔥 Svelte received event:', event);
+      });
+    }
     return () => {
       mounted = false;
     };
   });
   
+  onDestroy(() => {
+    if (userStateSub) {
+      userStateSub.unsubscribe();
+    }
+    if (eventsSub) {
+      eventsSub.unsubscribe();
+    }
+  });
+  
   function increment() {
     count += 1;
+    if (window.stateManager) {
+      window.stateManager.emit('svelte-counter', { count, app: 'Svelte' });
+    }
   }
   
   function decrement() {
@@ -52,6 +76,12 @@
         reactive: true
       }];
       name = '';
+    }
+  }
+  
+  function loadEmployees() {
+    if (window.stateManager) {
+      window.stateManager.loadEmployees();
     }
   }
   
@@ -108,6 +138,9 @@
       <button on:click={addItem} disabled={!name.trim()}>Add Item</button>
       <button on:click={loadItems} disabled={loading}>
         {loading ? 'Loading...' : 'Load Sample Items'}
+      </button>
+      <button on:click={loadEmployees}>
+        Load Employees
       </button>
     </div>
     

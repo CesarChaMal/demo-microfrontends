@@ -13,6 +13,16 @@ class VanillaApp {
         return resolve();
       }
 
+      // Subscribe to global state
+      if (window.stateManager) {
+        this.userStateSub = window.stateManager.userState$.subscribe(userState => {
+          console.log('🍦 Vanilla: User state changed:', userState);
+        });
+        this.eventsSub = window.stateManager.events$.subscribe(event => {
+          console.log('🍦 Vanilla received event:', event);
+        });
+      }
+
       this.render();
       this.mounted = true;
       console.log('🍦 Vanilla JS App mounted');
@@ -22,6 +32,14 @@ class VanillaApp {
 
   unmount() {
     return new Promise((resolve) => {
+      // Cleanup state subscription
+      if (this.userStateSub) {
+        this.userStateSub.unsubscribe();
+      }
+      if (this.eventsSub) {
+        this.eventsSub.unsubscribe();
+      }
+      
       if (this.container) {
         this.container.innerHTML = '';
       }
@@ -64,8 +82,20 @@ class VanillaApp {
             padding: 8px 16px; 
             border-radius: 4px; 
             cursor: pointer;
+            margin-right: 10px;
           ">
             Fetch Data
+          </button>
+          
+          <button id="vanilla-employees-btn" style="
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 4px; 
+            cursor: pointer;
+          ">
+            Load Employees
           </button>
         </div>
         
@@ -105,10 +135,14 @@ class VanillaApp {
     counterBtn?.addEventListener('click', () => {
       counter++;
       counterSpan.textContent = counter;
+      if (window.stateManager) {
+        window.stateManager.emit('vanilla-counter', { count: counter, app: 'Vanilla' });
+      }
     });
 
     // Fetch functionality
     const fetchBtn = this.container.querySelector('#vanilla-fetch-btn');
+    const employeesBtn = this.container.querySelector('#vanilla-employees-btn');
     const dataDiv = this.container.querySelector('#vanilla-data');
     
     fetchBtn?.addEventListener('click', async () => {
@@ -133,6 +167,13 @@ ${JSON.stringify(mockData, null, 2)}
         `;
       } catch (error) {
         dataDiv.innerHTML = `<span style="color: #dc3545;">Error: ${error.message}</span>`;
+      }
+    });
+
+    // Load employees functionality
+    employeesBtn?.addEventListener('click', () => {
+      if (window.stateManager) {
+        window.stateManager.loadEmployees();
       }
     });
   }

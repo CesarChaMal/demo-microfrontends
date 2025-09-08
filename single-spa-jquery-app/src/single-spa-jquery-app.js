@@ -4,6 +4,8 @@ import $ from 'jquery';
 class JQueryApp {
   constructor() {
     this.$container = null;
+    this.userStateSub = null;
+    this.eventsSub = null;
     this.todos = [
       { id: 1, text: 'Learn Single-SPA', completed: false },
       { id: 2, text: 'Integrate jQuery', completed: true },
@@ -20,6 +22,15 @@ class JQueryApp {
         return resolve();
       }
 
+      if (window.stateManager) {
+        this.userStateSub = window.stateManager.userState$.subscribe(state => {
+          console.log('💎 jQuery: User state changed:', state);
+        });
+        this.eventsSub = window.stateManager.events$.subscribe(event => {
+          console.log('💎 jQuery received event:', event);
+        });
+      }
+
       this.render();
       this.attachEventHandlers();
       console.log('💎 jQuery App mounted');
@@ -29,6 +40,12 @@ class JQueryApp {
 
   unmount() {
     return new Promise((resolve) => {
+      if (this.userStateSub) {
+        this.userStateSub.unsubscribe();
+      }
+      if (this.eventsSub) {
+        this.eventsSub.unsubscribe();
+      }
       if (this.$container) {
         this.$container.empty().off();
       }
@@ -245,6 +262,11 @@ class JQueryApp {
       
       $input.val('');
       this.renderTodos();
+      
+      // Broadcast event
+      if (window.stateManager) {
+        window.stateManager.emit('jquery-todo-added', { text, totalTodos: this.todos.length });
+      }
       
       // Animate the new todo
       const $newTodo = this.$container.find('.todo-item').last();

@@ -29,18 +29,45 @@
 <script>
 export default {
   name: 'Header',
+  data() {
+    return {
+      userState: null
+    };
+  },
+  mounted() {
+    if (window.stateManager) {
+      this.userStateSub = window.stateManager.userState$.subscribe(state => {
+        this.userState = state;
+      });
+      this.eventsSub = window.stateManager.events$.subscribe(event => {
+        console.log('🎨 Layout received event:', event);
+      });
+    }
+  },
+  beforeDestroy() {
+    if (this.userStateSub) {
+      this.userStateSub.unsubscribe();
+    }
+    if (this.eventsSub) {
+      this.eventsSub.unsubscribe();
+    }
+  },
   props: {},
   methods: {
     logout() {
-      sessionStorage.removeItem('user');
-      sessionStorage.removeItem('token');
+      if (window.stateManager) {
+        window.stateManager.logout();
+        window.stateManager.emit('logout', { timestamp: Date.now() });
+      } else {
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+      }
       window.history.pushState(null, null, '/login');
     },
   },
   computed: {
     username() {
-      const user = sessionStorage.getItem('user');
-      return user ? JSON.parse(user).username : '';
+      return this.userState?.user?.username || '';
     },
   },
 };
