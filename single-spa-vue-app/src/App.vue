@@ -38,7 +38,7 @@
     <!-- Shared State Showcase -->
     <div class="shared-state-showcase">
       <h4>🔄 Shared State Management (Vue)</h4>
-      
+
       <div class="state-info">
         <strong>👤 User State:</strong><br>
         <span v-if="userState">
@@ -46,18 +46,18 @@
         </span>
         <span v-else>❌ Not logged in</span>
       </div>
-      
+
       <div class="state-info">
         <strong>👥 Employee Data:</strong><br>
         📊 Count: <strong>{{ employees.length }}</strong><br>
-        👀 Preview: 
+        👀 Preview:
         <span v-if="employees.length > 0">
           {{ employees.slice(0, 3).map(emp => emp.name).join(', ') }}
           <span v-if="employees.length > 3">(+{{ employees.length - 3 }} more)</span>
         </span>
         <span v-else>No employees loaded</span>
       </div>
-      
+
       <div class="showcase-buttons">
         <button class="btn-employees" @click="loadEmployees">
           👥 Load Employees
@@ -69,7 +69,7 @@
           🗑️ Clear Data
         </button>
       </div>
-      
+
       <div v-if="events.length > 0" class="events-info">
         <strong>📨 Recent Events:</strong><br>
         <div v-for="(event, i) in events.slice(-3)" :key="i" class="event-item">
@@ -158,7 +158,7 @@ export default {
           type: 'user-interaction',
           source: 'Vue',
           timestamp: new Date().toISOString(),
-          data: { message: 'Hello from Vue!' }
+          data: { message: 'Hello from Vue!' },
         };
         window.stateManager.emit('cross-app-message', event);
       }

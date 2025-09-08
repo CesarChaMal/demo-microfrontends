@@ -454,14 +454,36 @@ npm run publish:nexus:patch  # 1.0.0 → 1.0.1
 - `npm run publish:minor` - Bump minor version and publish to NPM
 - `npm run publish:major` - Bump major version and publish to NPM
 
+### Build Scripts Overview
+
+#### Build All 12 Applications (Root + 11 Microfrontends)
+```bash
+npm run build:apps         # Standard build (all 12 apps)
+npm run build:apps:dev     # Development build (all 12 apps)
+npm run build:apps:prod    # Production build (all 12 apps)
+```
+
+#### Build Only 11 Microfrontends (Excluding Root)
+```bash
+npm run build              # Standard build (11 microfrontends only)
+npm run build:dev          # Development build (11 microfrontends only)
+npm run build:prod         # Production build (11 microfrontends only)
+```
+
+#### Build Only Root Application
+```bash
+npm run build:root         # Standard root build
+npm run build:root:dev     # Development root build
+npm run build:root:prod    # Production root build
+```
+
+**Key Differences:**
+- **`build:apps:*`** = Root app + 11 microfrontends (12 total applications)
+- **`build:*`** = Only 11 microfrontends (excludes root application)
+- **`build:root:*`** = Only root application (excludes microfrontends)
+
 ### Root Project Scripts
 - `npm run install:all` - Install dependencies for all applications
-- `npm run build` - Build all microfrontends
-- `npm run build:dev` - Build all microfrontends for development
-- `npm run build:prod` - Build all microfrontends for production
-- `npm run build:apps` - Build root + all microfrontends
-- `npm run build:apps:dev` - Build root + all microfrontends for development
-- `npm run build:apps:prod` - Build root + all microfrontends for production
 - `npm run serve:root` - Start root development server
 - `npm run clean` - Clean all node_modules
 - `npm run clean:root` - Clean root application node_modules

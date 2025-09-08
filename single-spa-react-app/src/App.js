@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
-import { useSharedStateShowcase } from '../../../shared/shared-state-showcase.js';
 
 // Custom hook for global state
 function useGlobalState() {
@@ -35,7 +34,25 @@ function App() {
   const [count, setCount] = React.useState(0);
   const [mounted] = React.useState(new Date().toLocaleString());
   const userState = useGlobalState();
-  const { userState: sharedUserState, employees, events } = useSharedStateShowcase() || {};
+  const [sharedUserState, setSharedUserState] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [events, setEvents] = useState([]);
+  
+  useEffect(() => {
+    if (window.stateManager) {
+      const userSub = window.stateManager.userState$.subscribe(setSharedUserState);
+      const employeesSub = window.stateManager.employees$.subscribe(setEmployees);
+      const eventsSub = window.stateManager.events$.subscribe(event => {
+        console.log('⚛️ React received event:', event);
+        setEvents(prev => [...prev.slice(-4), event]);
+      });
+      return () => {
+        userSub.unsubscribe();
+        employeesSub.unsubscribe();
+        eventsSub.unsubscribe();
+      };
+    }
+  }, []);
   
   const features = [
     'Hooks and Functional Components',
@@ -182,7 +199,7 @@ function App() {
         }}>
           <strong>👤 User State:</strong><br/>
           {sharedUserState ? 
-            `✅ Logged in as: ${sharedUserState.user?.username || 'Unknown'}` :
+            `✅ Logged in as: ${(sharedUserState.user && sharedUserState.user.username) || 'Unknown'}` :
             '❌ Not logged in'
           }
         </div>
@@ -194,7 +211,7 @@ function App() {
           marginBottom: '10px'
         }}>
           <strong>👥 Employee Data:</strong><br/>
-          📊 Count: <strong>{employees?.length || 0}</strong><br/>
+          📊 Count: <strong>{(employees && employees.length) || 0}</strong><br/>
           👀 Preview: {employees && employees.length > 0 ? 
             employees.slice(0, 3).map(emp => emp.name).join(', ') + 
             (employees.length > 3 ? ` (+${employees.length - 3} more)` : '') : 
@@ -204,7 +221,7 @@ function App() {
         
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button 
-            onClick={() => window.stateManager?.loadEmployees()}
+            onClick={() => window.stateManager && window.stateManager.loadEmployees()}
             style={{
               background: '#28a745',
               color: 'white',
@@ -242,7 +259,7 @@ function App() {
             📡 Broadcast from React
           </button>
           <button 
-            onClick={() => window.stateManager?.employees$.next([])}
+            onClick={() => window.stateManager && window.stateManager.employees$.next([])}
             style={{
               background: '#dc3545',
               color: 'white',
@@ -268,7 +285,7 @@ function App() {
             <strong>📨 Recent Events:</strong><br/>
             {events.slice(-3).map((event, i) => (
               <div key={i} style={{ marginTop: '5px' }}>
-                {event.source}: {event.data?.message || event.type}
+                {event.source}: {(event.data && event.data.message) || event.type}
               </div>
             ))}
           </div>
