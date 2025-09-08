@@ -57,17 +57,18 @@
     "access": "public"
   },
   "dependencies": {
-    "sass": "^1.77.8",
-    "vue": "^2.6.11",
-    "vue-google-adsense": "1.9.2",
-    "vue-script2": "2.1.0",
-    "vue-toastr": "2.1.2",
-    "single-spa-vue": "1.7.0",
-    "bootstrap-vue": "2.2.2",
     "@fortawesome/fontawesome-svg-core": "1.2.27",
     "@fortawesome/free-brands-svg-icons": "5.12.1",
     "@fortawesome/free-solid-svg-icons": "5.12.0",
     "@fortawesome/vue-fontawesome": "0.1.9",
-    "vue-router": "3.1.4"
+    "bootstrap-vue": "2.2.2",
+    "rxjs": "^6.4.0",
+    "sass": "^1.77.8",
+    "single-spa-vue": "1.7.0",
+    "vue": "^2.6.11",
+    "vue-google-adsense": "1.9.2",
+    "vue-router": "3.1.4",
+    "vue-script2": "2.1.0",
+    "vue-toastr": "2.1.2"
   }
 }
