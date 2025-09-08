@@ -9,6 +9,7 @@
   "scripts": {
     "start": "npm run mode:local && cd single-spa-root && npm run serve",
     "install:all": "npm run install:shared && npm run install:root && npm run install:apps",
+    "postinstall": "npm run install:shared",
     "install:shared": "cd shared && npm install",
     "install:root": "cd single-spa-root && npm install",
     "install:apps": "npm run install:auth && npm run install:layout && npm run install:home && npm run install:angular && npm run install:vue && npm run install:react && npm run install:vanilla && npm run install:webcomponents && npm run install:typescript && npm run install:jquery && npm run install:svelte",

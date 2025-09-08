@@ -309,6 +309,20 @@ npm run build
 - `npm run trigger:deploy:aws` - Trigger AWS S3 deployment
 - `npm run trigger:deploy:github` - Trigger GitHub Pages deployment
 
+#### Individual App Trigger Scripts
+- `npm run trigger:root` - Trigger GitHub Actions for root app only
+- `npm run trigger:auth` - Trigger GitHub Actions for auth app only
+- `npm run trigger:layout` - Trigger GitHub Actions for layout app only
+- `npm run trigger:home` - Trigger GitHub Actions for home app only
+- `npm run trigger:angular` - Trigger GitHub Actions for Angular app only
+- `npm run trigger:vue` - Trigger GitHub Actions for Vue app only
+- `npm run trigger:react` - Trigger GitHub Actions for React app only
+- `npm run trigger:vanilla` - Trigger GitHub Actions for vanilla app only
+- `npm run trigger:webcomponents` - Trigger GitHub Actions for webcomponents app only
+- `npm run trigger:typescript` - Trigger GitHub Actions for TypeScript app only
+- `npm run trigger:jquery` - Trigger GitHub Actions for jQuery app only
+- `npm run trigger:svelte` - Trigger GitHub Actions for Svelte app only
+
 ### Status Checker Scripts
 - `npm run check:local` - Check local development servers and built files
 - `npm run check:npm` - Check NPM packages and CDN accessibility
