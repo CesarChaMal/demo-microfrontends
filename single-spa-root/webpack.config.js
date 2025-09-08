@@ -46,7 +46,7 @@ module.exports = (env, argv) => {
       {
         test: /\.js?$/,
         exclude: [path.resolve(__dirname, 'node_modules')],
-        loader: ['babel-loader', 'eslint-loader'],
+        loader: ['babel-loader'],
       },
       {
         test: /\.tsx?$/,
