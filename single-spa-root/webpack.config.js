@@ -68,6 +68,9 @@ module.exports = (env, argv) => {
   },
   resolve: {
     modules: [__dirname, 'node_modules'],
+    alias: {
+      'rxjs': path.resolve(__dirname, 'node_modules/rxjs'),
+    },
   },
   plugins: [
     new webpack.DefinePlugin({
