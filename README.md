@@ -482,8 +482,60 @@ npm run build:root:prod    # Production root build
 - **`build:*`** = Only 11 microfrontends (excludes root application)
 - **`build:root:*`** = Only root application (excludes microfrontends)
 
+### Installation Scripts
+
+#### Development vs CI Installation
+
+**Development Installation (Flexible):**
+```bash
+npm run install:all        # Install all applications (development)
+npm run install:root       # Install root app only
+npm run install:apps       # Install all microfrontends
+```
+
+**CI Installation (Fast & Deterministic):**
+```bash
+npm run install:all:ci     # Install all applications (CI)
+npm run install:root:ci    # Install root app only (CI)
+npm run install:apps:ci    # Install all microfrontends (CI)
+```
+
+#### `npm ci` vs `npm install`
+
+| Feature | `npm ci` (Clean Install) | `npm install` |
+|---------|-------------------------|---------------|
+| **Speed** | ⚡ 2x faster | 🐌 Slower |
+| **Requirements** | Requires `package-lock.json` | Creates `package-lock.json` if missing |
+| **Behavior** | Deletes `node_modules` first | Keeps existing `node_modules` |
+| **Dependencies** | Installs exactly from lock file | Resolves from `package.json` |
+| **Lock File** | Never modifies `package-lock.json` | Updates `package-lock.json` if needed |
+| **Deterministic** | ✅ Exact reproducible builds | ❌ May get newer versions |
+| **Sync Check** | Fails if package files out of sync | Flexible, resolves conflicts |
+
+**When to Use Each:**
+
+**Use `npm ci` for:**
+- ✅ CI/CD pipelines
+- ✅ Production deployments  
+- ✅ Docker builds
+- ✅ Exact reproducible builds
+
+**Use `npm install` for:**
+- ✅ Local development
+- ✅ Adding new packages
+- ✅ Updating dependencies
+- ✅ Initial project setup
+
+**Individual CI Installation Scripts:**
+```bash
+# Individual apps with CI
+npm run install:auth:ci
+npm run install:angular:ci
+npm run install:react:ci
+# ... (all 12 apps available)
+```
+
 ### Root Project Scripts
-- `npm run install:all` - Install dependencies for all applications
 - `npm run serve:root` - Start root development server
 - `npm run clean` - Clean all node_modules
 - `npm run clean:root` - Clean root application node_modules
