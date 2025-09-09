@@ -61,6 +61,12 @@ angular
         }
       };
 
+      vm.getEmployeePreview = function() {
+        if (vm.employees.length === 0) return 'No employees loaded';
+        const preview = vm.employees.slice(0, 3).map(emp => emp.name).join(', ');
+        return vm.employees.length > 3 ? `${preview} (+${vm.employees.length - 3} more)` : preview;
+      };
+
       vm.$onDestroy = function() {
         if (vm.userStateSub) {
           vm.userStateSub.unsubscribe();

@@ -27,9 +27,14 @@ class StateManager {
     try {
       const response = await fetch('/employees.json');
       const data = await response.json();
-      this.employees$.next(data.data);
-      this.emit('employees-loaded', { count: data.data.length });
-      return data.data;
+      // Transform employee data to include full name
+      const employees = data.data.map(emp => ({
+        ...emp,
+        name: `${emp.first_name} ${emp.last_name}`
+      }));
+      this.employees$.next(employees);
+      this.emit('employees-loaded', { count: employees.length });
+      return employees;
     } catch (error) {
       console.error('Failed to load employees:', error);
       this.emit('employees-error', { error: error.message });

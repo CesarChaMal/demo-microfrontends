@@ -5,7 +5,11 @@ class JQueryApp {
   constructor() {
     this.$container = null;
     this.userStateSub = null;
+    this.employeesSub = null;
     this.eventsSub = null;
+    this.sharedUserState = null;
+    this.employees = [];
+    this.events = [];
     this.todos = [
       { id: 1, text: 'Learn Single-SPA', completed: false },
       { id: 2, text: 'Integrate jQuery', completed: true },
@@ -24,9 +28,17 @@ class JQueryApp {
 
       if (window.stateManager) {
         this.userStateSub = window.stateManager.userState$.subscribe(state => {
+          this.sharedUserState = state;
+          this.updateSharedStateDisplay();
           console.log('💎 jQuery: User state changed:', state);
         });
+        this.employeesSub = window.stateManager.employees$.subscribe(employees => {
+          this.employees = employees;
+          this.updateSharedStateDisplay();
+        });
         this.eventsSub = window.stateManager.events$.subscribe(event => {
+          this.events = [...this.events.slice(-4), event];
+          this.updateSharedStateDisplay();
           console.log('💎 jQuery received event:', event);
         });
       }
@@ -42,6 +54,9 @@ class JQueryApp {
     return new Promise((resolve) => {
       if (this.userStateSub) {
         this.userStateSub.unsubscribe();
+      }
+      if (this.employeesSub) {
+        this.employeesSub.unsubscribe();
       }
       if (this.eventsSub) {
         this.eventsSub.unsubscribe();
@@ -138,6 +153,85 @@ class JQueryApp {
           >
             Clear Completed
           </button>
+        </div>
+        
+        <!-- Shared State Showcase -->
+        <div id="shared-state-showcase" style="
+          margin: 15px 0; 
+          padding: 15px; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+          border-radius: 8px; 
+          color: white;
+        ">
+          <h4 style="margin: 0 0 15px 0; color: white;">🔄 Shared State Management (jQuery)</h4>
+          
+          <div id="user-state-info" style="
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 10px;
+          ">
+            <strong>👤 User State:</strong><br>
+            <span id="user-status">❌ Not logged in</span>
+          </div>
+          
+          <div id="employee-state-info" style="
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 10px;
+          ">
+            <strong>👥 Employee Data:</strong><br>
+            📊 Count: <strong><span id="employee-count">0</span></strong><br>
+            👀 Preview: <span id="employee-preview">No employees loaded</span>
+          </div>
+          
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+            <button id="load-employees-btn" style="
+              background: #28a745; 
+              color: white; 
+              border: none; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 12px;
+            ">
+              👥 Load Employees
+            </button>
+            <button id="broadcast-btn" style="
+              background: #007bff; 
+              color: white; 
+              border: none; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 12px;
+            ">
+              📡 Broadcast from jQuery
+            </button>
+            <button id="clear-employees-btn" style="
+              background: #dc3545; 
+              color: white; 
+              border: none; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 12px;
+            ">
+              🗑️ Clear Data
+            </button>
+          </div>
+          
+          <div id="events-info" style="
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 12px;
+            display: none;
+          ">
+            <strong>📨 Recent Events:</strong><br>
+            <div id="events-list"></div>
+          </div>
         </div>
         
         <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
@@ -247,6 +341,19 @@ class JQueryApp {
     this.$container.on('click', '#clear-completed-btn', () => {
       this.clearCompleted();
     });
+
+    // Shared state showcase buttons
+    this.$container.on('click', '#load-employees-btn', () => {
+      this.loadEmployees();
+    });
+
+    this.$container.on('click', '#broadcast-btn', () => {
+      this.broadcastMessage();
+    });
+
+    this.$container.on('click', '#clear-employees-btn', () => {
+      this.clearEmployees();
+    });
   }
 
   addTodo() {
@@ -326,6 +433,72 @@ class JQueryApp {
       this.todos = this.todos.filter(t => !t.completed);
       this.renderTodos();
     });
+  }
+
+  loadEmployees() {
+    if (window.stateManager) {
+      window.stateManager.loadEmployees();
+    }
+  }
+
+  broadcastMessage() {
+    if (window.stateManager) {
+      const event = {
+        type: 'user-interaction',
+        source: 'jQuery',
+        timestamp: new Date().toISOString(),
+        data: { message: 'Hello from jQuery!' }
+      };
+      window.stateManager.emit('cross-app-message', event);
+    }
+  }
+
+  clearEmployees() {
+    if (window.stateManager) {
+      window.stateManager.employees$.next([]);
+    }
+  }
+
+  updateSharedStateDisplay() {
+    if (!this.$container) return;
+
+    const $userStatus = this.$container.find('#user-status');
+    if ($userStatus.length) {
+      $userStatus.html(this.sharedUserState ? 
+        `✅ Logged in as: <strong>${this.sharedUserState.user?.username || 'Unknown'}</strong>` :
+        '❌ Not logged in');
+    }
+
+    const $employeeCount = this.$container.find('#employee-count');
+    const $employeePreview = this.$container.find('#employee-preview');
+    
+    if ($employeeCount.length) {
+      $employeeCount.text(this.employees.length);
+    }
+    
+    if ($employeePreview.length) {
+      if (this.employees.length > 0) {
+        const preview = this.employees.slice(0, 3).map(emp => emp.name).join(', ');
+        const extra = this.employees.length > 3 ? ` (+${this.employees.length - 3} more)` : '';
+        $employeePreview.text(preview + extra);
+      } else {
+        $employeePreview.text('No employees loaded');
+      }
+    }
+
+    const $eventsInfo = this.$container.find('#events-info');
+    const $eventsList = this.$container.find('#events-list');
+    
+    if ($eventsInfo.length && $eventsList.length) {
+      if (this.events.length > 0) {
+        $eventsInfo.show();
+        $eventsList.html(this.events.slice(-3).map(event => 
+          `<div style="margin-top: 5px;">${event.source}: ${event.data?.message || event.type}</div>`
+        ).join(''));
+      } else {
+        $eventsInfo.hide();
+      }
+    }
   }
 }
 

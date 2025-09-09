@@ -4,6 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// Detect if running in CI/production environment
+function isProductionEnvironment() {
+  return process.env.CI === 'true' || 
+         process.env.NODE_ENV === 'production' || 
+         process.env.GITHUB_ACTIONS === 'true';
+}
+
+// Get appropriate npm command based on environment
+function getNpmInstallCommand() {
+  return isProductionEnvironment() ? 'npm ci' : 'npm install';
+}
+
 const mode = process.argv[2];
 const rootDir = path.join(__dirname, '..', 'single-spa-root');
 const packageJsonPath = path.join(rootDir, 'package.json');
@@ -32,9 +44,10 @@ function switchToNpmMode() {
   }
   
   // Install NPM dependencies
-  console.log('📥 Installing NPM dependencies...');
+  const installCmd = getNpmInstallCommand();
+  console.log(`📥 Installing NPM dependencies with ${installCmd}...`);
   try {
-    execSync('npm install', { cwd: rootDir, stdio: 'inherit' });
+    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
     console.log('✅ NPM mode activated');
     console.log('🌐 Use: npm run serve:npm or http://localhost:8080?mode=npm');
   } catch (error) {
@@ -61,9 +74,10 @@ function switchToLocalMode() {
   }
   
   // Install local dependencies
-  console.log('📥 Installing local dependencies...');
+  const installCmd = getNpmInstallCommand();
+  console.log(`📥 Installing local dependencies with ${installCmd}...`);
   try {
-    execSync('npm install', { cwd: rootDir, stdio: 'inherit' });
+    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
     console.log('✅ Local mode activated');
     console.log('🌐 Use: npm run serve:local:dev or http://localhost:8080');
   } catch (error) {
@@ -91,9 +105,10 @@ function switchToGitHubMode() {
   }
   
   // Install GitHub dependencies
-  console.log('📥 Installing GitHub dependencies...');
+  const installCmd = getNpmInstallCommand();
+  console.log(`📥 Installing GitHub dependencies with ${installCmd}...`);
   try {
-    execSync('npm install', { cwd: rootDir, stdio: 'inherit' });
+    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
     console.log('✅ GitHub mode activated');
     console.log('📋 GitHub mode configuration:');
     console.log('  - GITHUB_TOKEN required in .env file');
@@ -126,9 +141,10 @@ function switchToNexusMode() {
   }
   
   // Install Nexus dependencies
-  console.log('📥 Installing Nexus dependencies...');
+  const installCmd = getNpmInstallCommand();
+  console.log(`📥 Installing Nexus dependencies with ${installCmd}...`);
   try {
-    execSync('npm install', { cwd: rootDir, stdio: 'inherit' });
+    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
     console.log('✅ Nexus mode activated');
     console.log('🌐 Use: npm run serve:nexus or http://localhost:8080?mode=nexus');
   } catch (error) {
@@ -157,9 +173,10 @@ function switchToAwsMode() {
   }
   
   // Install AWS dependencies
-  console.log('📥 Installing AWS dependencies...');
+  const installCmd = getNpmInstallCommand();
+  console.log(`📥 Installing AWS dependencies with ${installCmd}...`);
   try {
-    execSync('npm install', { cwd: rootDir, stdio: 'inherit' });
+    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
     console.log('✅ AWS mode activated');
     console.log('📋 AWS mode configuration:');
     console.log('  - S3_BUCKET required in .env file');

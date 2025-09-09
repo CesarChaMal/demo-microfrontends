@@ -16,9 +16,7 @@
       <button class="btn-secondary" @click="reset">
         Reset
       </button>
-      <button class="btn-success" @click="loadEmployees">
-        Load Employees
-      </button>
+
       <p class="counter-info">Double: {{ doubleCount }}</p>
     </div>
 

@@ -56,10 +56,16 @@ echo 📦 Installing root dependencies...
 call npm install
 if errorlevel 1 exit /b 1
 
-REM Install all dependencies
-echo 📦 Installing all dependencies...
-call npm run install:all
-if errorlevel 1 exit /b 1
+REM Install all dependencies based on environment
+if "%ENV%"=="prod" (
+    echo 📦 Installing all dependencies for production (CI)...
+    call npm run install:all:ci
+    if errorlevel 1 exit /b 1
+) else (
+    echo 📦 Installing all dependencies for development...
+    call npm run install:all
+    if errorlevel 1 exit /b 1
+)
 
 REM Build applications based on environment
 if "%ENV%"=="prod" (

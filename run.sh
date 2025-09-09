@@ -129,9 +129,14 @@ echo "🧹 Cleaning all applications..."
 #npm cache clean --force
 #npm run clean
 
-# Install all dependencies
-echo "📦 Installing all dependencies..."
-exec_npm npm run install:all
+# Install all dependencies based on environment
+if [ "$ENV" = "prod" ]; then
+    echo "📦 Installing all dependencies for production (CI)..."
+    exec_npm npm run install:all:ci
+else
+    echo "📦 Installing all dependencies for development..."
+    exec_npm npm run install:all
+fi
 
 # Build applications based on environment
 if [ "$ENV" = "prod" ]; then

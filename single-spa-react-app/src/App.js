@@ -111,23 +111,7 @@ function App() {
         >
           Count: {count}
         </button>
-        <button 
-          onClick={() => {
-            if (window.stateManager) {
-              window.stateManager.loadEmployees();
-            }
-          }}
-          style={{
-            background: '#28a745',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Load Employees
-        </button>
+
         <button 
           onClick={() => setCount(0)}
           style={{

@@ -7,7 +7,10 @@
   let loading = false;
   let mounted = false;
   let userState = null;
+  let employees = [];
+  let events = [];
   let userStateSub = null;
+  let employeesSub = null;
   let eventsSub = null;
   
   onMount(() => {
@@ -17,8 +20,12 @@
         userState = state;
         console.log('🔥 Svelte: User state changed:', state);
       });
+      employeesSub = window.stateManager.employees$.subscribe(emps => {
+        employees = emps;
+      });
       eventsSub = window.stateManager.events$.subscribe(event => {
         console.log('🔥 Svelte received event:', event);
+        events = [...events.slice(-4), event];
       });
     }
     return () => {
@@ -29,6 +36,9 @@
   onDestroy(() => {
     if (userStateSub) {
       userStateSub.unsubscribe();
+    }
+    if (employeesSub) {
+      employeesSub.unsubscribe();
     }
     if (eventsSub) {
       eventsSub.unsubscribe();
@@ -82,6 +92,24 @@
   function loadEmployees() {
     if (window.stateManager) {
       window.stateManager.loadEmployees();
+    }
+  }
+  
+  function broadcastMessage() {
+    if (window.stateManager) {
+      const event = {
+        type: 'user-interaction',
+        source: 'Svelte',
+        timestamp: new Date().toISOString(),
+        data: { message: 'Hello from Svelte!' }
+      };
+      window.stateManager.emit('cross-app-message', event);
+    }
+  }
+  
+  function clearEmployees() {
+    if (window.stateManager) {
+      window.stateManager.employees$.next([]);
     }
   }
   
@@ -139,9 +167,7 @@
       <button on:click={loadItems} disabled={loading}>
         {loading ? 'Loading...' : 'Load Sample Items'}
       </button>
-      <button on:click={loadEmployees}>
-        Load Employees
-      </button>
+
     </div>
     
     {#if loading}
@@ -166,6 +192,53 @@
               </button>
               <button on:click={() => removeItem(item.id)} class="remove-btn">×</button>
             </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
+  
+  <!-- Shared State Showcase -->
+  <div class="shared-state-showcase">
+    <h4 style="margin: 0 0 15px 0; color: white;">🔄 Shared State Management (Svelte)</h4>
+    
+    <div class="state-info">
+      <strong>👤 User State:</strong><br>
+      {#if userState}
+        ✅ Logged in as: <strong>{userState.user?.username || 'Unknown'}</strong>
+      {:else}
+        ❌ Not logged in
+      {/if}
+    </div>
+    
+    <div class="state-info">
+      <strong>👥 Employee Data:</strong><br>
+      📊 Count: <strong>{employees.length}</strong><br>
+      👀 Preview: {#if employees.length > 0}
+        {employees.slice(0, 3).map(emp => emp.name).join(', ')}{employees.length > 3 ? ` (+${employees.length - 3} more)` : ''}
+      {:else}
+        No employees loaded
+      {/if}
+    </div>
+    
+    <div class="showcase-buttons">
+      <button on:click={loadEmployees} class="showcase-btn load-btn">
+        👥 Load Employees
+      </button>
+      <button on:click={broadcastMessage} class="showcase-btn broadcast-btn">
+        📡 Broadcast from Svelte
+      </button>
+      <button on:click={clearEmployees} class="showcase-btn clear-btn">
+        🗑️ Clear Data
+      </button>
+    </div>
+    
+    {#if events.length > 0}
+      <div class="events-info">
+        <strong>📨 Recent Events:</strong><br>
+        {#each events.slice(-3) as event}
+          <div class="event-item">
+            {event.source}: {event.data?.message || event.type}
           </div>
         {/each}
       </div>
@@ -374,5 +447,61 @@
   .features ul {
     margin: 5px 0;
     padding-left: 20px;
+  }
+  
+  .shared-state-showcase {
+    margin: 15px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+  }
+  
+  .state-info {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  
+  .showcase-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  
+  .showcase-btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    border: none;
+  }
+  
+  .load-btn {
+    background: #28a745;
+    color: white;
+  }
+  
+  .broadcast-btn {
+    background: #007bff;
+    color: white;
+  }
+  
+  .clear-btn {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .events-info {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  
+  .event-item {
+    margin-top: 5px;
   }
 </style>

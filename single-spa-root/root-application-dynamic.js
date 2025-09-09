@@ -195,13 +195,10 @@ function loadModule(url, options = {}) {
     return window.System.import(url);
   } else if (isPackageName) {
     // Use webpack import() for package names (direct NPM/Nexus imports)
-    return import(url);
-  } else if (url.startsWith('http') || url.startsWith('/')) {
-    // Default: auto-detect based on URL format - external URL
     return window.System.import(url);
   } else {
-    // Default: auto-detect based on URL format - package name
-    return import(url);
+    // Default: use SystemJS for all other URLs to avoid webpack warnings
+    return window.System.import(url);
   }
 }
 

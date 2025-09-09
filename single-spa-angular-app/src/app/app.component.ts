@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,6 +16,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private userStateSub: Subscription;
   private employeesSub: Subscription;
   private eventsSub: Subscription;
+
+  constructor(private cdr: ChangeDetectorRef) {}
   features = [
     'TypeScript Integration',
     'Dependency Injection',
@@ -52,15 +54,22 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if ((window as any).stateManager) {
       this.userStateSub = (window as any).stateManager.userState$.subscribe(
-        (state: any) => this.userState = state
+        (state: any) => {
+          this.userState = state;
+          this.cdr.detectChanges();
+        }
       );
       this.employeesSub = (window as any).stateManager.employees$.subscribe(
-        (employees: any[]) => this.employees = employees
+        (employees: any[]) => {
+          this.employees = employees;
+          this.cdr.detectChanges();
+        }
       );
       this.eventsSub = (window as any).stateManager.events$.subscribe(
         (event: any) => {
           console.log('🅰️ Angular received event:', event);
           this.events = [...this.events.slice(-4), event]; // Keep last 5 events
+          this.cdr.detectChanges();
         }
       );
     }

@@ -102,16 +102,7 @@ class VanillaApp {
             Fetch Data
           </button>
           
-          <button id="vanilla-employees-btn" style="
-            background: #28a745; 
-            color: white; 
-            border: none; 
-            padding: 8px 16px; 
-            border-radius: 4px; 
-            cursor: pointer;
-          ">
-            Load Employees
-          </button>
+
         </div>
         
         <div id="vanilla-data" style="
@@ -264,12 +255,7 @@ ${JSON.stringify(mockData, null, 2)}
       }
     });
 
-    // Load employees functionality
-    employeesBtn?.addEventListener('click', () => {
-      if (window.stateManager) {
-        window.stateManager.loadEmployees();
-      }
-    });
+
 
     // Shared state showcase buttons
     const loadEmployeesBtnShowcase = this.container.querySelector('#load-employees-btn');

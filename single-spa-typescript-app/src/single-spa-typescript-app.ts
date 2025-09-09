@@ -25,7 +25,11 @@ interface AppState {
 class TypeScriptApp {
   private container: HTMLElement | null = null;
   private userStateSub: any = null;
+  private employeesSub: any = null;
   private eventsSub: any = null;
+  private sharedUserState: any = null;
+  private employees: any[] = [];
+  private events: any[] = [];
   private state: AppState = {
     users: [],
     selectedUser: null,
@@ -43,10 +47,24 @@ class TypeScriptApp {
 
       if ((window as any).stateManager) {
         this.userStateSub = (window as any).stateManager.userState$.subscribe(
-          (state: any) => console.log('📘 TypeScript: User state changed:', state)
+          (state: any) => {
+            this.sharedUserState = state;
+            this.updateSharedStateDisplay();
+            console.log('📘 TypeScript: User state changed:', state);
+          }
+        );
+        this.employeesSub = (window as any).stateManager.employees$.subscribe(
+          (employees: any[]) => {
+            this.employees = employees;
+            this.updateSharedStateDisplay();
+          }
         );
         this.eventsSub = (window as any).stateManager.events$.subscribe(
-          (event: any) => console.log('📘 TypeScript received event:', event)
+          (event: any) => {
+            this.events = [...this.events.slice(-4), event];
+            this.updateSharedStateDisplay();
+            console.log('📘 TypeScript received event:', event);
+          }
         );
       }
 
@@ -61,6 +79,9 @@ class TypeScriptApp {
     return new Promise((resolve) => {
       if (this.userStateSub) {
         this.userStateSub.unsubscribe();
+      }
+      if (this.employeesSub) {
+        this.employeesSub.unsubscribe();
       }
       if (this.eventsSub) {
         this.eventsSub.unsubscribe();
@@ -123,6 +144,85 @@ class TypeScriptApp {
           <em>Click "Load Users" to fetch typed data...</em>
         </div>
         
+        <!-- Shared State Showcase -->
+        <div id="shared-state-showcase" style="
+          margin: 15px 0; 
+          padding: 15px; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+          border-radius: 8px; 
+          color: white;
+        ">
+          <h4 style="margin: 0 0 15px 0; color: white;">🔄 Shared State Management (TypeScript)</h4>
+          
+          <div id="user-state-info" style="
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 10px;
+          ">
+            <strong>👤 User State:</strong><br>
+            <span id="user-status">❌ Not logged in</span>
+          </div>
+          
+          <div id="employee-state-info" style="
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            border-radius: 6px; 
+            margin-bottom: 10px;
+          ">
+            <strong>👥 Employee Data:</strong><br>
+            📊 Count: <strong><span id="employee-count">0</span></strong><br>
+            👀 Preview: <span id="employee-preview">No employees loaded</span>
+          </div>
+          
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+            <button id="load-employees-btn" style="
+              background: #28a745; 
+              color: white; 
+              border: none; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 12px;
+            ">
+              👥 Load Employees
+            </button>
+            <button id="broadcast-btn" style="
+              background: #007bff; 
+              color: white; 
+              border: none; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 12px;
+            ">
+              📡 Broadcast from TypeScript
+            </button>
+            <button id="clear-employees-btn" style="
+              background: #dc3545; 
+              color: white; 
+              border: none; 
+              padding: 8px 12px; 
+              border-radius: 4px; 
+              cursor: pointer; 
+              font-size: 12px;
+            ">
+              🗑️ Clear Data
+            </button>
+          </div>
+          
+          <div id="events-info" style="
+            background: rgba(255,255,255,0.1); 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 12px;
+            display: none;
+          ">
+            <strong>📨 Recent Events:</strong><br>
+            <div id="events-list"></div>
+          </div>
+        </div>
+        
         <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
           <strong>TypeScript Features:</strong>
           <ul style="margin: 5px 0; padding-left: 20px;">
@@ -140,9 +240,15 @@ class TypeScriptApp {
   private attachEventListeners(): void {
     const loadUsersBtn = this.container?.querySelector('#ts-load-users') as HTMLButtonElement;
     const addUserBtn = this.container?.querySelector('#ts-add-user') as HTMLButtonElement;
+    const loadEmployeesBtn = this.container?.querySelector('#load-employees-btn') as HTMLButtonElement;
+    const broadcastBtn = this.container?.querySelector('#broadcast-btn') as HTMLButtonElement;
+    const clearEmployeesBtn = this.container?.querySelector('#clear-employees-btn') as HTMLButtonElement;
 
     loadUsersBtn?.addEventListener('click', () => this.loadUsers());
     addUserBtn?.addEventListener('click', () => this.addRandomUser());
+    loadEmployeesBtn?.addEventListener('click', () => this.loadEmployees());
+    broadcastBtn?.addEventListener('click', () => this.broadcastMessage());
+    clearEmployeesBtn?.addEventListener('click', () => this.clearEmployees());
   }
 
   private async loadUsers(): Promise<void> {
@@ -279,6 +385,72 @@ class TypeScriptApp {
       guest: '#6c757d'
     };
     return colors[role];
+  }
+
+  private loadEmployees(): void {
+    if ((window as any).stateManager) {
+      (window as any).stateManager.loadEmployees();
+    }
+  }
+
+  private broadcastMessage(): void {
+    if ((window as any).stateManager) {
+      const event = {
+        type: 'user-interaction',
+        source: 'TypeScript',
+        timestamp: new Date().toISOString(),
+        data: { message: 'Hello from TypeScript!' }
+      };
+      (window as any).stateManager.emit('cross-app-message', event);
+    }
+  }
+
+  private clearEmployees(): void {
+    if ((window as any).stateManager) {
+      (window as any).stateManager.employees$.next([]);
+    }
+  }
+
+  private updateSharedStateDisplay(): void {
+    if (!this.container) return;
+
+    const userStatus = this.container.querySelector('#user-status');
+    if (userStatus) {
+      userStatus.innerHTML = this.sharedUserState ? 
+        `✅ Logged in as: <strong>${this.sharedUserState.user?.username || 'Unknown'}</strong>` :
+        '❌ Not logged in';
+    }
+
+    const employeeCount = this.container.querySelector('#employee-count');
+    const employeePreview = this.container.querySelector('#employee-preview');
+    
+    if (employeeCount) {
+      employeeCount.textContent = this.employees.length.toString();
+    }
+    
+    if (employeePreview) {
+      if (this.employees.length > 0) {
+        const preview = this.employees.slice(0, 3).map((emp: any) => emp.name).join(', ');
+        const extra = this.employees.length > 3 ? ` (+${this.employees.length - 3} more)` : '';
+        employeePreview.textContent = preview + extra;
+      } else {
+        employeePreview.textContent = 'No employees loaded';
+      }
+    }
+
+    const eventsInfo = this.container.querySelector('#events-info') as HTMLElement;
+    const eventsList = this.container.querySelector('#events-list');
+    
+    if (eventsInfo && eventsList) {
+      if (this.events.length > 0) {
+        eventsInfo.style.display = 'block';
+        eventsList.innerHTML = this.events.slice(-3).map((event: any) => 
+          `<div style="margin-top: 5px;">${event.source}: ${event.data?.message || event.type}</div>`
+        ).join('');
+      } else {
+        eventsInfo.style.display = 'none';
+      }
+    }
   }
 }
 

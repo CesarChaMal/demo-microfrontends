@@ -55,12 +55,71 @@ class MicroWidget extends LitElement {
       margin: 5px 0;
       padding-left: 20px;
     }
+    
+    .shared-state-showcase {
+      margin: 15px 0;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      color: white;
+    }
+    
+    .state-info {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    
+    .showcase-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    
+    .showcase-btn {
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      border: none;
+    }
+    
+    .load-btn {
+      background: #28a745;
+      color: white;
+    }
+    
+    .broadcast-btn {
+      background: #007bff;
+      color: white;
+    }
+    
+    .clear-btn {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .events-info {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    
+    .event-item {
+      margin-top: 5px;
+    }
   `;
 
   static properties = {
     count: { type: Number },
     data: { type: Object },
-    loading: { type: Boolean }
+    loading: { type: Boolean },
+    sharedUserState: { type: Object },
+    employees: { type: Array },
+    events: { type: Array }
   };
 
   constructor() {
@@ -68,17 +127,25 @@ class MicroWidget extends LitElement {
     this.count = 0;
     this.data = null;
     this.loading = false;
-    this.userState = null;
+    this.sharedUserState = null;
+    this.employees = [];
+    this.events = [];
   }
 
   connectedCallback() {
     super.connectedCallback();
     if (window.stateManager) {
       this.userStateSub = window.stateManager.userState$.subscribe(state => {
-        this.userState = state;
+        this.sharedUserState = state;
+        this.requestUpdate();
+      });
+      this.employeesSub = window.stateManager.employees$.subscribe(employees => {
+        this.employees = employees;
         this.requestUpdate();
       });
       this.eventsSub = window.stateManager.events$.subscribe(event => {
+        this.events = [...this.events.slice(-4), event];
+        this.requestUpdate();
         console.log('🧩 Web Components received event:', event);
       });
     }
@@ -88,6 +155,9 @@ class MicroWidget extends LitElement {
     super.disconnectedCallback();
     if (this.userStateSub) {
       this.userStateSub.unsubscribe();
+    }
+    if (this.employeesSub) {
+      this.employeesSub.unsubscribe();
     }
     if (this.eventsSub) {
       this.eventsSub.unsubscribe();
@@ -128,6 +198,52 @@ class MicroWidget extends LitElement {
         }
       </div>
       
+      <!-- Shared State Showcase -->
+      <div class="shared-state-showcase">
+        <h4 style="margin: 0 0 15px 0; color: white;">🔄 Shared State Management (Web Components)</h4>
+        
+        <div class="state-info">
+          <strong>👤 User State:</strong><br>
+          ${this.sharedUserState ? 
+            html`✅ Logged in as: <strong>${this.sharedUserState.user?.username || 'Unknown'}</strong>` :
+            html`❌ Not logged in`
+          }
+        </div>
+        
+        <div class="state-info">
+          <strong>👥 Employee Data:</strong><br>
+          📊 Count: <strong>${this.employees.length}</strong><br>
+          👀 Preview: ${this.employees.length > 0 ? 
+            this.employees.slice(0, 3).map(emp => emp.name).join(', ') + 
+            (this.employees.length > 3 ? ` (+${this.employees.length - 3} more)` : '') :
+            'No employees loaded'
+          }
+        </div>
+        
+        <div class="showcase-buttons">
+          <button @click=${this._loadEmployees} class="showcase-btn load-btn">
+            👥 Load Employees
+          </button>
+          <button @click=${this._broadcastMessage} class="showcase-btn broadcast-btn">
+            📡 Broadcast from Web Components
+          </button>
+          <button @click=${this._clearEmployees} class="showcase-btn clear-btn">
+            🗑️ Clear Data
+          </button>
+        </div>
+        
+        ${this.events.length > 0 ? html`
+          <div class="events-info">
+            <strong>📨 Recent Events:</strong><br>
+            ${this.events.slice(-3).map(event => html`
+              <div class="event-item">
+                ${event.source}: ${event.data?.message || event.type}
+              </div>
+            `)}
+          </div>
+        ` : ''}
+      </div>
+      
       <div class="features">
         <strong>Web Components Features:</strong>
         <ul>
@@ -166,6 +282,30 @@ class MicroWidget extends LitElement {
       this.data = { error: error.message };
     } finally {
       this.loading = false;
+    }
+  }
+
+  _loadEmployees() {
+    if (window.stateManager) {
+      window.stateManager.loadEmployees();
+    }
+  }
+
+  _broadcastMessage() {
+    if (window.stateManager) {
+      const event = {
+        type: 'user-interaction',
+        source: 'Web Components',
+        timestamp: new Date().toISOString(),
+        data: { message: 'Hello from Web Components!' }
+      };
+      window.stateManager.emit('cross-app-message', event);
+    }
+  }
+
+  _clearEmployees() {
+    if (window.stateManager) {
+      window.stateManager.employees$.next([]);
     }
   }
 }

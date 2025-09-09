@@ -27,12 +27,7 @@
     <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
       <strong>👥 Employee Data:</strong><br>
       📊 Count: <strong>{{home.employees.length}}</strong><br>
-      👀 Preview: 
-      <span ng-if="home.employees.length > 0">
-        {{home.employees.slice(0, 3).map(function(emp) { return emp.name; }).join(', ')}}
-        <span ng-if="home.employees.length > 3">(+{{home.employees.length - 3}} more)</span>
-      </span>
-      <span ng-if="home.employees.length === 0">No employees loaded</span>
+      👀 Preview: {{home.getEmployeePreview()}}
     </div>
     
     <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
