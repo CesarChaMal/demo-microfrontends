@@ -1,0 +1,9 @@
+{
+  "name": "shared-state-manager",
+  "version": "1.0.0",
+  "description": "Shared RxJS state manager for microfrontends",
+  "main": "state-manager.js",
+  "dependencies": {
+    "rxjs": "^6.4.0"
+  }
+}

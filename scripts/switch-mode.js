@@ -18,12 +18,21 @@ function getNpmInstallCommand() {
 
 const mode = process.argv[2];
 const rootDir = path.join(__dirname, '..', 'single-spa-root');
+const sharedDir = path.join(__dirname, '..', 'shared');
 const packageJsonPath = path.join(rootDir, 'package.json');
 const packageNpmPath = path.join(rootDir, 'package-npm.json');
 const packageNexusPath = path.join(rootDir, 'package-nexus.json');
 const packageGithubPath = path.join(rootDir, 'package-github.json');
 const packageAwsPath = path.join(rootDir, 'package-aws.json');
 const packageLocalPath = path.join(rootDir, 'package-local.json');
+
+// Shared folder paths
+const sharedPackageJsonPath = path.join(sharedDir, 'package.json');
+const sharedPackageNpmPath = path.join(sharedDir, 'package-npm.json');
+const sharedPackageNexusPath = path.join(sharedDir, 'package-nexus.json');
+const sharedPackageGithubPath = path.join(sharedDir, 'package-github.json');
+const sharedPackageAwsPath = path.join(sharedDir, 'package-aws.json');
+const sharedPackageLocalPath = path.join(sharedDir, 'package-local.json');
 
 function switchToNpmMode() {
   console.log('🔄 Switching to NPM mode...');
@@ -43,18 +52,35 @@ function switchToNpmMode() {
     process.exit(1);
   }
   
-  // Install NPM dependencies
-  const installCmd = getNpmInstallCommand();
-  console.log(`📥 Installing NPM dependencies with ${installCmd}...`);
-  try {
-    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-    console.log('✅ NPM mode activated');
-    console.log('🌐 Use: npm run serve:npm or http://localhost:8080?mode=npm');
-  } catch (error) {
-    console.error('❌ Failed to install NPM dependencies');
-    console.error('💡 Make sure packages are published first: npm run publish:patch');
-    process.exit(1);
+  // Handle shared folder
+  if (fs.existsSync(sharedPackageJsonPath)) {
+    fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
+    console.log('💾 Backed up shared/package.json as package-local.json');
   }
+  if (fs.existsSync(sharedPackageNpmPath)) {
+    fs.copyFileSync(sharedPackageNpmPath, sharedPackageJsonPath);
+    console.log('📦 Copied shared/package-npm.json to package.json');
+  }
+  
+  // Install NPM dependencies (skip in GitHub Actions)
+  if (!process.env.GITHUB_ACTIONS) {
+    const installCmd = getNpmInstallCommand();
+    console.log(`📥 Installing NPM dependencies with ${installCmd}...`);
+    try {
+      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
+      if (fs.existsSync(sharedDir)) {
+        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.error('❌ Failed to install NPM dependencies');
+      console.error('💡 Make sure packages are published first: npm run publish:patch');
+      process.exit(1);
+    }
+  } else {
+    console.log('⏭️ Skipping npm install in GitHub Actions');
+  }
+  console.log('✅ NPM mode activated');
+  console.log('🌐 Use: npm run serve:npm or http://localhost:8080?mode=npm');
 }
 
 function switchToLocalMode() {
@@ -73,17 +99,30 @@ function switchToLocalMode() {
     }
   }
   
-  // Install local dependencies
-  const installCmd = getNpmInstallCommand();
-  console.log(`📥 Installing local dependencies with ${installCmd}...`);
-  try {
-    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-    console.log('✅ Local mode activated');
-    console.log('🌐 Use: npm run serve:local:dev or http://localhost:8080');
-  } catch (error) {
-    console.error('❌ Failed to install local dependencies');
-    process.exit(1);
+  // Handle shared folder
+  if (fs.existsSync(sharedPackageLocalPath)) {
+    fs.copyFileSync(sharedPackageLocalPath, sharedPackageJsonPath);
+    console.log('📦 Restored shared/package-local.json to package.json');
   }
+  
+  // Install local dependencies (skip in GitHub Actions)
+  if (!process.env.GITHUB_ACTIONS) {
+    const installCmd = getNpmInstallCommand();
+    console.log(`📥 Installing local dependencies with ${installCmd}...`);
+    try {
+      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
+      if (fs.existsSync(sharedDir)) {
+        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.error('❌ Failed to install local dependencies');
+      process.exit(1);
+    }
+  } else {
+    console.log('⏭️ Skipping npm install in GitHub Actions');
+  }
+  console.log('✅ Local mode activated');
+  console.log('🌐 Use: npm run serve:local:dev or http://localhost:8080');
 }
 
 function switchToGitHubMode() {
@@ -104,22 +143,39 @@ function switchToGitHubMode() {
     process.exit(1);
   }
   
-  // Install GitHub dependencies
-  const installCmd = getNpmInstallCommand();
-  console.log(`📥 Installing GitHub dependencies with ${installCmd}...`);
-  try {
-    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-    console.log('✅ GitHub mode activated');
-    console.log('📋 GitHub mode configuration:');
-    console.log('  - GITHUB_TOKEN required in .env file');
-    console.log('  - GITHUB_USERNAME optional (defaults to cesarchamal)');
-    console.log('🌐 Use: npm run serve:github or http://localhost:8080?mode=github');
-    console.log('📖 Dev mode: Reads from existing GitHub Pages');
-    console.log('🚀 Prod mode: Creates repos and deploys everything');
-  } catch (error) {
-    console.error('❌ Failed to install GitHub dependencies');
-    process.exit(1);
+  // Handle shared folder
+  if (fs.existsSync(sharedPackageJsonPath)) {
+    fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
+    console.log('💾 Backed up shared/package.json as package-local.json');
   }
+  if (fs.existsSync(sharedPackageGithubPath)) {
+    fs.copyFileSync(sharedPackageGithubPath, sharedPackageJsonPath);
+    console.log('📦 Copied shared/package-github.json to package.json');
+  }
+  
+  // Install GitHub dependencies (skip in GitHub Actions)
+  if (!process.env.GITHUB_ACTIONS) {
+    const installCmd = getNpmInstallCommand();
+    console.log(`📥 Installing GitHub dependencies with ${installCmd}...`);
+    try {
+      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
+      if (fs.existsSync(sharedDir)) {
+        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.error('❌ Failed to install GitHub dependencies');
+      process.exit(1);
+    }
+  } else {
+    console.log('⏭️ Skipping npm install in GitHub Actions');
+  }
+  console.log('✅ GitHub mode activated');
+  console.log('📋 GitHub mode configuration:');
+  console.log('  - GITHUB_TOKEN required in .env file');
+  console.log('  - GITHUB_USERNAME optional (defaults to cesarchamal)');
+  console.log('🌐 Use: npm run serve:github or http://localhost:8080?mode=github');
+  console.log('📖 Dev mode: Reads from existing GitHub Pages');
+  console.log('🚀 Prod mode: Creates repos and deploys everything');
 }
 
 function switchToNexusMode() {
@@ -140,18 +196,35 @@ function switchToNexusMode() {
     process.exit(1);
   }
   
-  // Install Nexus dependencies
-  const installCmd = getNpmInstallCommand();
-  console.log(`📥 Installing Nexus dependencies with ${installCmd}...`);
-  try {
-    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-    console.log('✅ Nexus mode activated');
-    console.log('🌐 Use: npm run serve:nexus or http://localhost:8080?mode=nexus');
-  } catch (error) {
-    console.error('❌ Failed to install Nexus dependencies');
-    console.error('💡 Make sure packages are published first: npm run publish:nexus:patch');
-    process.exit(1);
+  // Handle shared folder
+  if (fs.existsSync(sharedPackageJsonPath)) {
+    fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
+    console.log('💾 Backed up shared/package.json as package-local.json');
   }
+  if (fs.existsSync(sharedPackageNexusPath)) {
+    fs.copyFileSync(sharedPackageNexusPath, sharedPackageJsonPath);
+    console.log('📦 Copied shared/package-nexus.json to package.json');
+  }
+  
+  // Install Nexus dependencies (skip in GitHub Actions)
+  if (!process.env.GITHUB_ACTIONS) {
+    const installCmd = getNpmInstallCommand();
+    console.log(`📥 Installing Nexus dependencies with ${installCmd}...`);
+    try {
+      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
+      if (fs.existsSync(sharedDir)) {
+        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.error('❌ Failed to install Nexus dependencies');
+      console.error('💡 Make sure packages are published first: npm run publish:nexus:patch');
+      process.exit(1);
+    }
+  } else {
+    console.log('⏭️ Skipping npm install in GitHub Actions');
+  }
+  console.log('✅ Nexus mode activated');
+  console.log('🌐 Use: npm run serve:nexus or http://localhost:8080?mode=nexus');
 }
 
 function switchToAwsMode() {
@@ -172,22 +245,39 @@ function switchToAwsMode() {
     process.exit(1);
   }
   
-  // Install AWS dependencies
-  const installCmd = getNpmInstallCommand();
-  console.log(`📥 Installing AWS dependencies with ${installCmd}...`);
-  try {
-    execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-    console.log('✅ AWS mode activated');
-    console.log('📋 AWS mode configuration:');
-    console.log('  - S3_BUCKET required in .env file');
-    console.log('  - AWS_REGION required in .env file');
-    console.log('  - ORG_NAME required in .env file');
-    console.log('🌐 Use: npm run serve:aws or http://localhost:8080?mode=aws');
-    console.log('☁️  Loads microfrontends from S3 import map');
-  } catch (error) {
-    console.error('❌ Failed to install AWS dependencies');
-    process.exit(1);
+  // Handle shared folder
+  if (fs.existsSync(sharedPackageJsonPath)) {
+    fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
+    console.log('💾 Backed up shared/package.json as package-local.json');
   }
+  if (fs.existsSync(sharedPackageAwsPath)) {
+    fs.copyFileSync(sharedPackageAwsPath, sharedPackageJsonPath);
+    console.log('📦 Copied shared/package-aws.json to package.json');
+  }
+  
+  // Install AWS dependencies (skip in GitHub Actions)
+  if (!process.env.GITHUB_ACTIONS) {
+    const installCmd = getNpmInstallCommand();
+    console.log(`📥 Installing AWS dependencies with ${installCmd}...`);
+    try {
+      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
+      if (fs.existsSync(sharedDir)) {
+        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.error('❌ Failed to install AWS dependencies');
+      process.exit(1);
+    }
+  } else {
+    console.log('⏭️ Skipping npm install in GitHub Actions');
+  }
+  console.log('✅ AWS mode activated');
+  console.log('📋 AWS mode configuration:');
+  console.log('  - S3_BUCKET required in .env file');
+  console.log('  - AWS_REGION required in .env file');
+  console.log('  - ORG_NAME required in .env file');
+  console.log('🌐 Use: npm run serve:aws or http://localhost:8080?mode=aws');
+  console.log('☁️  Loads microfrontends from S3 import map');
 }
 
 function showStatus() {

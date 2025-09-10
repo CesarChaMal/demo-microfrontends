@@ -205,7 +205,7 @@
     <div class="state-info">
       <strong>👤 User State:</strong><br>
       {#if userState}
-        ✅ Logged in as: <strong>{userState.user?.username || 'Unknown'}</strong>
+        ✅ Logged in as: <strong>{(userState.user && userState.user.username) || 'Unknown'}</strong>
       {:else}
         ❌ Not logged in
       {/if}
