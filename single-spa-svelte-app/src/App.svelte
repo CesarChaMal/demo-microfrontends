@@ -238,7 +238,7 @@
         <strong>📨 Recent Events:</strong><br>
         {#each events.slice(-3) as event}
           <div class="event-item">
-            {event.source}: {event.data?.message || event.type}
+            {event.source}: {(event.data && event.data.message) || event.type}
           </div>
         {/each}
       </div>
