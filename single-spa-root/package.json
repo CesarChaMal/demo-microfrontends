@@ -11,7 +11,6 @@
     "build": "webpack --config webpack.config.js -p",
     "build:dev": "webpack --config webpack.config.js --mode development",
     "build:prod": "webpack --config webpack.config.js --mode production",
-    "build:aws:prod": "webpack --config webpack.aws.config.js --mode production",
     "lint:strict": "concurrently --kill-others-on-fail -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint\" \"npm --prefix ../single-spa-layout-app run lint\" \"npm --prefix ../single-spa-home-app run lint\" \"npm --prefix ../single-spa-angular-app run lint\" \"npm --prefix ../single-spa-vue-app run lint\" \"npm --prefix ../single-spa-react-app run lint\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "lint:loose": "concurrently -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint || exit 0\" \"npm --prefix ../single-spa-layout-app run lint || exit 0\" \"npm --prefix ../single-spa-home-app run lint || exit 0\" \"npm --prefix ../single-spa-angular-app run lint || exit 0\" \"npm --prefix ../single-spa-vue-app run lint || exit 0\" \"npm --prefix ../single-spa-react-app run lint || exit 0\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "start": "npm run build:apps && npm run build && node server.js",
@@ -119,8 +118,8 @@
     "microfrontends",
     "root",
     "orchestrator",
-    "aws",
-    "s3",
+    "github",
+    "pages",
     "webpack"
   ],
   "bugs": {

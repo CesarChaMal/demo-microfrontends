@@ -169,6 +169,17 @@ function switchToLocalMode() {
 function switchToGitHubMode() {
   console.log('🔄 Switching to GitHub mode...');
   
+  // GitHub mode uses NPM registry, so ensure .npmrc is set correctly
+  if (fs.existsSync(npmrcPath)) {
+    fs.copyFileSync(npmrcPath, npmrcLocalPath);
+    console.log('💾 Backed up current .npmrc as .npmrc.local');
+  }
+  
+  if (fs.existsSync(npmrcNpmPath)) {
+    fs.copyFileSync(npmrcNpmPath, npmrcPath);
+    console.log('📦 Copied .npmrc.npm to .npmrc (GitHub uses NPM registry)');
+  }
+  
   // Backup current package.json as package-local.json
   if (fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
@@ -282,6 +293,17 @@ function switchToNexusMode() {
 
 function switchToAwsMode() {
   console.log('🔄 Switching to AWS mode...');
+  
+  // AWS mode uses NPM registry, so ensure .npmrc is set correctly
+  if (fs.existsSync(npmrcPath)) {
+    fs.copyFileSync(npmrcPath, npmrcLocalPath);
+    console.log('💾 Backed up current .npmrc as .npmrc.local');
+  }
+  
+  if (fs.existsSync(npmrcNpmPath)) {
+    fs.copyFileSync(npmrcNpmPath, npmrcPath);
+    console.log('📦 Copied .npmrc.npm to .npmrc (AWS uses NPM registry)');
+  }
   
   // Backup current package.json as package-local.json
   if (fs.existsSync(packageJsonPath)) {
