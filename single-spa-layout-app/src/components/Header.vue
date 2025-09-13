@@ -12,6 +12,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item class="user-info">
           <font-awesome-icon :icon="['fas', 'user-circle']" class="user-icon" />
+          <span v-if="recentEvents.length > 0" class="event-badge">{{ recentEvents.length }}</span>
         </b-nav-item>
         <b-nav-item-dropdown right class="user-dropdown">
           <template v-slot:button-content>
@@ -32,6 +33,7 @@ export default {
   data() {
     return {
       userState: null,
+      recentEvents: [],
     };
   },
   mounted() {
@@ -42,6 +44,8 @@ export default {
       this.eventsSub = window.stateManager.events$.subscribe((event) => {
         // eslint-disable-next-line no-console
         console.log('🎨 Layout received event:', event);
+        // Store recent events for display
+        this.recentEvents = [...(this.recentEvents || []).slice(-4), event];
       });
     }
   },

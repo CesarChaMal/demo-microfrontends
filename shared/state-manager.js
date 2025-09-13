@@ -51,16 +51,46 @@ class StateManager {
 
   async loadEmployees() {
     try {
-      console.log('🔄 Loading employees from /employees.json');
-      const response = await fetch('/employees.json');
-      console.log('🔍 Fetch response status:', response.status, response.statusText);
+      // Try multiple possible locations for employees.json
+      const possibleUrls = [
+        '/employees.json',
+        './employees.json',
+        `${window.location.origin}/employees.json`
+      ];
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      let response;
+      let data;
+      
+      for (const url of possibleUrls) {
+        try {
+          console.log(`🔄 Trying to load employees from: ${url}`);
+          response = await fetch(url);
+          console.log('🔍 Fetch response status:', response.status, response.statusText);
+          
+          if (response.ok) {
+            data = await response.json();
+            console.log('📊 Raw employee data from JSON:', data);
+            break;
+          }
+        } catch (fetchError) {
+          console.log(`❌ Failed to fetch from ${url}:`, fetchError.message);
+          continue;
+        }
       }
       
-      const data = await response.json();
-      console.log('📊 Raw employee data from JSON:', data);
+      // If all URLs failed, use fallback data
+      if (!data) {
+        console.log('⚠️ All employee data URLs failed, using fallback data');
+        data = {
+          employees: [
+            { id: 1, name: 'John Doe', position: 'Software Engineer', department: 'Engineering' },
+            { id: 2, name: 'Jane Smith', position: 'Product Manager', department: 'Product' },
+            { id: 3, name: 'Mike Johnson', position: 'Designer', department: 'Design' },
+            { id: 4, name: 'Sarah Wilson', position: 'DevOps Engineer', department: 'Engineering' },
+            { id: 5, name: 'Tom Brown', position: 'QA Engineer', department: 'Quality Assurance' }
+          ]
+        };
+      }
       // Transform employee data to include full name
       const employees = data.data.map(emp => ({
         ...emp,

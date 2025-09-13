@@ -6,8 +6,9 @@ angular
   .component('homeComponent', {
     template,
     controllerAs: 'home',
-    controller() {
+    controller($scope) {
       const vm = this;
+      vm.$scope = $scope;
 
       vm.title = 'AngularJS Home Microfrontend';
       vm.logoUrl = 'https://angularjs.org/img/ng-logo.png';
@@ -27,31 +28,42 @@ angular
       if (window.stateManager) {
         vm.userStateSub = window.stateManager.userState$.subscribe(state => {
           vm.userState = state;
+          // Trigger digest cycle for AngularJS
+          vm.$scope.$apply();
         });
         vm.employeesSub = window.stateManager.employees$.subscribe(employees => {
+          console.log('🏠 Home received employees update:', employees);
           vm.employees = employees;
+          // Trigger digest cycle for AngularJS
+          vm.$scope.$apply();
         });
         vm.eventsSub = window.stateManager.events$.subscribe(event => {
           console.log('🏠 Home received event:', event);
           vm.events = [...vm.events.slice(-4), event];
+          // Trigger digest cycle for AngularJS
+          vm.$scope.$apply();
         });
       }
 
       vm.loadEmployees = function() {
         if (window.stateManager) {
-          window.stateManager.loadEmployees();
+          console.log('🏠 AngularJS: Loading employees...');
+          window.stateManager.loadEmployees().then(() => {
+            console.log('🏠 AngularJS: Employees loaded, current count:', vm.employees.length);
+          });
         }
       };
 
       vm.broadcastMessage = function() {
         if (window.stateManager) {
           const event = {
-            type: 'user-interaction',
+            type: 'cross-app-message',
             source: 'AngularJS',
             timestamp: new Date().toISOString(),
             data: { message: 'Hello from AngularJS!' }
           };
           window.stateManager.emit('cross-app-message', event);
+          console.log('📡 AngularJS broadcasted message:', event);
         }
       };
 

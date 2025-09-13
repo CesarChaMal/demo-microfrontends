@@ -71,8 +71,12 @@
       <div v-if="events.length > 0" class="events-info">
         <strong>📨 Recent Events:</strong><br>
         <div v-for="(event, i) in events.slice(-3)" :key="i" class="event-item">
-          {{ event.source }}: {{ event.data?.message || event.type }}
+          {{ event.event }}: {{ event.data?.message || event.data?.source || 'Event triggered' }}
         </div>
+      </div>
+      <div v-else class="events-info">
+        <strong>📨 Recent Events:</strong><br>
+        <span class="no-events">No recent events</span>
       </div>
     </div>
 
@@ -122,6 +126,12 @@ export default {
         console.log('💚 Vue received event:', event);
         this.events = [...this.events.slice(-4), event]; // Keep last 5 events
       });
+
+      this.employeesSub = window.stateManager.employees$.subscribe((employees) => {
+        // eslint-disable-next-line no-console
+        console.log('💚 Vue received employees update:', employees);
+        this.employees = employees;
+      });
     }
   },
   beforeDestroy() {
@@ -147,18 +157,25 @@ export default {
     },
     loadEmployees() {
       if (window.stateManager) {
-        window.stateManager.loadEmployees();
+        // eslint-disable-next-line no-console
+        console.log('💚 Vue: Loading employees...');
+        window.stateManager.loadEmployees().then(() => {
+          // eslint-disable-next-line no-console
+          console.log('💚 Vue: Employees loaded, current count:', this.employees.length);
+        });
       }
     },
     broadcastMessage() {
       if (window.stateManager) {
         const event = {
-          type: 'user-interaction',
+          type: 'cross-app-message',
           source: 'Vue',
           timestamp: new Date().toISOString(),
           data: { message: 'Hello from Vue!' },
         };
         window.stateManager.emit('cross-app-message', event);
+        // eslint-disable-next-line no-console
+        console.log('📡 Vue broadcasted message:', event);
       }
     },
     clearEmployees() {
