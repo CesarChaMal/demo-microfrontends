@@ -51,7 +51,7 @@ jobs:
           npm install --legacy-peer-deps
 
       - name: Install all dependencies
-        run: npm run install:all:ci
+        run: npm run install:all
 
       - name: Build all applications
         run: npm run build:prod
