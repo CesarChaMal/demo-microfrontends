@@ -25,17 +25,17 @@ jobs:
         cache: 'npm'
         cache-dependency-path: single-spa-root/package-lock.json
         
+    - name: Switch to local mode
+      run: |
+        cd ..
+        node scripts/switch-mode.js local
+
     - name: Configure NPM registry
       run: |
         npm config delete registry || true
         npm config set registry https://registry.npmjs.org/
         npm config list
         echo "Registry: $(npm config get registry)"
-
-    - name: Switch to local mode
-      run: |
-        cd ..
-        node scripts/switch-mode.js local
         
     - name: Install shared dependencies
       run: |
