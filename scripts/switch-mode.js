@@ -19,12 +19,19 @@ function getNpmInstallCommand() {
 const mode = process.argv[2];
 const rootDir = path.join(__dirname, '..', 'single-spa-root');
 const sharedDir = path.join(__dirname, '..', 'shared');
+const projectRoot = path.join(__dirname, '..');
 const packageJsonPath = path.join(rootDir, 'package.json');
 const packageNpmPath = path.join(rootDir, 'package-npm.json');
 const packageNexusPath = path.join(rootDir, 'package-nexus.json');
 const packageGithubPath = path.join(rootDir, 'package-github.json');
 const packageAwsPath = path.join(rootDir, 'package-aws.json');
 const packageLocalPath = path.join(rootDir, 'package-local.json');
+
+// NPM registry config paths
+const npmrcPath = path.join(projectRoot, '.npmrc');
+const npmrcNpmPath = path.join(projectRoot, '.npmrc.npm');
+const npmrcNexusPath = path.join(projectRoot, '.npmrc.nexus');
+const npmrcLocalPath = path.join(projectRoot, '.npmrc.local');
 
 // Shared folder paths
 const sharedPackageJsonPath = path.join(sharedDir, 'package.json');
@@ -36,6 +43,18 @@ const sharedPackageLocalPath = path.join(sharedDir, 'package-local.json');
 
 function switchToNpmMode() {
   console.log('🔄 Switching to NPM mode...');
+  
+  // Backup current .npmrc as .npmrc.local
+  if (fs.existsSync(npmrcPath)) {
+    fs.copyFileSync(npmrcPath, npmrcLocalPath);
+    console.log('💾 Backed up current .npmrc as .npmrc.local');
+  }
+  
+  // Copy .npmrc.npm to .npmrc
+  if (fs.existsSync(npmrcNpmPath)) {
+    fs.copyFileSync(npmrcNpmPath, npmrcPath);
+    console.log('📦 Copied .npmrc.npm to .npmrc');
+  }
   
   // Backup current package.json as package-local.json
   if (fs.existsSync(packageJsonPath)) {
@@ -85,6 +104,19 @@ function switchToNpmMode() {
 
 function switchToLocalMode() {
   console.log('🔄 Switching to Local mode...');
+  
+  // Restore .npmrc.local to .npmrc
+  if (fs.existsSync(npmrcLocalPath)) {
+    fs.copyFileSync(npmrcLocalPath, npmrcPath);
+    console.log('📦 Restored .npmrc.local to .npmrc');
+  } else {
+    console.log('⚠️  No .npmrc backup found, using git checkout...');
+    try {
+      execSync('git checkout .npmrc', { cwd: projectRoot, stdio: 'inherit' });
+    } catch (error) {
+      console.log('⚠️  Git checkout failed, keeping current .npmrc');
+    }
+  }
   
   // Restore package-local.json to package.json
   if (fs.existsSync(packageLocalPath)) {
@@ -180,6 +212,18 @@ function switchToGitHubMode() {
 
 function switchToNexusMode() {
   console.log('🔄 Switching to Nexus mode...');
+  
+  // Backup current .npmrc as .npmrc.local
+  if (fs.existsSync(npmrcPath)) {
+    fs.copyFileSync(npmrcPath, npmrcLocalPath);
+    console.log('💾 Backed up current .npmrc as .npmrc.local');
+  }
+  
+  // Copy .npmrc.nexus to .npmrc
+  if (fs.existsSync(npmrcNexusPath)) {
+    fs.copyFileSync(npmrcNexusPath, npmrcPath);
+    console.log('📦 Copied .npmrc.nexus to .npmrc');
+  }
   
   // Backup current package.json as package-local.json
   if (fs.existsSync(packageJsonPath)) {
