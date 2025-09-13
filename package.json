@@ -304,6 +304,8 @@
     "fix:auto": "bash ./scripts/auto-fix-mode.sh",
     "fix:auto:npm": "bash ./scripts/auto-fix-mode.sh npm",
     "fix:auto:nexus": "bash ./scripts/auto-fix-mode.sh nexus",
+    "fix:auto:aws": "bash ./scripts/auto-fix-mode.sh aws",
+    "fix:auto:github": "bash ./scripts/auto-fix-mode.sh github",
     "test:npm:auth": "bash ./scripts/test-npm-auth.sh",
     "test:nexus:auth": "bash ./scripts/test-nexus-auth.sh",
     "aws:hot-sync": "bash ./scripts/aws-hot-sync.sh",
