@@ -304,10 +304,65 @@ npm run build
 
 ## Available Scripts
 
+### GitHub Pages Deployment Scripts
+
+#### GitHub Pages Deployment Workflows
+
+This project includes two GitHub Actions workflows for deploying to GitHub Pages:
+
+**1. Simple GitHub Pages Deploy** (`deploy-github-simple.yml`):
+- **Trigger**: Automatic on `push` to `main` branch
+- **Architecture**: Single job, sequential deployment
+- **Process**: Builds all apps first, then deploys using bash script
+- **Speed**: ~15-20 minutes (sequential)
+- **Best For**: Development/testing, automatic deployment
+
+**2. Robust GitHub Pages Deploy** (`deploy-github-pages.yml`):
+- **Trigger**: Manual via `workflow_dispatch`
+- **Architecture**: Matrix strategy with 12 parallel jobs
+- **Process**: Each app builds and deploys independently
+- **Speed**: ~5-8 minutes (parallel)
+- **Best For**: Production deployments, reliability
+
+#### Deployment Comparison
+
+| Feature | Simple Deploy | Robust Deploy |
+|---------|---------------|---------------|
+| **Jobs** | 1 sequential job | 12 parallel jobs |
+| **Build Time** | 15-20 minutes | 5-8 minutes |
+| **Failure Impact** | One failure = total failure | Isolated failures |
+| **Repository Creation** | Via bash script | Via GitHub API |
+| **Import Map Updates** | Single attempt | 3 retry attempts |
+| **GitHub Pages Setup** | Manual API calls | Automatic |
+| **Resource Efficiency** | Low (sequential) | High (parallel) |
+| **Error Handling** | Basic | Advanced |
+| **Monitoring** | Single log stream | Per-app logs |
+
+#### Triggering GitHub Pages Deployment
+
+**Option 1: GitHub Web Interface**
+1. Go to repository **Actions** tab
+2. Find **"Deploy to GitHub Pages (Manual)"** workflow
+3. Click **"Run workflow"** button
+
+**Option 2: GitHub CLI**
+```bash
+# Trigger robust deployment (recommended)
+npm run trigger:github:pages
+
+# Or use GitHub CLI directly
+gh workflow run deploy-github-pages.yml
+```
+
+**Option 3: Automatic (Simple)**
+- Simple deployment triggers automatically on every push to `main`
+- No manual intervention required
+
 ### Trigger Scripts
 - `npm run trigger:actions` - Trigger all GitHub Actions deployments
 - `npm run trigger:deploy:aws` - Trigger AWS S3 deployment
 - `npm run trigger:deploy:github` - Trigger GitHub Pages deployment
+- `npm run trigger:github:pages` - Trigger robust GitHub Pages deployment (manual)
 
 #### Individual App Trigger Scripts
 - `npm run trigger:root` - Trigger GitHub Actions for root app only
