@@ -55,7 +55,7 @@
       <strong>📨 Recent Events:</strong><br>
       <div ng-if="home.events.length > 0">
         <div ng-repeat="event in home.events.slice(-3)" style="margin-top: 5px;">
-          {{event.event}}: {{event.data.message || event.data.source || 'Event triggered'}}
+          {{event.data.source || event.event}}: {{event.data.message || event.event}}
         </div>
       </div>
       <div ng-if="home.events.length === 0" style="margin-top: 5px; opacity: 0.7;">

@@ -6,7 +6,7 @@ angular
   .component('homeComponent', {
     template,
     controllerAs: 'home',
-    controller($scope) {
+    controller: ['$scope', function($scope) {
       const vm = this;
       vm.$scope = $scope;
 
@@ -28,20 +28,26 @@ angular
       if (window.stateManager) {
         vm.userStateSub = window.stateManager.userState$.subscribe(state => {
           vm.userState = state;
-          // Trigger digest cycle for AngularJS
-          vm.$scope.$apply();
+          // Use $evalAsync to avoid digest conflicts
+          if (!vm.$scope.$$phase) {
+            vm.$scope.$apply();
+          }
         });
         vm.employeesSub = window.stateManager.employees$.subscribe(employees => {
           console.log('🏠 Home received employees update:', employees);
           vm.employees = employees;
-          // Trigger digest cycle for AngularJS
-          vm.$scope.$apply();
+          // Use $evalAsync to avoid digest conflicts
+          if (!vm.$scope.$$phase) {
+            vm.$scope.$apply();
+          }
         });
         vm.eventsSub = window.stateManager.events$.subscribe(event => {
           console.log('🏠 Home received event:', event);
           vm.events = [...vm.events.slice(-4), event];
-          // Trigger digest cycle for AngularJS
-          vm.$scope.$apply();
+          // Use $evalAsync to avoid digest conflicts
+          if (!vm.$scope.$$phase) {
+            vm.$scope.$apply();
+          }
         });
       }
 
@@ -56,14 +62,13 @@ angular
 
       vm.broadcastMessage = function() {
         if (window.stateManager) {
-          const event = {
-            type: 'cross-app-message',
+          const eventData = {
             source: 'AngularJS',
-            timestamp: new Date().toISOString(),
-            data: { message: 'Hello from AngularJS!' }
+            message: 'Hello from AngularJS!',
+            timestamp: new Date().toISOString()
           };
-          window.stateManager.emit('cross-app-message', event);
-          console.log('📡 AngularJS broadcasted message:', event);
+          window.stateManager.emit('cross-app-message', eventData);
+          console.log('📡 AngularJS broadcasted message:', eventData);
         }
       };
 
@@ -90,5 +95,5 @@ angular
           vm.eventsSub.unsubscribe();
         }
       };
-    },
+    }],
   });

@@ -97,13 +97,12 @@
   
   function broadcastMessage() {
     if (window.stateManager) {
-      const event = {
-        type: 'user-interaction',
+      const eventData = {
         source: 'Svelte',
-        timestamp: new Date().toISOString(),
-        data: { message: 'Hello from Svelte!' }
+        message: 'Hello from Svelte!',
+        timestamp: new Date().toISOString()
       };
-      window.stateManager.emit('cross-app-message', event);
+      window.stateManager.emit('cross-app-message', eventData);
     }
   }
   
@@ -238,7 +237,7 @@
         <strong>📨 Recent Events:</strong><br>
         {#each events.slice(-3) as event}
           <div class="event-item">
-            {event.source}: {(event.data && event.data.message) || event.type}
+            {(event.data && event.data.source) || event.event}: {(event.data && event.data.message) || event.event}
           </div>
         {/each}
       </div>

@@ -217,13 +217,14 @@ export function createSharedStateShowcase(framework = 'Generic') {
 
 // React Hook version
 export function useSharedStateShowcase() {
-  if (typeof React === 'undefined') return null;
-  
-  const [userState, setUserState] = React.useState(null);
-  const [employees, setEmployees] = React.useState([]);
-  const [events, setEvents] = React.useState([]);
+  if (typeof window !== 'undefined' && window.React) {
+    const React = window.React;
+    
+    const [userState, setUserState] = React.useState(null);
+    const [employees, setEmployees] = React.useState([]);
+    const [events, setEvents] = React.useState([]);
 
-  React.useEffect(() => {
+    React.useEffect(() => {
     if (window.stateManager) {
       const userSub = window.stateManager.userState$.subscribe(setUserState);
       const empSub = window.stateManager.employees$.subscribe(setEmployees);
@@ -240,5 +241,8 @@ export function useSharedStateShowcase() {
     }
   }, []);
 
-  return { userState, employees, events };
+    return { userState, employees, events };
+  }
+  
+  return null;
 }

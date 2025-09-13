@@ -93,7 +93,7 @@
     <div *ngIf="events.length > 0" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 6px; font-size: 12px;">
       <strong>📨 Recent Events:</strong><br>
       <div *ngFor="let event of recentEvents" style="margin-top: 5px;">
-        {{ event.source }}: {{ event.data?.message || event.type }}
+        {{ event.data?.source || event.event }}: {{ event.data?.message || event.event }}
       </div>
     </div>
   </div>

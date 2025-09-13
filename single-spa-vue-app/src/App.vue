@@ -71,7 +71,7 @@
       <div v-if="events.length > 0" class="events-info">
         <strong>📨 Recent Events:</strong><br>
         <div v-for="(event, i) in events.slice(-3)" :key="i" class="event-item">
-          {{ event.event }}: {{ event.data?.message || event.data?.source || 'Event triggered' }}
+          {{ event.data?.source || event.event }}: {{ event.data?.message || event.event }}
         </div>
       </div>
       <div v-else class="events-info">
@@ -167,15 +167,14 @@ export default {
     },
     broadcastMessage() {
       if (window.stateManager) {
-        const event = {
-          type: 'cross-app-message',
+        const eventData = {
           source: 'Vue',
+          message: 'Hello from Vue!',
           timestamp: new Date().toISOString(),
-          data: { message: 'Hello from Vue!' },
         };
-        window.stateManager.emit('cross-app-message', event);
+        window.stateManager.emit('cross-app-message', eventData);
         // eslint-disable-next-line no-console
-        console.log('📡 Vue broadcasted message:', event);
+        console.log('📡 Vue broadcasted message:', eventData);
       }
     },
     clearEmployees() {

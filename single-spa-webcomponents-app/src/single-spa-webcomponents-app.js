@@ -237,7 +237,7 @@ class MicroWidget extends LitElement {
             <strong>📨 Recent Events:</strong><br>
             ${this.events.slice(-3).map(event => html`
               <div class="event-item">
-                ${event.source}: ${event.data?.message || event.type}
+                ${event.data?.source || event.event}: ${event.data?.message || event.event}
               </div>
             `)}
           </div>
@@ -293,13 +293,12 @@ class MicroWidget extends LitElement {
 
   _broadcastMessage() {
     if (window.stateManager) {
-      const event = {
-        type: 'user-interaction',
+      const eventData = {
         source: 'Web Components',
-        timestamp: new Date().toISOString(),
-        data: { message: 'Hello from Web Components!' }
+        message: 'Hello from Web Components!',
+        timestamp: new Date().toISOString()
       };
-      window.stateManager.emit('cross-app-message', event);
+      window.stateManager.emit('cross-app-message', eventData);
     }
   }
 

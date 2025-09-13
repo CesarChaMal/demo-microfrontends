@@ -443,13 +443,12 @@ class JQueryApp {
 
   broadcastMessage() {
     if (window.stateManager) {
-      const event = {
-        type: 'user-interaction',
+      const eventData = {
         source: 'jQuery',
-        timestamp: new Date().toISOString(),
-        data: { message: 'Hello from jQuery!' }
+        message: 'Hello from jQuery!',
+        timestamp: new Date().toISOString()
       };
-      window.stateManager.emit('cross-app-message', event);
+      window.stateManager.emit('cross-app-message', eventData);
     }
   }
 
@@ -493,7 +492,7 @@ class JQueryApp {
       if (this.events.length > 0) {
         $eventsInfo.show();
         $eventsList.html(this.events.slice(-3).map(event => 
-          `<div style="margin-top: 5px;">${event.source}: ${event.data?.message || event.type}</div>`
+          `<div style="margin-top: 5px;">${event.data?.source || event.event}: ${event.data?.message || event.event}</div>`
         ).join(''));
       } else {
         $eventsInfo.hide();

@@ -395,13 +395,12 @@ class TypeScriptApp {
 
   private broadcastMessage(): void {
     if ((window as any).stateManager) {
-      const event = {
-        type: 'user-interaction',
+      const eventData = {
         source: 'TypeScript',
-        timestamp: new Date().toISOString(),
-        data: { message: 'Hello from TypeScript!' }
+        message: 'Hello from TypeScript!',
+        timestamp: new Date().toISOString()
       };
-      (window as any).stateManager.emit('cross-app-message', event);
+      (window as any).stateManager.emit('cross-app-message', eventData);
     }
   }
 
@@ -445,7 +444,7 @@ class TypeScriptApp {
       if (this.events.length > 0) {
         eventsInfo.style.display = 'block';
         eventsList.innerHTML = this.events.slice(-3).map((event: any) => 
-          `<div style="margin-top: 5px;">${event.source}: ${event.data?.message || event.type}</div>`
+          `<div style="margin-top: 5px;">${event.data?.source || event.event}: ${event.data?.message || event.event}</div>`
         ).join('');
       } else {
         eventsInfo.style.display = 'none';

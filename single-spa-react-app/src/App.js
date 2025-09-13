@@ -221,13 +221,12 @@ function App() {
           <button 
             onClick={() => {
               if (window.stateManager) {
-                const event = {
-                  type: 'user-interaction',
+                const eventData = {
                   source: 'React',
-                  timestamp: new Date().toISOString(),
-                  data: { message: 'Hello from React!' }
+                  message: 'Hello from React!',
+                  timestamp: new Date().toISOString()
                 };
-                window.stateManager.emit('cross-app-message', event);
+                window.stateManager.emit('cross-app-message', eventData);
               }
             }}
             style={{
@@ -269,7 +268,7 @@ function App() {
             <strong>📨 Recent Events:</strong><br/>
             {events.slice(-3).map((event, i) => (
               <div key={i} style={{ marginTop: '5px' }}>
-                {event.source}: {(event.data && event.data.message) || event.type}
+                {(event.data && event.data.source) || event.event}: {(event.data && event.data.message) || event.event}
               </div>
             ))}
           </div>

@@ -36,17 +36,17 @@ const originalBootstrap = vueLifecycles.bootstrap;
 const originalMount = vueLifecycles.mount;
 const originalUnmount = vueLifecycles.unmount;
 
-vueLifecycles.bootstrap = function (props) {
+vueLifecycles.bootstrap = function bootstrap(props) {
   console.log('🎨 Layout App bootstrapping with props:', props);
   return originalBootstrap.call(this, props);
 };
 
-vueLifecycles.mount = function (props) {
+vueLifecycles.mount = function mount(props) {
   console.log('🎨 Layout App mounting with props:', props);
   return originalMount.call(this, props);
 };
 
-vueLifecycles.unmount = function (props) {
+vueLifecycles.unmount = function unmount(props) {
   console.log('🎨 Layout App unmounting');
   return originalUnmount.call(this, props);
 };

@@ -83,13 +83,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   broadcastMessage(): void {
     if ((window as any).stateManager) {
-      const event = {
-        type: 'user-interaction',
+      const eventData = {
         source: 'Angular',
-        timestamp: new Date().toISOString(),
-        data: { message: 'Hello from Angular!' }
+        message: 'Hello from Angular!',
+        timestamp: new Date().toISOString()
       };
-      (window as any).stateManager.emit('cross-app-message', event);
+      (window as any).stateManager.emit('cross-app-message', eventData);
     }
   }
 
