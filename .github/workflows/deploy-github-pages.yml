@@ -79,11 +79,10 @@ jobs:
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
 
-      - name: Deploy to GitHub Pages
+      - name: Create GitHub Repository
         env:
           GITHUB_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
           APP_NAME: ${{ matrix.app.name }}
-          BUNDLE_FILE: ${{ matrix.app.bundle }}
         run: |
           # Debug: Check if token is available
           echo "🔍 Debug: GITHUB_API_TOKEN length: ${#GITHUB_API_TOKEN}"
@@ -93,6 +92,34 @@ jobs:
             exit 1
           fi
           
+          # Check if repository exists
+          REPO_CHECK=$(curl -s -H "Authorization: token ${GITHUB_API_TOKEN}" "https://api.github.com/repos/${{ github.repository_owner }}/${APP_NAME}")
+          
+          if echo "$REPO_CHECK" | grep -q '"message".*"Not Found"'; then
+            echo "🔧 Creating GitHub repository: ${APP_NAME}"
+            REPO_RESPONSE=$(curl -s -X POST \
+              -H "Authorization: token ${GITHUB_API_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/user/repos" \
+              -d "{\"name\":\"${APP_NAME}\",\"description\":\"${APP_NAME} microfrontend\",\"private\":false}")
+            
+            if echo "$REPO_RESPONSE" | grep -q '"id"'; then
+              echo "✅ Repository ${APP_NAME} created successfully"
+              sleep 3
+            else
+              echo "❌ Error creating repository: $REPO_RESPONSE"
+              exit 1
+            fi
+          else
+            echo "✅ Repository ${APP_NAME} already exists"
+          fi
+
+      - name: Deploy to GitHub Pages
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
+          APP_NAME: ${{ matrix.app.name }}
+          BUNDLE_FILE: ${{ matrix.app.bundle }}
+        run: |
           cd ${{ matrix.app.name }}
           
           # Configure git
@@ -107,15 +134,30 @@ jobs:
           
           # Set up remote with token
           git remote remove origin 2>/dev/null || true
-          git remote add origin "https://x-access-token:${{ secrets.GH_API_TOKEN }}@github.com/${{ github.repository_owner }}/${{ matrix.app.name }}.git"
+          git remote add origin "https://x-access-token:${GITHUB_API_TOKEN}@github.com/${{ github.repository_owner }}/${APP_NAME}.git"
           
           # Copy dist to root for GitHub Pages
           cp -r dist/* .
+          
+          # Copy shared files if they exist
+          if [ -f "../shared/employees.json" ]; then
+            cp ../shared/employees.json .
+          fi
+          
           git add .
           git commit -m "Deploy to GitHub Pages" || echo "No changes"
           
           # Push to main branch
           git push -u origin main --force
+          
+          # Enable GitHub Pages
+          echo "🌐 Enabling GitHub Pages for ${APP_NAME}..."
+          curl -X POST \
+            -H "Authorization: token ${GITHUB_API_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository_owner }}/${APP_NAME}/pages" \
+            -d '{"source":{"branch":"main","path":"/"}}' \
+            2>/dev/null || echo "GitHub Pages may already be enabled"
 
       - name: Update import map
         env:
@@ -124,7 +166,20 @@ jobs:
           GITHUB_USERNAME: ${{ github.repository_owner }}
           ORG_NAME: ${{ env.ORG_NAME }}
         run: |
-          node scripts/update-importmap-github.mjs
+          # Wait for GitHub Pages to be ready
+          sleep 10
+          
+          # Update import map with retry logic
+          for i in {1..3}; do
+            echo "🔄 Attempt $i: Updating import map for ${APP_NAME}"
+            if node scripts/update-importmap-github.mjs; then
+              echo "✅ Import map updated successfully"
+              break
+            else
+              echo "⚠️ Attempt $i failed, retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
 
   deploy-root:
     needs: deploy
@@ -182,34 +237,77 @@ jobs:
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
 
+      - name: Create Root Repository
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
+        run: |
+          # Check if demo-microfrontends repository exists
+          REPO_CHECK=$(curl -s -H "Authorization: token ${GITHUB_API_TOKEN}" "https://api.github.com/repos/${{ github.repository_owner }}/demo-microfrontends")
+          
+          if echo "$REPO_CHECK" | grep -q '"message".*"Not Found"'; then
+            echo "🔧 Creating GitHub repository: demo-microfrontends"
+            REPO_RESPONSE=$(curl -s -X POST \
+              -H "Authorization: token ${GITHUB_API_TOKEN}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/user/repos" \
+              -d "{\"name\":\"demo-microfrontends\",\"description\":\"Demo Microfrontends with Single-SPA\",\"private\":false}")
+            
+            if echo "$REPO_RESPONSE" | grep -q '"id"'; then
+              echo "✅ Repository demo-microfrontends created successfully"
+              sleep 3
+            else
+              echo "❌ Error creating repository: $REPO_RESPONSE"
+              exit 1
+            fi
+          else
+            echo "✅ Repository demo-microfrontends already exists"
+          fi
+
       - name: Deploy root to GitHub Pages
         env:
           GITHUB_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
         run: |
-          # Debug: Check if token is available
-          echo "🔍 Debug: GITHUB_API_TOKEN length: ${#GITHUB_API_TOKEN}"
-          if [ -z "$GITHUB_API_TOKEN" ]; then
-            echo "❌ GH_API_TOKEN secret is empty or not set"
-            echo "📝 Please check: https://github.com/${{ github.repository_owner }}/demo-microfrontends/settings/secrets/actions"
-            exit 1
-          fi
-          
           cd single-spa-root
           
           # Configure git
           git config --global user.name "Cesar Francisco Chavez Maldonado - GitHub Actions"
           git config --global user.email "cesarchamal@gmail.com"
           
+          # Initialize repo if needed
+          if [ ! -d ".git" ]; then
+            git init
+            git branch -M main
+          fi
+          
           # Set up remote with token
           git remote remove origin 2>/dev/null || true
-          git remote add origin "https://x-access-token:${{ secrets.GH_API_TOKEN }}@github.com/${{ github.repository_owner }}/demo-microfrontends.git"
+          git remote add origin "https://x-access-token:${GITHUB_API_TOKEN}@github.com/${{ github.repository_owner }}/demo-microfrontends.git"
           
           # Deploy to gh-pages branch
           git checkout -B gh-pages
           cp -r dist/* .
-          cp ../importmap.json .
+          
+          # Copy import map if it exists
+          if [ -f "../importmap.json" ]; then
+            cp ../importmap.json .
+          fi
+          
+          # Copy shared files
+          if [ -f "../shared/employees.json" ]; then
+            cp ../shared/employees.json .
+          fi
+          
           git add .
           git commit -m "Deploy root app to GitHub Pages" || echo "No changes"
           
           # Push to gh-pages branch
           git push -u origin gh-pages --force
+          
+          # Enable GitHub Pages
+          echo "🌐 Enabling GitHub Pages for demo-microfrontends..."
+          curl -X POST \
+            -H "Authorization: token ${GITHUB_API_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository_owner }}/demo-microfrontends/pages" \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}' \
+            2>/dev/null || echo "GitHub Pages may already be enabled"
