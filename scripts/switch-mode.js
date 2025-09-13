@@ -105,12 +105,17 @@ function switchToNpmMode() {
 function switchToLocalMode() {
   console.log('🔄 Switching to Local mode...');
   
-  // Restore .npmrc.local to .npmrc
-  if (fs.existsSync(npmrcLocalPath)) {
-    fs.copyFileSync(npmrcLocalPath, npmrcPath);
-    console.log('📦 Restored .npmrc.local to .npmrc');
+  // Debug: Check file existence
+  console.log('🔍 Debug: npmrcPath exists:', fs.existsSync(npmrcPath));
+  console.log('🔍 Debug: npmrcLocalPath exists:', fs.existsSync(npmrcLocalPath));
+  console.log('🔍 Debug: npmrcNpmPath exists:', fs.existsSync(npmrcNpmPath));
+  
+  // For local mode, we want to use NPM registry, so copy .npmrc.npm to .npmrc
+  if (fs.existsSync(npmrcNpmPath)) {
+    fs.copyFileSync(npmrcNpmPath, npmrcPath);
+    console.log('📦 Copied .npmrc.npm to .npmrc for local mode');
   } else {
-    console.log('⚠️  No .npmrc backup found, using git checkout...');
+    console.log('⚠️  No .npmrc.npm found, using git checkout...');
     try {
       execSync('git checkout .npmrc', { cwd: projectRoot, stdio: 'inherit' });
     } catch (error) {
