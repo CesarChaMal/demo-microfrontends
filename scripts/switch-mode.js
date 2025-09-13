@@ -142,8 +142,8 @@ function switchToLocalMode() {
     console.log('📦 Restored shared/package-local.json to package.json');
   }
   
-  // Install local dependencies (skip in GitHub Actions)
-  if (!process.env.GITHUB_ACTIONS) {
+  // Install local dependencies (skip in GitHub Actions or when SKIP_INSTALL is set)
+  if (!process.env.GITHUB_ACTIONS && !process.env.SKIP_INSTALL) {
     const installCmd = getNpmInstallCommand();
     console.log(`📥 Installing local dependencies with ${installCmd}...`);
     try {
@@ -156,7 +156,11 @@ function switchToLocalMode() {
       process.exit(1);
     }
   } else {
-    console.log('⏭️ Skipping npm install in GitHub Actions');
+    if (process.env.SKIP_INSTALL) {
+      console.log('⏭️ Skipping npm install (SKIP_INSTALL=true)');
+    } else {
+      console.log('⏭️ Skipping npm install in GitHub Actions');
+    }
   }
   console.log('✅ Local mode activated');
   console.log('🌐 Use: npm run serve:local:dev or http://localhost:8080');

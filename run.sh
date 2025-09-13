@@ -114,10 +114,28 @@ case "$PLATFORM" in
         ;;
 esac
 
-# Switch to appropriate mode first (before installing dependencies)
-if [ "$MODE" != "local" ]; then
-    echo "🔄 Switching to $MODE mode before installation..."
+# Fix dependencies and switch to appropriate mode (except NPM/Nexus prod which publish first)
+if [ "$MODE" != "local" ] && ! (([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]); then
+    echo "🔧 Fixing dependencies for $MODE mode..."
+    case "$MODE" in
+        "npm")
+            echo "🔧 Running NPM dependency fix..."
+            npm run fix:npm:deps || echo "⚠️  NPM dependency fix completed with warnings"
+            ;;
+        "nexus")
+            echo "🔧 Running Nexus dependency fix..."
+            npm run fix:nexus:deps || echo "⚠️  Nexus dependency fix completed with warnings"
+            ;;
+        *)
+            echo "🔧 Running auto dependency fix for $MODE mode..."
+            npm run fix:auto:$MODE || echo "⚠️  Auto dependency fix completed with warnings"
+            ;;
+    esac
+    
+    echo "🔄 Switching to $MODE mode after dependency fix..."
     npm run mode:$MODE
+elif ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
+    echo "📝 $MODE prod mode: Will publish packages first, then switch to $MODE mode"
 fi
 
 # Install root dependencies first (needed for rimraf)
@@ -129,22 +147,30 @@ echo "🧹 Cleaning all applications..."
 #npm cache clean --force
 #npm run clean
 
-# Install all dependencies based on environment
-if [ "$ENV" = "prod" ]; then
-    echo "📦 Installing all dependencies for production (CI)..."
-    exec_npm npm run install:all:ci
+# Install all dependencies based on environment (skip for NPM/Nexus prod which publish first)
+if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
+    echo "📝 Skipping dependency installation for $MODE prod mode (will build in local mode first)"
 else
-    echo "📦 Installing all dependencies for development..."
-    exec_npm npm run install:all
+    if [ "$ENV" = "prod" ]; then
+        echo "📦 Installing all dependencies for production (CI)..."
+        exec_npm npm run install:all:ci
+    else
+        echo "📦 Installing all dependencies for development..."
+        exec_npm npm run install:all
+    fi
 fi
 
-# Build applications based on environment
-if [ "$ENV" = "prod" ]; then
-    echo "🔨 Building all applications for production..."
-    exec_npm npm run build:prod
+# Build applications based on environment (skip for NPM/Nexus prod which build in local mode)
+if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
+    echo "📝 Skipping build for $MODE prod mode (will build in local mode during publishing)"
 else
-    echo "🔨 Building all applications for development..."
-    exec_npm npm run build:dev
+    if [ "$ENV" = "prod" ]; then
+        echo "🔨 Building all applications for production..."
+        exec_npm npm run build:prod
+    else
+        echo "🔨 Building all applications for development..."
+        exec_npm npm run build:dev
+    fi
 fi
 
 # Define startup behavior based on mode and environment
@@ -339,8 +365,8 @@ start_npm() {
     echo "📝 Registry switched to: $(npm config get registry)"
     
     if [ "$ENV" = "prod" ]; then
-        # Production mode: Publish packages then read them
-        echo "🚀 NPM Production: Publishing packages to NPM registry"
+        # Production mode: Publish packages first, then switch to NPM mode
+        echo "🚀 NPM Production: Publishing packages to NPM registry first"
         
         # Check if user is logged in to NPM for publishing
         if ! npm whoami >/dev/null 2>&1; then
@@ -350,14 +376,13 @@ start_npm() {
         
         echo "🔍 DEBUG: NPM user: $(npm whoami)"
         
-        # Build root application with NPM mode configuration
-        echo "🔨 Building root application for NPM prod mode..."
-        exec_npm npm run build:root:npm:prod
+        # Switch back to local mode temporarily for building and publishing (skip install)
+        echo "🔄 Switching back to local mode for building and publishing..."
+        SKIP_INSTALL=true npm run mode:local
         
-        # Verify .npmrc is correctly set for NPM publishing
-        echo "🔍 DEBUG: Current registry: $(npm config get registry)"
-        echo "🔍 DEBUG: Current .npmrc contents:"
-        head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
+        # Build all applications in local mode first
+        echo "🔨 Building all applications for publishing..."
+        exec_npm npm run build:prod
         
         # Publish packages (microfrontends + root app)
         echo "📦 Publishing all packages to NPM..."
@@ -365,11 +390,20 @@ start_npm() {
         if FROM_RUN_SCRIPT=true npm run publish:npm:prod; then
             echo "✅ NPM publishing successful"
             echo "🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root"
-            echo "🌐 Production: Local server + root app available on NPM registry"
         else
             echo "❌ NPM publishing failed"
             exit 1
         fi
+        
+        # Now switch to NPM mode after packages are published
+        echo "🔄 Switching to NPM mode after publishing..."
+        npm run mode:npm
+        
+        # Build root application with NPM mode configuration
+        echo "🔨 Building root application for NPM prod mode..."
+        exec_npm npm run build:root:npm:prod
+        
+        echo "🌐 Production: Local server + root app available on NPM registry"
     else
         # Development mode: Only read existing packages (no publishing)
         echo "📖 NPM Development: Reading existing packages from NPM registry (no publishing)"
@@ -382,12 +416,8 @@ start_npm() {
         echo "📝 Note: Skipping publishing in development mode"
     fi
     
-    # Switch to NPM mode and start server for both dev and prod
-    # echo "📦 Switching to NPM mode and starting server..."
-    # echo "🔍 DEBUG: Switching to NPM mode"
-    # npm run mode:npm  # Already done at the beginning
     echo "📦 Starting NPM mode server..."
-    echo "🔍 DEBUG: NPM mode already active"
+    echo "🔍 DEBUG: NPM mode active"
     
     echo "✅ NPM mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=npm"
@@ -409,19 +439,18 @@ start_nexus() {
     echo "📝 Registry switched to: $(npm config get registry)"
     
     if [ "$ENV" = "prod" ]; then
-        # Production mode: Publish packages then read them
-        echo "🚀 Nexus Production: Publishing packages to Nexus registry"
+        # Production mode: Publish packages first, then switch to Nexus mode
+        echo "🚀 Nexus Production: Publishing packages to Nexus registry first"
         
         echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
         
-        # Build root application with Nexus mode configuration
-        echo "🔨 Building root application for Nexus prod mode..."
-        exec_npm npm run build:root:nexus:prod
+        # Switch back to local mode temporarily for building and publishing (skip install)
+        echo "🔄 Switching back to local mode for building and publishing..."
+        SKIP_INSTALL=true npm run mode:local
         
-        # Verify .npmrc is correctly set for Nexus publishing
-        echo "🔍 DEBUG: Current registry: $(npm config get registry)"
-        echo "🔍 DEBUG: Current .npmrc contents:"
-        head -3 .npmrc 2>/dev/null || echo "No .npmrc found"
+        # Build all applications in local mode first
+        echo "🔨 Building all applications for publishing..."
+        exec_npm npm run build:prod
         
         # Publish packages (microfrontends + root app)
         echo "📦 Publishing all packages to Nexus..."
@@ -429,11 +458,20 @@ start_nexus() {
         if FROM_RUN_SCRIPT=true npm run publish:nexus:prod; then
             echo "✅ Nexus publishing successful"
             echo "🌍 Public Nexus Package: Available on Nexus registry"
-            echo "🌐 Production: Local server + root app available on Nexus registry"
         else
             echo "❌ Nexus publishing failed"
             exit 1
         fi
+        
+        # Now switch to Nexus mode after packages are published
+        echo "🔄 Switching to Nexus mode after publishing..."
+        npm run mode:nexus
+        
+        # Build root application with Nexus mode configuration
+        echo "🔨 Building root application for Nexus prod mode..."
+        exec_npm npm run build:root:nexus:prod
+        
+        echo "🌐 Production: Local server + root app available on Nexus registry"
     else
         # Development mode: Only read existing packages (no publishing)
         echo "📖 Nexus Development: Reading existing packages from Nexus registry (no publishing)"
@@ -446,12 +484,8 @@ start_nexus() {
         echo "📝 Note: Skipping publishing in development mode"
     fi
     
-    # Switch to Nexus mode and start server for both dev and prod
-    # echo "📦 Switching to Nexus mode and starting server..."
-    # echo "🔍 DEBUG: Switching to Nexus mode"
-    # npm run mode:nexus  # Already done at the beginning
     echo "📦 Starting Nexus mode server..."
-    echo "🔍 DEBUG: Nexus mode already active"
+    echo "🔍 DEBUG: Nexus mode active"
     
     echo "✅ Nexus mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=nexus"

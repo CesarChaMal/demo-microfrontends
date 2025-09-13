@@ -44,6 +44,10 @@ REM Set OpenSSL legacy provider for Node.js 22 compatibility with older Webpack
 echo ⚠️  Setting OpenSSL legacy provider for Node.js 22 compatibility
 set NODE_OPTIONS=--openssl-legacy-provider
 
+REM Skip setup for NPM/Nexus prod modes (they handle publishing first)
+if "%MODE%"=="npm" if "%ENV%"=="prod" goto start_npm
+if "%MODE%"=="nexus" if "%ENV%"=="prod" goto start_nexus
+
 REM Switch to appropriate mode first (before installing dependencies)
 if not "%MODE%"=="local" (
     echo 🔄 Switching to %MODE% mode before installation...
@@ -140,16 +144,36 @@ if "%MODE%"=="local" (
         echo Main application: http://localhost:8080?mode=%MODE%
         echo.
         if "%MODE%"=="npm" (
+            :start_npm
             echo 🔍 DEBUG: NPM mode - ENV=%ENV%, NPM_TOKEN=SET
             
-            REM Switch to NPM .npmrc configuration
-            echo 🔄 Switching to NPM .npmrc configuration...
-            if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
-            copy ".npmrc.npm" ".npmrc" >nul
-            
             if "%ENV%"=="prod" (
-                REM Production mode: Publish packages then read them
-                echo 🚀 NPM Production: Publishing packages to NPM registry
+                REM Production mode: Publish packages first in local mode, then switch
+                echo 🚀 NPM Production: Publishing packages to NPM registry (in local mode first)
+                
+                REM Ensure we're in local mode for publishing
+                echo 🔄 Ensuring local mode for publishing...
+                set SKIP_INSTALL=true
+                call npm run mode:local
+                if errorlevel 1 exit /b 1
+                
+                REM Install dependencies if not already done
+                if not exist "single-spa-root\node_modules" (
+                    echo 📦 Installing root dependencies...
+                    call npm install
+                    if errorlevel 1 exit /b 1
+                    
+                    echo 📦 Installing all dependencies...
+                    call npm run install:all:ci
+                    if errorlevel 1 exit /b 1
+                )
+                
+                REM Build all applications if not already done
+                if not exist "single-spa-auth-app\dist" (
+                    echo 🔨 Building all applications...
+                    call npm run build:prod
+                    if errorlevel 1 exit /b 1
+                )
                 
                 REM Check if user is logged in to NPM for publishing
                 npm whoami >nul 2>&1
@@ -157,11 +181,6 @@ if "%MODE%"=="local" (
                     echo ❌ Error: Not logged in to NPM. Run 'npm login' first or set NPM_TOKEN
                     exit /b 1
                 )
-                
-                REM Build root application with NPM mode configuration
-                echo 🔨 Building root application for NPM prod mode...
-                call npm run build:root:npm:prod
-                if errorlevel 1 exit /b 1
                 
                 REM Publish packages (microfrontends + root app)
                 echo 📦 Publishing all packages to NPM...
@@ -173,6 +192,18 @@ if "%MODE%"=="local" (
                     exit /b 1
                 )
                 echo ✅ NPM publishing successful
+                
+                REM Now switch to NPM mode
+                echo 🔄 Switching to NPM mode after publishing...
+                set SKIP_INSTALL=true
+                call npm run mode:npm
+                if errorlevel 1 exit /b 1
+                
+                REM Build root application with NPM mode configuration
+                echo 🔨 Building root application for NPM prod mode...
+                call npm run build:root:npm:prod
+                if errorlevel 1 exit /b 1
+                
                 echo 🌍 Public NPM Package: https://www.npmjs.com/package/@cesarchamal/single-spa-root
                 echo 🌐 Production: Local server + root app available on NPM registry
             ) else (
@@ -180,53 +211,60 @@ if "%MODE%"=="local" (
                 echo 📖 NPM Development: Reading existing packages from NPM registry (no publishing)
                 echo 🔍 Assumes packages already exist on NPM registry
                 
+                REM Switch to NPM .npmrc configuration
+                echo 🔄 Switching to NPM .npmrc configuration...
+                if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
+                copy ".npmrc.npm" ".npmrc" >nul
+                
                 REM Build root application with NPM mode configuration
                 echo 🔨 Building root application for NPM dev mode...
                 call npm run build:root:npm:dev
                 if errorlevel 1 exit /b 1
                 
+                REM Switch to NPM mode and start server
+                echo 📦 Switching to NPM mode and starting server...
+                call npm run mode:npm
+                if errorlevel 1 exit /b 1
+                
                 echo 📝 Note: Skipping publishing in development mode
             )
-            
-            REM Switch to NPM mode and start server
-            echo 📦 Switching to NPM mode and starting server...
-            call npm run mode:npm
-            if errorlevel 1 exit /b 1
             
             echo ✅ NPM mode setup complete!
             echo 🌐 Main application: http://localhost:8080?mode=npm
         )
         if "%MODE%"=="nexus" (
+            :start_nexus
             echo 🔍 DEBUG: Nexus mode - ENV=%ENV%, NEXUS_REGISTRY=%NEXUS_REGISTRY%
             echo 🔍 DEBUG: CORS Proxy - PORT=%NEXUS_CORS_PROXY_PORT%, ENABLED=%NEXUS_CORS_PROXY_ENABLED%
             echo 🔍 DEBUG: CORS Registry - %NEXUS_CORS_REGISTRY%
             
-            REM Start CORS proxy for Nexus Community Edition if enabled
-            if "%NEXUS_CORS_PROXY_ENABLED%"=="true" (
-                echo 🚀 Starting Nexus CORS proxy...
-                call npm run nexus:start-proxy
-                if errorlevel 1 (
-                    echo ⚠️ CORS proxy failed to start, continuing anyway...
-                ) else (
-                    echo ✅ CORS proxy started successfully on port %NEXUS_CORS_PROXY_PORT%
-                )
-            ) else (
-                echo ⚠️ CORS proxy disabled in configuration
-            )
-            
-            REM Switch to Nexus .npmrc configuration
-            echo 🔄 Switching to Nexus .npmrc configuration...
-            if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
-            copy ".npmrc.nexus" ".npmrc" >nul
-            
             if "%ENV%"=="prod" (
-                REM Production mode: Publish packages then read them
-                echo 🚀 Nexus Production: Publishing packages to Nexus registry
+                REM Production mode: Publish packages first in local mode, then switch
+                echo 🚀 Nexus Production: Publishing packages to Nexus registry (in local mode first)
                 
-                REM Build root application with Nexus mode configuration
-                echo 🔨 Building root application for Nexus prod mode...
-                call npm run build:root:nexus:prod
+                REM Ensure we're in local mode for publishing
+                echo 🔄 Ensuring local mode for publishing...
+                set SKIP_INSTALL=true
+                call npm run mode:local
                 if errorlevel 1 exit /b 1
+                
+                REM Install dependencies if not already done
+                if not exist "single-spa-root\node_modules" (
+                    echo 📦 Installing root dependencies...
+                    call npm install
+                    if errorlevel 1 exit /b 1
+                    
+                    echo 📦 Installing all dependencies...
+                    call npm run install:all:ci
+                    if errorlevel 1 exit /b 1
+                )
+                
+                REM Build all applications if not already done
+                if not exist "single-spa-auth-app\dist" (
+                    echo 🔨 Building all applications...
+                    call npm run build:prod
+                    if errorlevel 1 exit /b 1
+                )
                 
                 REM Publish packages (microfrontends + root app)
                 echo 📦 Publishing all packages to Nexus...
@@ -238,6 +276,18 @@ if "%MODE%"=="local" (
                     exit /b 1
                 )
                 echo ✅ Nexus publishing successful
+                
+                REM Now switch to Nexus mode
+                echo 🔄 Switching to Nexus mode after publishing...
+                set SKIP_INSTALL=true
+                call npm run mode:nexus
+                if errorlevel 1 exit /b 1
+                
+                REM Build root application with Nexus mode configuration
+                echo 🔨 Building root application for Nexus prod mode...
+                call npm run build:root:nexus:prod
+                if errorlevel 1 exit /b 1
+                
                 echo 🌍 Public Nexus Package: Available on Nexus registry
                 echo 🌐 Production: Local server + root app available on Nexus registry
             ) else (
@@ -245,18 +295,36 @@ if "%MODE%"=="local" (
                 echo 📖 Nexus Development: Reading existing packages from Nexus registry (no publishing)
                 echo 🔍 Assumes packages already exist on Nexus registry
                 
+                REM Start CORS proxy for Nexus Community Edition if enabled
+                if "%NEXUS_CORS_PROXY_ENABLED%"=="true" (
+                    echo 🚀 Starting Nexus CORS proxy...
+                    call npm run nexus:start-proxy
+                    if errorlevel 1 (
+                        echo ⚠️ CORS proxy failed to start, continuing anyway...
+                    ) else (
+                        echo ✅ CORS proxy started successfully on port %NEXUS_CORS_PROXY_PORT%
+                    )
+                ) else (
+                    echo ⚠️ CORS proxy disabled in configuration
+                )
+                
+                REM Switch to Nexus .npmrc configuration
+                echo 🔄 Switching to Nexus .npmrc configuration...
+                if exist ".npmrc" copy ".npmrc" ".npmrc.backup" >nul
+                copy ".npmrc.nexus" ".npmrc" >nul
+                
                 REM Build root application with Nexus mode configuration
                 echo 🔨 Building root application for Nexus dev mode...
                 call npm run build:root:nexus:dev
                 if errorlevel 1 exit /b 1
                 
+                REM Switch to Nexus mode and start server
+                echo 📦 Switching to Nexus mode and starting server...
+                call npm run mode:nexus
+                if errorlevel 1 exit /b 1
+                
                 echo 📝 Note: Skipping publishing in development mode
             )
-            
-            REM Switch to Nexus mode and start server
-            echo 📦 Switching to Nexus mode and starting server...
-            call npm run mode:nexus
-            if errorlevel 1 exit /b 1
             
             echo ✅ Nexus mode setup complete!
             echo 🌐 Main application: http://localhost:8080?mode=nexus

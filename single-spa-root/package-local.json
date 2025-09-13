@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-root",
-  "version": "0.1.4",
+  "version": "1.0.5",
   "description": "Single-spa application example which imports registered applications from NPM packages and manages authentication features as login.",
   "main": "root-application.js",
   "scripts": {
@@ -11,7 +11,6 @@
     "build": "webpack --config webpack.config.js -p",
     "build:dev": "webpack --config webpack.config.js --mode development",
     "build:prod": "webpack --config webpack.config.js --mode production",
-    "build:aws:prod": "webpack --config webpack.aws.config.js --mode production",
     "lint:strict": "concurrently --kill-others-on-fail -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint\" \"npm --prefix ../single-spa-layout-app run lint\" \"npm --prefix ../single-spa-home-app run lint\" \"npm --prefix ../single-spa-angular-app run lint\" \"npm --prefix ../single-spa-vue-app run lint\" \"npm --prefix ../single-spa-react-app run lint\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "lint:loose": "concurrently -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint || exit 0\" \"npm --prefix ../single-spa-layout-app run lint || exit 0\" \"npm --prefix ../single-spa-home-app run lint || exit 0\" \"npm --prefix ../single-spa-angular-app run lint || exit 0\" \"npm --prefix ../single-spa-vue-app run lint || exit 0\" \"npm --prefix ../single-spa-react-app run lint || exit 0\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "start": "npm run build:apps && npm run build && node server.js",
@@ -100,7 +99,18 @@
     "vue-cli-plugin-single-spa": "1.1.0",
     "vue-router": "3.1.4",
     "vue-toastr": "2.1.2",
-    "zone.js": "0.9.1"
+    "zone.js": "0.9.1",
+    "@cesarchamal/single-spa-auth-app": "^1.0.5",
+    "@cesarchamal/single-spa-layout-app": "^1.0.5",
+    "@cesarchamal/single-spa-home-app": "^1.0.5",
+    "@cesarchamal/single-spa-angular-app": "^1.0.5",
+    "@cesarchamal/single-spa-vue-app": "^1.0.5",
+    "@cesarchamal/single-spa-react-app": "^1.0.5",
+    "@cesarchamal/single-spa-vanilla-app": "^1.0.5",
+    "@cesarchamal/single-spa-webcomponents-app": "^1.0.5",
+    "@cesarchamal/single-spa-typescript-app": "^1.0.5",
+    "@cesarchamal/single-spa-jquery-app": "^1.0.5",
+    "@cesarchamal/single-spa-svelte-app": "^1.0.5"
   },
   "files": [
     "dist/",
@@ -119,8 +129,7 @@
     "microfrontends",
     "root",
     "orchestrator",
-    "aws",
-    "s3",
+    "npm",
     "webpack"
   ],
   "bugs": {

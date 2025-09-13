@@ -47,13 +47,18 @@ sed -i "s/\"@${ORG_NAME}\/single-spa-svelte-app\": \"[^\"]*\"/\"@${ORG_NAME}\/si
 
 echo "✅ Dependencies updated"
 
-# 4. Install dependencies
-echo "📦 Installing dependencies..."
-npm install
-
-if [ $? -eq 0 ]; then
-    echo "🎉 Dependencies installed successfully!"
+# 4. Install dependencies (skip if called from publishing)
+if [ "${FROM_RUN_SCRIPT}" = "true" ] || [ "${SKIP_INSTALL}" = "true" ]; then
+    echo "⏭️ Skipping dependency installation (called from publishing workflow)"
+    echo "✅ Dependencies updated in package.json only"
 else
-    echo "❌ Installation failed"
-    exit 1
+    echo "📦 Installing dependencies..."
+    npm install
+    
+    if [ $? -eq 0 ]; then
+        echo "🎉 Dependencies installed successfully!"
+    else
+        echo "❌ Installation failed"
+        exit 1
+    fi
 fi

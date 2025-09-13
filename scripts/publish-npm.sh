@@ -27,6 +27,9 @@ if [ "${FROM_RUN_SCRIPT}" != "true" ]; then
     fi
 fi
 
+# Set SKIP_INSTALL flag for dependency fixing during publishing
+export SKIP_INSTALL=true
+
 # Load environment variables from .env file if not called from run.sh
 if [ "${FROM_RUN_SCRIPT}" != "true" ] && [ -f "../.env" ]; then
     echo "📄 Loading .env file..."

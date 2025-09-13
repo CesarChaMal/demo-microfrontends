@@ -58,6 +58,9 @@ if [ "${FROM_RUN_SCRIPT}" != "true" ]; then
     fi
 fi
 
+# Set SKIP_INSTALL flag for dependency fixing during publishing
+export SKIP_INSTALL=true
+
 echo "🔍 DEBUG: NPM registry: $(npm config get registry)"
 echo "🔍 DEBUG: NPM user: $(npm whoami 2>/dev/null || echo 'Not logged in')"
 
