@@ -149,9 +149,9 @@ else
     # Other apps build to dist directory
     cp -r dist/* .
     # Copy employees.json for shared state management
-    if [ -f "employees.json" ]; then
+    if [ -f "../shared/employees.json" ]; then
         echo "📊 Adding employees.json for shared state..."
-        cp employees.json .
+        cp ../shared/employees.json .
     fi
 fi
 
