@@ -4,9 +4,9 @@
   "description": "AngularJS application with home page for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-home-app.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "build:dev": "webpack --config webpack.config.js --mode development",
-    "build:prod": "webpack --config webpack.config.js --mode production",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js",
+    "build:dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode development",
+    "build:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode production",
     "serve": "npm run build && npx http-server dist -p 4203 --cors",
     "lint": "eslint . --ext .js --fix"
   },
@@ -41,6 +41,7 @@
     "babel-loader": "8.0.6",
     "clean-webpack-plugin": "3.0.0",
     "copy-webpack-plugin": "5.1.1",
+    "cross-env": "^7.0.3",
     "eslint": "6.8.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-loader": "3.0.3",

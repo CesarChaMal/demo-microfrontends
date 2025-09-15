@@ -164,14 +164,17 @@ demo-microfrontends/
 **Basic Usage:**
 ```bash
 # Linux/Mac
-./run.sh [mode] [environment]
+./run.sh [mode] [environment] [--clean] [--fix-network]
 # Windows
-run.bat [mode] [environment]
+run.bat [mode] [environment] [--clean] [--fix-network]
 ```
 
 **Parameters:**
 - **Mode** (first parameter): `local` (default), `npm`, `nexus`, `github`, `aws`
 - **Environment** (second parameter): `dev` (default), `prod`
+- **Options:**
+  - `--clean`: Cleanup node_modules and package-lock.json (default: off)
+  - `--fix-network`: Configure npm for problematic networks (default: off)
 
 **Available Modes:**
 - `local` - Local development with SystemJS
@@ -205,6 +208,11 @@ run.bat [mode] [environment]
 ./run.sh local dev
 ./run.sh local        # dev is default
 
+# With cleanup and network fixes
+./run.sh local dev --clean --fix-network
+./run.sh npm prod --clean
+./run.sh aws dev --fix-network
+
 # GitHub modes
 ./run.sh github dev   # Read from existing GitHub Pages
 ./run.sh github prod  # Create repos + deploy everything
@@ -215,9 +223,9 @@ run.bat [mode] [environment]
 ./run.sh aws prod     # AWS S3 production build
 
 # Windows examples
-run.bat local prod
-run.bat npm dev
-run.bat aws prod
+run.bat local prod --clean
+run.bat npm dev --fix-network
+run.bat aws prod --clean --fix-network
 ```
 
 #### Quick Development Launcher (`dev-all.sh` / `dev-all.bat`)
@@ -237,6 +245,41 @@ dev-all.bat
 - Always runs all 12 applications
 - Quick start for development
 - Uses ports 8080, 4201-4211
+
+### Troubleshooting Options
+
+**Network Issues (ECONNRESET errors):**
+```bash
+# Apply network fixes for unstable connections
+./run.sh local dev --fix-network
+run.bat npm prod --fix-network
+```
+
+**Clean Installation:**
+```bash
+# Remove node_modules and package-lock.json before install
+./run.sh local dev --clean
+run.bat aws prod --clean
+```
+
+**Combined Options:**
+```bash
+# Clean install with network fixes
+./run.sh local dev --clean --fix-network
+run.bat npm prod --clean --fix-network
+```
+
+**What `--fix-network` does:**
+- Sets npm fetch timeout to 10 minutes
+- Configures retry parameters for better resilience
+- Disables audit and fund checks to reduce network overhead
+- Helps resolve `ECONNRESET` and timeout issues
+
+**What `--clean` does:**
+- Removes `node_modules` directories
+- Removes `package-lock.json` files
+- Clears npm cache
+- Forces fresh dependency installation
 
 ### Manual Setup
 
@@ -757,10 +800,10 @@ Each microfrontend logs mount/unmount events to the browser console:
 
 ### Launcher Script Comparison
 
-| Script | Setup/Cleanup | Mode Support | Apps Launched | Best For |
-|--------|---------------|--------------|---------------|----------|
-| `run.sh/bat` | ✅ Full setup | ✅ All modes | Mode-dependent | Production-like testing |
-| `dev-all.sh/bat` | ❌ Minimal | ❌ Local only | Always all apps | Quick development |
+| Script | Setup/Cleanup | Mode Support | Apps Launched | Options | Best For |
+|--------|---------------|--------------|---------------|---------|----------|
+| `run.sh/bat` | ✅ Full setup | ✅ All modes | Mode-dependent | `--clean`, `--fix-network` | Production-like testing |
+| `dev-all.sh/bat` | ❌ Minimal | ❌ Local only | Always all apps | None | Quick development |
 
 ## Port Configuration
 
@@ -1462,11 +1505,12 @@ Each checker provides:
 
 1. **Port Conflicts**: Ensure all required ports are available
 2. **Node Version**: Use Node.js v18 or higher
-3. **Memory Issues**: Increase Node.js memory limit if needed
-4. **CORS Issues**: Applications are configured with CORS support
-5. **Registry Issues**: Run scripts automatically switch NPM registries
-6. **GitHub Actions Failures**: Individual apps use public NPM registry automatically
-7. **Deployment Issues**: Use status checkers to identify missing files or configuration problems
+3. **OpenSSL Compatibility**: Automatic handling via launcher scripts (see OpenSSL section above)
+4. **Memory Issues**: Increase Node.js memory limit if needed
+5. **CORS Issues**: Applications are configured with CORS support
+6. **Registry Issues**: Run scripts automatically switch NPM registries
+7. **GitHub Actions Failures**: Individual apps use public NPM registry automatically
+8. **Deployment Issues**: Use status checkers to identify missing files or configuration problems
 
 ### Debug Mode
 

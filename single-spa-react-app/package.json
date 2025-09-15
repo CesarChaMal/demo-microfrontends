@@ -11,14 +11,14 @@
     "react": "16.12.0",
     "react-dom": "16.12.0",
     "react-router-dom": "5.1.2",
-    "react-scripts": "4.0.0",
+    "react-scripts": "3.4.4",
     "rxjs": "^6.4.0",
     "single-spa-react": "2.11.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js --mode production",
-    "build:dev": "webpack --config webpack.config.js --mode development",
-    "build:prod": "webpack --config webpack.config.js --mode production",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode production",
+    "build:dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode development",
+    "build:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode production",
     "serve": "npm run build && npx http-server dist -p 4206 --cors",
     "lint": "eslint . --ext .js --fix"
   },
@@ -59,6 +59,7 @@
     "babel-eslint": "10.0.3",
     "babel-loader": "8.0.6",
     "clean-webpack-plugin": "3.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^3.6.0",
     "eslint": "6.8.0",
     "eslint-config-airbnb-base": "14.0.0",

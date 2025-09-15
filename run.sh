@@ -1,20 +1,35 @@
 #!/bin/bash
 
 # Demo Microfrontends Launcher Script
-# Usage: ./run.sh [mode] [environment]
+# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network]
 # Mode: local (default), npm, nexus, github, aws
 # Environment: dev (default), prod
+# Options: 
+#   --clean (cleanup node_modules and package-lock.json, default: off)
+#   --fix-network (configure npm for problematic networks, default: off)
 # Examples:
 #   ./run.sh local dev    # Full development environment
 #   ./run.sh local prod   # Production build locally
 #   ./run.sh npm prod     # NPM packages with production build
 #   ./run.sh github dev   # GitHub Pages with development build
-#   ./run.sh aws prod     # AWS S3 with production build
+#   ./run.sh aws prod --clean     # AWS S3 with production build and cleanup
+#   ./run.sh local dev --fix-network  # Local dev with network fixes
 set -e
 
 # Parse arguments
 MODE=${1:-local}
 ENV=${2:-dev}
+CLEANUP=false
+FIX_NETWORK=false
+
+# Check for flags in any position
+for arg in "$@"; do
+    if [ "$arg" = "--clean" ]; then
+        CLEANUP=true
+    elif [ "$arg" = "--fix-network" ]; then
+        FIX_NETWORK=true
+    fi
+done
 
 # Update .env file with current mode and environment
 echo "📝 Updating SPA configuration in .env..."
@@ -90,7 +105,24 @@ load_env() {
 
 load_env
 
-# Cross-platform npm wrapper that handles Node.js 22 + Webpack compatibility
+# Network fix function
+fix_network_config() {
+    echo "🔧 Applying network fixes for npm..."
+    npm config set audit false
+    npm config set fund false
+    npm config set fetch-timeout 600000
+    npm config set fetch-retries 5
+    npm config set fetch-retry-mintimeout 20000
+    npm config set fetch-retry-maxtimeout 120000
+    echo "✅ Network configuration applied"
+}
+
+# Apply network fixes if requested
+if [ "$FIX_NETWORK" = true ]; then
+    fix_network_config
+fi
+
+# Cross-platform npm wrapper that handles Node.js 18+ + Webpack compatibility
 # Windows Git Bash: NODE_OPTIONS restricted by security policy
 # Linux/Pop!_OS/WSL: Sets NODE_OPTIONS=--openssl-legacy-provider for OpenSSL 3.0 compatibility
 exec_npm() {
@@ -99,7 +131,20 @@ exec_npm() {
         "$@"
     else
         # Linux/Pop!_OS/WSL/macOS - export NODE_OPTIONS to enable legacy OpenSSL provider
-        # This allows older Webpack versions to work with Node.js 22's OpenSSL 3.0
+        # This allows older Webpack versions to work with Node.js 18+'s OpenSSL 3.0
+        export NODE_OPTIONS="--openssl-legacy-provider"
+        "$@"
+    fi
+}
+
+# Cross-platform build wrapper for individual app builds
+exec_build() {
+    # Always set NODE_OPTIONS for build commands to handle OpenSSL 3.0 compatibility
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        # Windows Git Bash - try to set NODE_OPTIONS, fallback if restricted
+        NODE_OPTIONS="--openssl-legacy-provider" "$@" 2>/dev/null || "$@"
+    else
+        # Linux/Pop!_OS/WSL/macOS - export NODE_OPTIONS
         export NODE_OPTIONS="--openssl-legacy-provider"
         "$@"
     fi
@@ -157,25 +202,41 @@ elif ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
     echo "📝 $MODE prod mode: Will publish packages first, then switch to $MODE mode"
 fi
 
-# Clean npm cache and main package first
-echo "🧹 Cleaning npm cache..."
-npm cache clean --force
-
-echo "🧹 Cleaning main package..."
-rm -rf node_modules package-lock.json
+# Clean npm cache and main package if cleanup enabled
+if [ "$CLEANUP" = true ]; then
+    echo "🧹 Cleanup enabled - cleaning npm cache..."
+    npm cache clean --force
+    
+    echo "🧹 Cleaning main package..."
+    rm -rf node_modules package-lock.json
+else
+    echo "🔍 Cleanup disabled - skipping cache and package cleanup"
+fi
 
 # Install main package dependencies first (needed for rimraf)
 if [ "$ENV" = "prod" ]; then
     echo "📦 Installing main package dependencies for production (CI)..."
-    exec_npm npm ci
+    if [ -f "package-lock.json" ]; then
+        exec_npm npm ci || {
+            echo "⚠️  npm ci failed, falling back to npm install..."
+            exec_npm npm install
+        }
+    else
+        echo "📝 No package-lock.json found, using npm install..."
+        exec_npm npm install
+    fi
 else
     echo "📦 Installing main package dependencies for development..."
     exec_npm npm install
 fi
 
-# Clean other applications (not main package)
-echo "🧹 Cleaning root and microfrontend applications..."
-npm run clean:root && npm run clean:apps
+# Clean other applications if cleanup enabled
+if [ "$CLEANUP" = true ]; then
+    echo "🧹 Cleaning root and microfrontend applications..."
+    npm run clean:root && npm run clean:apps
+else
+    echo "🔍 Cleanup disabled - skipping application cleanup"
+fi
 
 # Install all dependencies based on environment (skip for NPM/Nexus prod which publish first)
 # shellcheck disable=SC2235
@@ -184,7 +245,10 @@ if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
 else
     if [ "$ENV" = "prod" ]; then
         echo "📦 Installing all dependencies for production (CI)..."
-        exec_npm npm run install:all:ci
+        exec_npm npm run install:all:ci || {
+            echo "⚠️  CI install failed, falling back to regular install..."
+            exec_npm npm run install:all
+        }
     else
         echo "📦 Installing all dependencies for development..."
         exec_npm npm run install:all
@@ -198,10 +262,10 @@ if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
 else
     if [ "$ENV" = "prod" ]; then
         echo "🔨 Building all applications for production..."
-        exec_npm npm run build:prod
+        exec_build npm run build:prod
     else
         echo "🔨 Building all applications for development..."
-        exec_npm npm run build:dev
+        exec_build npm run build:dev
     fi
 fi
 

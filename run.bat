@@ -1,8 +1,11 @@
 @echo off
 REM Demo Microfrontends Launcher Script for Windows
-REM Usage: run.bat [mode] [environment]
+REM Usage: run.bat [mode] [environment] [--clean] [--fix-network]
 REM Mode: local (default), npm, nexus, github, aws
 REM Environment: dev (default), prod
+REM Options: 
+REM   --clean (cleanup node_modules and package-lock.json, default: off)
+REM   --fix-network (configure npm for problematic networks, default: off)
 REM Examples:
 REM   run.bat                     Default: local dev (all 12 apps)
 REM   run.bat local               Local dev (all 12 apps)
@@ -26,8 +29,20 @@ setlocal enabledelayedexpansion
 REM Parse arguments
 set MODE=%1
 set ENV=%2
+set CLEANUP=false
+set FIX_NETWORK=false
 if "%MODE%"=="" set MODE=local
 if "%ENV%"=="" set ENV=dev
+
+REM Check for flags in any position
+if "%1"=="--clean" set CLEANUP=true
+if "%2"=="--clean" set CLEANUP=true
+if "%3"=="--clean" set CLEANUP=true
+if "%4"=="--clean" set CLEANUP=true
+if "%1"=="--fix-network" set FIX_NETWORK=true
+if "%2"=="--fix-network" set FIX_NETWORK=true
+if "%3"=="--fix-network" set FIX_NETWORK=true
+if "%4"=="--fix-network" set FIX_NETWORK=true
 
 REM Update .env file with current mode and environment
 echo 📝 Updating SPA configuration in .env...
@@ -39,6 +54,18 @@ echo 🔍 DEBUG: Script execution started at %DATE% %TIME%
 echo 🔍 DEBUG: Working directory: %CD%
 echo 🔍 DEBUG: User: %USERNAME%
 echo 🔍 DEBUG: Platform: Windows
+
+REM Apply network fixes if requested
+if "%FIX_NETWORK%"=="true" (
+    echo 🔧 Applying network fixes for npm...
+    call npm config set audit false
+    call npm config set fund false
+    call npm config set fetch-timeout 600000
+    call npm config set fetch-retries 5
+    call npm config set fetch-retry-mintimeout 20000
+    call npm config set fetch-retry-maxtimeout 120000
+    echo ✅ Network configuration applied
+)
 
 REM Set OpenSSL legacy provider for Node.js 22 compatibility with older Webpack
 echo ⚠️  Setting OpenSSL legacy provider for Node.js 22 compatibility
@@ -59,36 +86,58 @@ if not "%MODE%"=="local" (
     if errorlevel 1 exit /b 1
 )
 
-REM Clean npm cache and main package first
-echo 🧹 Cleaning npm cache...
-call npm cache clean --force
-if errorlevel 1 exit /b 1
-
-echo 🧹 Cleaning main package...
-if exist "node_modules" rmdir /s /q "node_modules"
-if exist "package-lock.json" del /q "package-lock.json"
+REM Clean npm cache and main package if cleanup enabled
+if "%CLEANUP%"=="true" (
+    echo 🧹 Cleanup enabled - cleaning npm cache...
+    call npm cache clean --force
+    if errorlevel 1 exit /b 1
+    
+    echo 🧹 Cleaning main package...
+    if exist "node_modules" rmdir /s /q "node_modules"
+    if exist "package-lock.json" del /q "package-lock.json"
+) else (
+    echo 🔍 Cleanup disabled - skipping cache and package cleanup
+)
 
 REM Install main package dependencies first (needed for rimraf)
 if "%ENV%"=="prod" (
     echo 📦 Installing main package dependencies for production (CI)...
-    call npm ci
-    if errorlevel 1 exit /b 1
+    if exist "package-lock.json" (
+        call npm ci
+        if errorlevel 1 (
+            echo ⚠️ npm ci failed, falling back to npm install...
+            call npm install
+            if errorlevel 1 exit /b 1
+        )
+    ) else (
+        echo 📝 No package-lock.json found, using npm install...
+        call npm install
+        if errorlevel 1 exit /b 1
+    )
 ) else (
     echo 📦 Installing main package dependencies for development...
     call npm install
     if errorlevel 1 exit /b 1
 )
 
-REM Clean other applications (not main package)
-echo 🧹 Cleaning root and microfrontend applications...
-call npm run clean:root && npm run clean:apps
-if errorlevel 1 exit /b 1
+REM Clean other applications if cleanup enabled
+if "%CLEANUP%"=="true" (
+    echo 🧹 Cleaning root and microfrontend applications...
+    call npm run clean:root && npm run clean:apps
+    if errorlevel 1 exit /b 1
+) else (
+    echo 🔍 Cleanup disabled - skipping application cleanup
+)
 
 REM Install all dependencies based on environment
 if "%ENV%"=="prod" (
     echo 📦 Installing all dependencies for production (CI)...
     call npm run install:all:ci
-    if errorlevel 1 exit /b 1
+    if errorlevel 1 (
+        echo ⚠️ CI install failed, falling back to regular install...
+        call npm run install:all
+        if errorlevel 1 exit /b 1
+    )
 ) else (
     echo 📦 Installing all dependencies for development...
     call npm run install:all
@@ -98,10 +147,12 @@ if "%ENV%"=="prod" (
 REM Build applications based on environment
 if "%ENV%"=="prod" (
     echo 🔨 Building all applications for production...
+    set NODE_OPTIONS=--openssl-legacy-provider
     call npm run build:prod
     if errorlevel 1 exit /b 1
 ) else (
     echo 🔨 Building all applications for development...
+    set NODE_OPTIONS=--openssl-legacy-provider
     call npm run build:dev
     if errorlevel 1 exit /b 1
 )

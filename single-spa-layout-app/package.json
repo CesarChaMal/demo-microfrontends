@@ -4,9 +4,9 @@
   "description": "Vue application with header, navbar and footer for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-layout-app.umd.js",
   "scripts": {
-    "build": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js",
-    "build:dev": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
-    "build:prod": "vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode production",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --target lib --formats umd src/singleSpaEntry.js",
+    "build:dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode development",
+    "build:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --target lib --formats umd src/singleSpaEntry.js --mode production",
     "serve": "npm run build && npx http-server dist -p 4202 --cors",
     "lint": "vue-cli-service lint"
   },
@@ -15,6 +15,7 @@
     "@vue/cli-plugin-eslint": "4.1.0",
     "@vue/cli-service": "4.1.0",
     "babel-eslint": "10.0.3",
+    "cross-env": "^7.0.3",
     "core-js": "^3.45.1",
     "eslint": "5.16.0",
     "eslint-config-airbnb-base": "14.0.0",

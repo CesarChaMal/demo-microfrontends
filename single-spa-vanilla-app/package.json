@@ -5,9 +5,9 @@
   "main": "dist/single-spa-vanilla-app.js",
   "type": "module",
   "scripts": {
-    "build": "webpack --config webpack.config.cjs",
-    "build:dev": "webpack --config webpack.config.cjs --mode development",
-    "build:prod": "webpack --config webpack.config.cjs --mode production",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.cjs",
+    "build:dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.cjs --mode development",
+    "build:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.cjs --mode production",
     "start": "webpack serve --config webpack.config.cjs --mode development --port 4207",
     "serve": "npm run build && npx http-server dist -p 4207 --cors",
     "lint": "eslint src --ext .js --fix"
@@ -15,6 +15,7 @@
   "devDependencies": {
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.12",
+    "cross-env": "^7.0.3",
     "webpack-dev-server": "^3.11.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
