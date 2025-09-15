@@ -51,13 +51,37 @@ if "%MODE%"=="nexus" if "%ENV%"=="prod" goto start_nexus
 REM Switch to appropriate mode first (before installing dependencies)
 if not "%MODE%"=="local" (
     echo 🔄 Switching to %MODE% mode before installation...
-    call npm run mode:%MODE%
+    set SKIP_INSTALL=true && call npm run mode:%MODE%
+    if errorlevel 1 exit /b 1
+) else (
+    echo 🔄 Switching to %MODE% mode...
+    set SKIP_INSTALL=true && call npm run mode:%MODE%
     if errorlevel 1 exit /b 1
 )
 
-REM Install root dependencies first (needed for rimraf)
-echo 📦 Installing root dependencies...
-call npm install
+REM Clean npm cache and main package first
+echo 🧹 Cleaning npm cache...
+call npm cache clean --force
+if errorlevel 1 exit /b 1
+
+echo 🧹 Cleaning main package...
+if exist "node_modules" rmdir /s /q "node_modules"
+if exist "package-lock.json" del /q "package-lock.json"
+
+REM Install main package dependencies first (needed for rimraf)
+if "%ENV%"=="prod" (
+    echo 📦 Installing main package dependencies for production (CI)...
+    call npm ci
+    if errorlevel 1 exit /b 1
+) else (
+    echo 📦 Installing main package dependencies for development...
+    call npm install
+    if errorlevel 1 exit /b 1
+)
+
+REM Clean other applications (not main package)
+echo 🧹 Cleaning root and microfrontend applications...
+call npm run clean:root && npm run clean:apps
 if errorlevel 1 exit /b 1
 
 REM Install all dependencies based on environment
@@ -195,8 +219,7 @@ if "%MODE%"=="local" (
                 
                 REM Now switch to NPM mode
                 echo 🔄 Switching to NPM mode after publishing...
-                set SKIP_INSTALL=true
-                call npm run mode:npm
+                set SKIP_INSTALL=true && call npm run mode:npm
                 if errorlevel 1 exit /b 1
                 
                 REM Build root application with NPM mode configuration
@@ -279,8 +302,7 @@ if "%MODE%"=="local" (
                 
                 REM Now switch to Nexus mode
                 echo 🔄 Switching to Nexus mode after publishing...
-                set SKIP_INSTALL=true
-                call npm run mode:nexus
+                set SKIP_INSTALL=true && call npm run mode:nexus
                 if errorlevel 1 exit /b 1
                 
                 REM Build root application with Nexus mode configuration

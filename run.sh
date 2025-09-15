@@ -48,20 +48,36 @@ echo "🔍 DEBUG: Platform: $PLATFORM"
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
     echo "🔄 Setting Node.js version..."
     source "$HOME/.nvm/nvm.sh"
-    nvm use 18.20.8 || {
-        echo "📥 Installing Node.js 18.20.8..."
-        nvm install 18.20.8
-        nvm use 18.20.8
-    }
+    if [ -f ".nvmrc" ]; then
+        REQUIRED_NODE=$(cat .nvmrc)
+        echo "📋 .nvmrc specifies Node.js $REQUIRED_NODE"
+        nvm use $REQUIRED_NODE || {
+            echo "📥 Installing Node.js $REQUIRED_NODE..."
+            nvm install $REQUIRED_NODE
+            nvm use $REQUIRED_NODE
+        }
+    else
+        nvm use 18.20.0 || {
+            echo "📥 Installing Node.js 18.20.0..."
+            nvm install 18.20.0
+            nvm use 18.20.0
+        }
+    fi
 elif command -v node >/dev/null 2>&1; then
     NODE_VERSION=$(node -v)
     echo "📋 Current Node.js version: $NODE_VERSION"
-    if [[ ! "$NODE_VERSION" =~ ^v18\. ]]; then
+    if [ -f ".nvmrc" ]; then
+        REQUIRED_NODE=$(cat .nvmrc)
+        if [[ ! "$NODE_VERSION" =~ ^v$REQUIRED_NODE ]]; then
+            echo "⚠️  Warning: .nvmrc requires Node.js $REQUIRED_NODE, current: $NODE_VERSION"
+            echo "💡 Install nvm and run 'nvm use' for best compatibility"
+        fi
+    elif [[ ! "$NODE_VERSION" =~ ^v18\. ]]; then
         echo "⚠️  Warning: Node.js 18.x recommended, current: $NODE_VERSION"
-        echo "💡 Install nvm and Node.js 18.20.8 for best compatibility"
+        echo "💡 Install nvm and Node.js 18.20.0 for best compatibility"
     fi
 else
-    echo "❌ Node.js not found. Please install Node.js 18.20.8"
+    echo "❌ Node.js not found. Please install Node.js 18.20.0"
     exit 1
 fi
 
@@ -115,39 +131,54 @@ case "$PLATFORM" in
 esac
 
 # Fix dependencies and switch to appropriate mode (except NPM/Nexus prod which publish first)
-if [ "$MODE" != "local" ] && ! (([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]); then
-    echo "🔧 Fixing dependencies for $MODE mode..."
-    case "$MODE" in
-        "npm")
-            echo "🔧 Running NPM dependency fix..."
-            npm run fix:npm:deps || echo "⚠️  NPM dependency fix completed with warnings"
-            ;;
-        "nexus")
-            echo "🔧 Running Nexus dependency fix..."
-            npm run fix:nexus:deps || echo "⚠️  Nexus dependency fix completed with warnings"
-            ;;
-        *)
-            echo "🔧 Running auto dependency fix for $MODE mode..."
-            npm run fix:auto:$MODE || echo "⚠️  Auto dependency fix completed with warnings"
-            ;;
-    esac
+if ! (([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]); then
+    if [ "$MODE" != "local" ]; then
+        echo "🔧 Fixing dependencies for $MODE mode..."
+        case "$MODE" in
+            "npm")
+                echo "🔧 Running NPM dependency fix..."
+                SKIP_INSTALL=true npm run fix:npm:deps || echo "⚠️  NPM dependency fix completed with warnings"
+                ;;
+            "nexus")
+                echo "🔧 Running Nexus dependency fix..."
+                SKIP_INSTALL=true npm run fix:nexus:deps || echo "⚠️  Nexus dependency fix completed with warnings"
+                ;;
+            *)
+                echo "🔧 Running auto dependency fix for $MODE mode..."
+                SKIP_INSTALL=true npm run fix:auto:$MODE || echo "⚠️  Auto dependency fix completed with warnings"
+                ;;
+        esac
+    fi
     
-    echo "🔄 Switching to $MODE mode after dependency fix..."
-    npm run mode:$MODE
+    echo "🔄 Switching to $MODE mode..."
+    SKIP_INSTALL=true npm run mode:$MODE
+# shellcheck disable=SC2235
 elif ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
     echo "📝 $MODE prod mode: Will publish packages first, then switch to $MODE mode"
 fi
 
-# Install root dependencies first (needed for rimraf)
-echo "📦 Installing root dependencies..."
-exec_npm npm install
+# Clean npm cache and main package first
+echo "🧹 Cleaning npm cache..."
+npm cache clean --force
 
-# Clean all applications
-echo "🧹 Cleaning all applications..."
-#npm cache clean --force
-#npm run clean
+echo "🧹 Cleaning main package..."
+rm -rf node_modules package-lock.json
+
+# Install main package dependencies first (needed for rimraf)
+if [ "$ENV" = "prod" ]; then
+    echo "📦 Installing main package dependencies for production (CI)..."
+    exec_npm npm ci
+else
+    echo "📦 Installing main package dependencies for development..."
+    exec_npm npm install
+fi
+
+# Clean other applications (not main package)
+echo "🧹 Cleaning root and microfrontend applications..."
+npm run clean:root && npm run clean:apps
 
 # Install all dependencies based on environment (skip for NPM/Nexus prod which publish first)
+# shellcheck disable=SC2235
 if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
     echo "📝 Skipping dependency installation for $MODE prod mode (will build in local mode first)"
 else
@@ -161,6 +192,7 @@ else
 fi
 
 # Build applications based on environment (skip for NPM/Nexus prod which build in local mode)
+# shellcheck disable=SC2235
 if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
     echo "📝 Skipping build for $MODE prod mode (will build in local mode during publishing)"
 else

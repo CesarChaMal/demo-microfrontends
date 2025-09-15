@@ -36,7 +36,17 @@ export const mount = (props) => {
 };
 export const unmount = (props) => {
   console.log('🔐 Auth App unmounting');
-  return vueLifecycles.unmount(props);
+  return vueLifecycles.unmount(props).then(() => {
+    // Clean up the mount point to prevent layout issues
+    const mountPoint = document.getElementById('auth-app');
+    if (mountPoint) {
+      mountPoint.innerHTML = '';
+      mountPoint.style.display = 'none';
+      mountPoint.style.height = '0';
+      mountPoint.style.margin = '0';
+      mountPoint.style.padding = '0';
+    }
+  });
 };
 
 // For UMD builds, expose on window
