@@ -147,8 +147,24 @@ npm config delete fetch-retry-maxtimeout
 - Older Webpack versions (4.x) rely on deprecated MD4 hash algorithm
 - Windows Git Bash may restrict NODE_OPTIONS environment variable
 
-**Automatic Solution (Launcher Scripts):**
-The `run.sh` and `run.bat` scripts automatically handle OpenSSL compatibility:
+**Automatic Solution (Built-in Compatibility):**
+All 12 applications now have built-in OpenSSL compatibility using `cross-env`:
+
+```json
+// All package.json files include cross-env for build scripts
+{
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
+    "serve:root": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --hot --port 8080"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
+}
+```
+
+**Launcher Script Compatibility:**
+The `run.sh` and `run.bat` scripts provide additional OpenSSL compatibility:
 
 ```bash
 # Linux/macOS/WSL - Sets NODE_OPTIONS globally
