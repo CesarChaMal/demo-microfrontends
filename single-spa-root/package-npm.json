@@ -6,11 +6,11 @@
   "scripts": {
     "dev:build:apps": "concurrently --kill-others-on-fail -n AUTH-B,LAYOUT-B,HOME-B,ANG-B,VUE-B,REACT-B,VANILLA-B,WC-B,TS-B,JQ-B,SVELTE-B \"npm --prefix ../single-spa-auth-app run build -- --mode development\" \"npm --prefix ../single-spa-layout-app run build -- --mode development\" \"npm --prefix ../single-spa-home-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-angular-app run build:single-spa -- --watch\" \"npm --prefix ../single-spa-vue-app run build -- --mode development\" \"npm --prefix ../single-spa-react-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-vanilla-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-webcomponents-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-typescript-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-jquery-app run build -- --mode development --watch\" \"npm --prefix ../single-spa-svelte-app run build -- --mode development --watch\"",
     "dev:serve:apps": "concurrently --kill-others-on-fail -n AUTH-S,LAYOUT-S,HOME-S,ANG-S,VUE-S,REACT-S,VANILLA-S,WC-S,TS-S,JQ-S,SVELTE-S \"npx http-server ../single-spa-auth-app/dist -p 4201 -c-1 --cors\" \"npx http-server ../single-spa-layout-app/dist -p 4202 -c-1 --cors\" \"npx http-server ../single-spa-home-app/dist -p 4203 -c-1 --cors\" \"npx http-server ../single-spa-angular-app/dist -p 4204 -c-1 --cors\" \"npx http-server ../single-spa-vue-app/dist -p 4205 -c-1 --cors\" \"npx http-server ../single-spa-react-app/dist -p 4206 -c-1 --cors\" \"npx http-server ../single-spa-vanilla-app/dist -p 4207 -c-1 --cors\" \"npx http-server ../single-spa-webcomponents-app/dist -p 4208 -c-1 --cors\" \"npx http-server ../single-spa-typescript-app/dist -p 4209 -c-1 --cors\" \"npx http-server ../single-spa-jquery-app/dist -p 4210 -c-1 --cors\" \"npx http-server ../single-spa-svelte-app/dist -p 4211 -c-1 --cors\"",
-    "serve:root": "webpack-dev-server --hot --port 8080",
+    "serve:root": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --hot --port 8080",
     "serve": "concurrently --kill-others-on-fail -n \"ROOT,BUILD,SERVE-MFES\" \"npm run serve:root\" \"npm run dev:build:apps\" \"npm run dev:serve:apps\"",
-    "build": "webpack --config webpack.config.js -p",
-    "build:dev": "webpack --config webpack.config.js --mode development",
-    "build:prod": "webpack --config webpack.config.js --mode production",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js -p",
+    "build:dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode development",
+    "build:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack.config.js --mode production",
     "lint:strict": "concurrently --kill-others-on-fail -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint\" \"npm --prefix ../single-spa-layout-app run lint\" \"npm --prefix ../single-spa-home-app run lint\" \"npm --prefix ../single-spa-angular-app run lint\" \"npm --prefix ../single-spa-vue-app run lint\" \"npm --prefix ../single-spa-react-app run lint\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "lint:loose": "concurrently -n AUTH,LAYOUT,HOME,ANG,VUE,REACT,VANILLA,WC,TS,JQ,SVELTE \"npm --prefix ../single-spa-auth-app run lint || exit 0\" \"npm --prefix ../single-spa-layout-app run lint || exit 0\" \"npm --prefix ../single-spa-home-app run lint || exit 0\" \"npm --prefix ../single-spa-angular-app run lint || exit 0\" \"npm --prefix ../single-spa-vue-app run lint || exit 0\" \"npm --prefix ../single-spa-react-app run lint || exit 0\" \"npm --prefix ../single-spa-vanilla-app run lint || exit 0\" \"npm --prefix ../single-spa-webcomponents-app run lint || exit 0\" \"npm --prefix ../single-spa-typescript-app run lint || exit 0\" \"npm --prefix ../single-spa-jquery-app run lint || exit 0\" \"npm --prefix ../single-spa-svelte-app run lint || exit 0\"",
     "start": "npm run build:apps && npm run build && node server.js",
@@ -26,6 +26,7 @@
   "author": "Cesar Francisco Chavez Maldonado",
   "license": "MIT",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "@angular-devkit/build-angular": "0.803.23",
     "@angular-devkit/build-ng-packagr": "0.803.23",
     "@angular/cli": "8.3.23",
