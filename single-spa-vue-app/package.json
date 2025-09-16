@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-vue-app",
-  "version": "1.0.16",
+  "version": "1.0.18",
   "description": "Vue application with two example pages for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-vue-app.umd.js",
   "scripts": {

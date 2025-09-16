@@ -32,9 +32,24 @@ fi
 
 echo "📦 Latest available version: $AVAILABLE_VERSION"
 
-# 3. Update package.json dependencies
+# 3. Update package.json dependencies and version
 cd "$APP_DIR"
 echo "📝 Updating dependencies to version $AVAILABLE_VERSION..."
+
+# Update main package version to match NPM registry
+if [ "$APP_DIR" = "single-spa-root" ] || [ "$APP_DIR" = "." ]; then
+    # Update main package version
+    sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$AVAILABLE_VERSION\"/g" package.json
+    echo "📝 Updated main package version to $AVAILABLE_VERSION"
+    
+    # Also update root directory package.json if we're in a subdirectory
+    if [ "$APP_DIR" != "." ]; then
+        cd ..
+        sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$AVAILABLE_VERSION\"/g" package.json
+        echo "📝 Updated root package version to $AVAILABLE_VERSION"
+        cd "$APP_DIR"
+    fi
+fi
 
 # Update all microfrontend dependencies to exact version
 sed -i "s/\"@${ORG_NAME}\/single-spa-auth-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-auth-app\": \"$AVAILABLE_VERSION\"/g" package.json
@@ -49,12 +64,23 @@ sed -i "s/\"@${ORG_NAME}\/single-spa-typescript-app\": \"[^\"]*\"/\"@${ORG_NAME}
 sed -i "s/\"@${ORG_NAME}\/single-spa-jquery-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-jquery-app\": \"$AVAILABLE_VERSION\"/g" package.json
 sed -i "s/\"@${ORG_NAME}\/single-spa-svelte-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-svelte-app\": \"$AVAILABLE_VERSION\"/g" package.json
 
-echo "✅ Dependencies updated"
+echo "✅ Dependencies and version updated"
 
-# 4. Clear npm cache and install dependencies (skip if called from publishing)
+# 4. Update all app package versions to match
 if [ "${FROM_RUN_SCRIPT}" = "true" ] || [ "${SKIP_INSTALL}" = "true" ]; then
+    echo "🔄 Updating all app versions to match NPM registry ($AVAILABLE_VERSION)..."
+    cd ..
+    
+    # Update all app package.json versions
+    for app in single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app; do
+        if [ -d "$app" ]; then
+            sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$AVAILABLE_VERSION\"/g" "$app/package.json"
+            echo "📝 Updated $app version to $AVAILABLE_VERSION"
+        fi
+    done
+    
     echo "⏭️ Skipping dependency installation (called from publishing workflow)"
-    echo "✅ Dependencies updated in package.json only"
+    echo "✅ All versions synchronized to $AVAILABLE_VERSION"
 else
     echo "🧹 Clearing NPM cache..."
     npm cache clean --force

@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-root",
-  "version": "1.0.16",
+  "version": "1.0.18",
   "description": "Single-spa application example which imports registered applications from NPM packages and manages authentication features as login.",
   "main": "root-application.js",
   "scripts": {

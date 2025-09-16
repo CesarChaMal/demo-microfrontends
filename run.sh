@@ -620,5 +620,17 @@ case "$MODE" in
         ;;
 esac
 
+# Cleanup function to restore local mode
+cleanup() {
+    echo ""
+    echo "🔄 Cleaning up and switching back to local mode..."
+    SKIP_INSTALL=true npm run mode:local 2>/dev/null || true
+    echo "✅ Switched back to local mode"
+    exit 0
+}
+
+# Set trap to run cleanup on script exit
+trap cleanup EXIT INT TERM
+
 echo ""
 echo "Press Ctrl+C to stop"

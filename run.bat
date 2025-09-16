@@ -512,3 +512,10 @@ if "%MODE%"=="local" (
         )
     )
 )
+
+REM Cleanup function to restore local mode
+echo.
+echo 🔄 Cleaning up and switching back to local mode...
+set SKIP_INSTALL=true
+call npm run mode:local >nul 2>&1
+echo ✅ Switched back to local mode
