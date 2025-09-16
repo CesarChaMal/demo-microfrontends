@@ -331,6 +331,7 @@
     "trigger:deploy:aws": "bash ./scripts/trigger-deploy-aws.sh",
     "trigger:deploy:github": "bash ./scripts/trigger-deploy-github.sh",
     "trigger:github:pages": "gh workflow run deploy-github-pages.yml",
+    "trigger:aws:s3": "bash ./scripts/trigger-aws-s3.sh",
     "registry:npm": "cp .npmrc.npm .npmrc && echo 'Switched to NPM registry'",
     "registry:nexus": "cp .npmrc.nexus .npmrc && echo 'Switched to Nexus registry'",
     "registry:status": "echo 'Current registry:' && npm config get registry",
