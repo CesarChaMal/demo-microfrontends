@@ -20,9 +20,15 @@ if exist ".npmrc.nexus" (
     exit /b 1
 )
 
-REM 2. Check available versions in Nexus
+REM 2. Check available versions in Nexus (force Nexus registry)
 echo 🔍 Checking available versions in Nexus...
-for /f "tokens=*" %%i in ('npm view "@%ORG_NAME%/single-spa-auth-app" version') do set AVAILABLE_VERSION=%%i
+REM Get Nexus registry URL from .npmrc.nexus
+for /f "tokens=2 delims==" %%i in ('findstr "^registry=" .npmrc.nexus') do set NEXUS_REGISTRY=%%i
+if "%NEXUS_REGISTRY%"=="" (
+    echo ❌ No registry found in .npmrc.nexus
+    exit /b 1
+)
+for /f "tokens=*" %%i in ('npm view "@%ORG_NAME%/single-spa-auth-app" version --registry "%NEXUS_REGISTRY%" 2^>nul') do set AVAILABLE_VERSION=%%i
 
 if "%AVAILABLE_VERSION%"=="" (
     echo ❌ No packages found in Nexus. Run: npm run publish:nexus:prod

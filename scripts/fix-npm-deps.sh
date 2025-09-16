@@ -21,9 +21,9 @@ else
     echo "✅ Using default NPM registry"
 fi
 
-# 2. Check available versions in NPM
+# 2. Check available versions in NPM (force NPM registry)
 echo "🔍 Checking available versions in NPM..."
-AVAILABLE_VERSION=$(npm view "@${ORG_NAME}/single-spa-auth-app" version 2>/dev/null)
+AVAILABLE_VERSION=$(npm view "@${ORG_NAME}/single-spa-auth-app" version --registry https://registry.npmjs.org/ 2>/dev/null)
 
 if [ -z "$AVAILABLE_VERSION" ]; then
     echo "❌ No packages found in NPM. Run: npm run publish:npm:prod"

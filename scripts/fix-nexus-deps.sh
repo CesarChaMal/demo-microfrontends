@@ -17,9 +17,15 @@ else
     exit 1
 fi
 
-# 2. Check available versions in Nexus
+# 2. Check available versions in Nexus (force Nexus registry)
 echo "🔍 Checking available versions in Nexus..."
-AVAILABLE_VERSION=$(npm view "@${ORG_NAME}/single-spa-auth-app" versions --json | grep -o '"[0-9]\+\.[0-9]\+\.[0-9]\+"' | tail -1 | tr -d '"')
+# Get Nexus registry URL from .npmrc.nexus
+NEXUS_REGISTRY=$(grep '^registry=' .npmrc.nexus | cut -d'=' -f2)
+if [ -z "$NEXUS_REGISTRY" ]; then
+    echo "❌ No registry found in .npmrc.nexus"
+    exit 1
+fi
+AVAILABLE_VERSION=$(npm view "@${ORG_NAME}/single-spa-auth-app" version --registry "$NEXUS_REGISTRY" 2>/dev/null)
 
 if [ -z "$AVAILABLE_VERSION" ]; then
     echo "❌ No packages found in Nexus. Run: npm run publish:nexus:prod"

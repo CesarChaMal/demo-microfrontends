@@ -23,9 +23,9 @@ if exist ".npmrc.npm" (
     echo ✅ Using default NPM registry
 )
 
-REM 2. Check available versions in NPM
+REM 2. Check available versions in NPM (force NPM registry)
 echo 🔍 Checking available versions in NPM...
-for /f "tokens=*" %%i in ('npm view "@%ORG_NAME%/single-spa-auth-app" version 2^>nul') do set AVAILABLE_VERSION=%%i
+for /f "tokens=*" %%i in ('npm view "@%ORG_NAME%/single-spa-auth-app" version --registry https://registry.npmjs.org/ 2^>nul') do set AVAILABLE_VERSION=%%i
 
 if "%AVAILABLE_VERSION%"=="" (
     echo ❌ No packages found in NPM. Run: npm run publish:npm:prod

@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-typescript-app",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "TypeScript microfrontend for Single-SPA demonstrating type safety",
   "main": "dist/single-spa-typescript-app.js",
   "scripts": {
