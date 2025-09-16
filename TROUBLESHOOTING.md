@@ -1,222 +1,476 @@
-# NPM Install Troubleshooting Guide
+# Troubleshooting Guide
 
-## Common Issues and Solutions
+This guide helps resolve common issues when working with the microfrontend application.
 
-### 1. ECONNRESET Network Errors
+## Quick Fixes
 
-**Symptoms:**
-- `npm ERR! code ECONNRESET`
-- `npm ERR! syscall read`
-- `npm ERR! errno -4077`
-- `npm ERR! network read ECONNRESET`
-
-**Root Causes:**
-- Network instability or timeouts
-- Corporate firewall/proxy blocking connections
-- npm registry connection limits
-- Large dependency trees causing long downloads
-
-**Solution (Step-by-step):**
-
+### Application Won't Start
 ```bash
-# 1. Configure npm timeouts and retry settings
-npm config set audit false
-npm config set fund false
-npm config set fetch-timeout 600000
-npm config set fetch-retries 5
-npm config set fetch-retry-mintimeout 20000
-npm config set fetch-retry-maxtimeout 120000
+# Clean installation and network fixes
+./run.sh local dev --clean --fix-network
 
-# 2. Clean cache and remove existing files
-npm cache clean --force
-rm -rf node_modules package-lock.json
-
-# 3. Install with extended timeout and verbose logging
-npm install --no-audit --no-fund --fetch-timeout=600000 --verbose
+# Or use quick development launcher
+./dev-all.sh
 ```
 
-### 2. Invalid Version Errors
+### Port Conflicts
+```bash
+# Check what's using the ports
+netstat -tulpn | grep :8080
+netstat -tulpn | grep :4201
 
-**Symptoms:**
-- `TypeError: Invalid Version:`
-- Errors in `semver` package during dependency resolution
+# Kill processes using the ports
+kill -9 $(lsof -t -i:8080)
+pkill -f "webpack-dev-server"
+
+# Windows
+netstat -ano | findstr :8080
+taskkill /PID <PID> /F
+```
+
+### Module Loading Errors
+```bash
+# Auto-fix dependencies
+npm run fix:auto
+
+# Or target specific mode
+npm run fix:auto:npm
+npm run fix:auto:nexus
+```
+
+## Common Issues
+
+### 1. Node.js Version Issues
+
+**Problem:** Application fails to start with OpenSSL or Node.js errors
 
 **Solution:**
 ```bash
-# Remove problematic packages from package.json
-# Common culprits: babel-eslint@10.0.3, react-scripts@4.0.0
+# Check Node.js version (requires v18+)
+node --version
 
-# Use compatible versions:
-# babel-eslint: Remove entirely or use @10.0.1
-# react-scripts: Use @3.4.4 instead of @4.0.0
+# Launcher scripts handle OpenSSL compatibility automatically
+./run.sh local dev  # Includes --openssl-legacy-provider fix
 ```
 
-### 3. Dependency Version Conflicts
+**Manual Fix:**
+```bash
+export NODE_OPTIONS="--openssl-legacy-provider"
+npm start
+```
 
-**Symptoms:**
-- `ERESOLVE` errors
-- Peer dependency warnings
-- Version mismatch errors
+### 2. Network and Connection Issues
+
+**Problem:** ECONNRESET, ETIMEDOUT, or npm install failures
 
 **Solution:**
 ```bash
-# Use --force to override dependency conflicts
-npm install --force --no-audit
+# Apply network fixes
+./run.sh local dev --fix-network
 
-# Or use --legacy-peer-deps for older projects
-npm install --legacy-peer-deps --no-audit
-```
-
-### 4. npm ci Fallback Strategy
-
-**For production environments:**
-```bash
-# Try npm ci first (faster, deterministic)
-if [ -f "package-lock.json" ]; then
-    npm ci || {
-        echo "npm ci failed, falling back to npm install..."
-        npm install
-    }
-else
-    echo "No package-lock.json found, using npm install..."
-    npm install
-fi
-```
-
-### 5. Alternative Solutions
-
-**Use Yarn (often more reliable):**
-```bash
-npm install -g yarn
-yarn install --network-timeout 300000
-```
-
-**Use different registry:**
-```bash
-npm install --registry https://registry.npmmirror.com
-```
-
-**Limit concurrent connections:**
-```bash
-npm install --maxsockets 1 --force --no-audit
-```
-
-**Install in batches:**
-```bash
-npm install react react-dom --force --no-audit
-npm install webpack webpack-cli --force --no-audit
-npm install --force --no-audit
-```
-
-## Configuration Summary
-
-**Recommended npm configuration for problematic networks:**
-```bash
-npm config set audit false
-npm config set fund false
-npm config set fetch-timeout 600000
-npm config set fetch-retries 5
+# Manual network configuration
+npm config set registry https://registry.npmjs.org/
+npm config set timeout 60000
 npm config set fetch-retry-mintimeout 20000
 npm config set fetch-retry-maxtimeout 120000
 ```
 
-**Check current configuration:**
+### 3. Dependency Version Mismatches
+
+**Problem:** "No matching version found" or module loading errors
+
+**Solution:**
 ```bash
-npm config list
+# Auto-detect and fix
+npm run fix:auto
+
+# Specific registry fixes
+npm run fix:npm:deps:root     # For NPM mode
+npm run fix:nexus:deps:root   # For Nexus mode
+
+# Check current versions
+npm run version:current
 ```
 
-**Reset to defaults:**
+### 4. Registry Authentication Issues
+
+**Problem:** 401 Unauthorized or authentication failures
+
+**NPM Solution:**
 ```bash
-npm config delete audit
-npm config delete fund
-npm config delete fetch-timeout
-npm config delete fetch-retries
-npm config delete fetch-retry-mintimeout
-npm config delete fetch-retry-maxtimeout
+# Test NPM authentication
+npm run test:npm:auth
+
+# Set NPM token
+export NPM_TOKEN=npm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+npm login
 ```
 
-## OpenSSL Compatibility Issues
+**Nexus Solution:**
+```bash
+# Test Nexus authentication
+npm run test:nexus:auth
 
-**Symptoms:**
-- `error:0308010C:digital envelope routines::unsupported`
-- Build failures with Node.js 18+ and older Webpack versions
-- OpenSSL 3.0 compatibility errors
+# Check .npmrc.nexus configuration
+cat .npmrc.nexus
+```
 
-**Root Cause:**
-- Node.js 18+ uses OpenSSL 3.0 which removed legacy algorithms
-- Older Webpack versions (4.x) rely on deprecated MD4 hash algorithm
-- Windows Git Bash may restrict NODE_OPTIONS environment variable
+### 5. Build Failures
 
-**Automatic Solution (Built-in Compatibility):**
-All 12 applications now have built-in OpenSSL compatibility using `cross-env`:
+**Problem:** Webpack build errors or compilation failures
 
-```json
-// All package.json files include cross-env for build scripts
-{
-  "scripts": {
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
-    "serve:root": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --hot --port 8080"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.3"
+**Solution:**
+```bash
+# Clean build
+npm run clean
+npm run build:all
+
+# Individual app builds
+cd single-spa-[app-name]
+npm run build
+
+# Check for ESLint errors
+npm run lint
+```
+
+### 6. Layout and Styling Issues
+
+**Problem:** Header, navbar, or footer not displaying correctly
+
+**Solution:**
+```bash
+# Check if layout app is running
+curl http://localhost:4202/single-spa-layout-app.js
+
+# Verify authentication state
+# Layout only renders when authenticated
+```
+
+**Manual Check:**
+- Login at `/login` first
+- Layout components only show for authenticated users
+- Check browser console for JavaScript errors
+
+### 7. Hot Reload Not Working
+
+**Problem:** Changes not reflecting in browser
+
+**Solution:**
+```bash
+# Restart development servers
+./run.sh local dev
+
+# Check if files are being watched
+# Look for "webpack compiled" messages in terminal
+
+# Clear browser cache
+# Hard refresh: Ctrl+Shift+R (Chrome/Firefox)
+```
+
+### 8. Memory Issues
+
+**Problem:** "JavaScript heap out of memory" errors
+
+**Solution:**
+```bash
+# Increase Node.js memory limit
+export NODE_OPTIONS="--max-old-space-size=4096"
+./run.sh local dev
+
+# Or permanently in package.json scripts
+"serve": "cross-env NODE_OPTIONS='--max-old-space-size=4096' webpack serve"
+```
+
+### 9. CORS Issues
+
+**Problem:** Cross-origin request blocked errors
+
+**Solution:**
+- Applications are pre-configured with CORS support
+- Check if all development servers are running
+- Verify URLs in browser network tab
+
+**Manual CORS Fix:**
+```javascript
+// In webpack.config.js
+devServer: {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+    "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
   }
 }
 ```
 
-**Launcher Script Compatibility:**
-The `run.sh` and `run.bat` scripts provide additional OpenSSL compatibility:
+### 10. GitHub Mode Issues
 
+**Problem:** GitHub deployment or loading failures
+
+**Solution:**
 ```bash
-# Linux/macOS/WSL - Sets NODE_OPTIONS globally
-export NODE_OPTIONS="--openssl-legacy-provider"
+# Check environment variables
+echo $GITHUB_TOKEN
+echo $GITHUB_USERNAME
 
-# Windows Git Bash - Attempts NODE_OPTIONS with fallback
-NODE_OPTIONS="--openssl-legacy-provider" npm run build 2>/dev/null || npm run build
+# Test GitHub authentication
+gh auth status
+
+# Check repository status
+npm run check:github
 ```
 
-**Manual Solution:**
+**Environment Setup:**
 ```bash
-# Set environment variable before build commands
-export NODE_OPTIONS="--openssl-legacy-provider"
-npm run build
-
-# Or inline for single command
-NODE_OPTIONS="--openssl-legacy-provider" npm run build
-
-# Windows Command Prompt
-set NODE_OPTIONS=--openssl-legacy-provider && npm run build
-
-# Windows PowerShell
-$env:NODE_OPTIONS="--openssl-legacy-provider"; npm run build
+export GITHUB_TOKEN=ghp_your_token_here
+export GITHUB_USERNAME=your-username
+export ORG_NAME=your-org-name
 ```
 
-**Script Function Differences:**
+### 11. AWS Mode Issues
 
-| Function | Purpose | Windows Behavior | Linux/macOS Behavior |
-|----------|---------|------------------|----------------------|
-| `exec_npm()` | General npm commands | Skips NODE_OPTIONS | Sets NODE_OPTIONS globally |
-| `exec_build()` | Build-specific commands | Attempts NODE_OPTIONS with fallback | Sets NODE_OPTIONS globally |
+**Problem:** AWS S3 deployment or loading failures
 
-**exec_npm() vs exec_build():**
-- **exec_npm()**: Used for `npm install`, `npm ci`, general npm operations
-- **exec_build()**: Used for `npm run build`, build-specific commands with aggressive OpenSSL compatibility
-- **Fallback Strategy**: `exec_build()` tries NODE_OPTIONS first, falls back to direct execution if restricted
-
-## Network Diagnostics
-
-**Test registry connectivity:**
+**Solution:**
 ```bash
-curl -I https://registry.npmjs.org
-curl -I https://registry.npmmirror.com
+# Check environment variables
+echo $S3_BUCKET
+echo $AWS_REGION
+echo $ORG_NAME
+
+# Test AWS credentials
+aws s3 ls s3://$S3_BUCKET
+
+# Check S3 status
+npm run check:aws
 ```
 
-**Check DNS resolution:**
+**Environment Setup:**
 ```bash
-nslookup registry.npmjs.org
-ping registry.npmjs.org
+export S3_BUCKET=your-bucket-name
+export AWS_REGION=your-region
+export ORG_NAME=your-org-name
 ```
 
-**Test with different network:**
-- Try mobile hotspot
-- Use VPN
-- Try different WiFi network
+## Debug Mode
+
+### Enable Debug Logging
+```bash
+# Single-SPA debug logs
+DEBUG=single-spa:* ./run.sh local dev
+
+# NPM debug logs
+npm config set loglevel verbose
+./run.sh npm dev
+
+# Webpack debug logs
+DEBUG=webpack:* ./run.sh local dev
+```
+
+### Browser Debug
+```javascript
+// In browser console
+localStorage.setItem('devtools', true);
+window.singleSpa.getAppNames();
+window.singleSpa.getAppStatus('single-spa-auth-app');
+
+// Check state manager
+window.stateManager.userState$.subscribe(console.log);
+window.stateManager.events$.subscribe(console.log);
+```
+
+## Performance Issues
+
+### Slow Startup
+```bash
+# Use quick launcher
+./dev-all.sh
+
+# Skip unnecessary rebuilds
+./run.sh local dev  # Instead of --clean
+
+# Parallel builds (automatic in launcher)
+```
+
+### High Memory Usage
+```bash
+# Monitor memory usage
+top -p $(pgrep -f webpack-dev-server)
+
+# Reduce concurrent builds
+# Edit launcher scripts to build sequentially
+```
+
+### Slow Hot Reload
+```bash
+# Check file watchers
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+
+# Reduce watched files in webpack.config.js
+watchOptions: {
+  ignored: /node_modules/,
+  poll: 1000
+}
+```
+
+## Recovery Procedures
+
+### Complete Reset
+```bash
+# Nuclear option - reset everything
+./run.sh local dev --clean --fix-network
+
+# Manual reset
+npm run clean
+rm -rf node_modules package-lock.json
+npm install
+npm run build:all
+```
+
+### Registry Reset
+```bash
+# Reset NPM configuration
+npm run registry:restore
+npm cache clean --force
+
+# Reset to local mode
+npm run mode:local
+./run.sh local dev
+```
+
+### Process Cleanup
+```bash
+# Kill all Node.js processes (use with caution)
+pkill -f node
+
+# Kill specific webpack processes
+pkill -f webpack-dev-server
+
+# Windows
+taskkill /f /im node.exe
+taskkill /f /fi "WINDOWTITLE eq webpack-dev-server"
+```
+
+## Diagnostic Commands
+
+### System Check
+```bash
+# Check Node.js and npm versions
+node --version
+npm --version
+
+# Check available ports
+netstat -tulpn | grep -E ':(8080|420[1-9]|421[01])'
+
+# Check disk space
+df -h
+```
+
+### Application Status
+```bash
+# Check all modes
+npm run check:local
+npm run check:npm
+npm run check:nexus
+npm run check:github
+npm run check:aws
+
+# Check current mode
+npm run mode:status
+
+# Check versions
+npm run version:current
+```
+
+### Network Diagnostics
+```bash
+# Test external connectivity
+curl -I https://registry.npmjs.org/
+curl -I https://unpkg.com/
+
+# Test local servers
+curl http://localhost:8080
+curl http://localhost:4201/single-spa-auth-app.js
+```
+
+## Error Messages and Solutions
+
+### "Cannot resolve module"
+```bash
+# Fix dependencies
+npm run fix:auto
+
+# Reinstall dependencies
+npm run clean && npm install
+```
+
+### "Port already in use"
+```bash
+# Find and kill process
+lsof -ti:8080 | xargs kill -9
+
+# Use different ports (edit package.json)
+```
+
+### "Permission denied"
+```bash
+# Fix script permissions
+chmod +x run.sh dev-all.sh
+
+# Run as administrator (Windows)
+```
+
+### "Module not found"
+```bash
+# Check if module exists
+npm list [module-name]
+
+# Reinstall specific module
+npm install [module-name]
+
+# Clear npm cache
+npm cache clean --force
+```
+
+### "Authentication required"
+```bash
+# NPM login
+npm login
+
+# Check authentication
+npm whoami
+
+# Use token authentication
+export NPM_TOKEN=your_token
+```
+
+## Getting Help
+
+### Log Collection
+```bash
+# Collect logs for support
+./run.sh local dev > debug.log 2>&1
+
+# Include system information
+node --version >> debug.log
+npm --version >> debug.log
+uname -a >> debug.log
+```
+
+### Minimal Reproduction
+```bash
+# Create minimal test case
+./run.sh local dev --clean
+# Document exact steps that cause the issue
+```
+
+### Community Resources
+- [Single-SPA Documentation](https://single-spa.js.org/)
+- [Single-SPA Slack Community](https://single-spa.slack.com/)
+- [GitHub Issues](https://github.com/single-spa/single-spa/issues)
+
+### Project-Specific Help
+- Check individual app README files
+- Review [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)
+- Check [DEPENDENCY-FIXES.md](DEPENDENCY-FIXES.md)
+- Review [MODE-SWITCHING.md](MODE-SWITCHING.md)
