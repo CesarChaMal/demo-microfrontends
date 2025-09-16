@@ -179,6 +179,21 @@ Each microfrontend includes a comprehensive **visual showcase** of the shared st
 
 ## Quick Start
 
+### AWS Setup Workflow (Recommended)
+
+For AWS deployment with CloudFront CDN:
+
+```bash
+# 1. Setup S3 with full public configuration
+npm run s3:setup:public
+
+# 2. Setup CloudFront with SPA optimization  
+npm run cloudfront:setup:spa
+
+# 3. Deploy with CDN invalidation
+npm run trigger:aws:s3
+```
+
 ### Launcher Scripts (Recommended)
 
 #### Enhanced Mode-Aware Launcher (`run.sh` / `run.bat`)
@@ -546,6 +561,9 @@ S3_BUCKET=your-s3-bucket-name
 AWS_REGION=your-aws-region
 ORG_NAME=your-organization-name
 
+# Optional: CloudFront CDN (auto-configured by setup scripts)
+CLOUDFRONT_DISTRIBUTION_ID=E1234567890ABC
+
 # Optional: Override full import map URL
 IMPORTMAP_URL=https://custom-bucket.s3.amazonaws.com/@myorg/importmap.json
 ```
@@ -574,6 +592,16 @@ IMPORTMAP_URL=https://custom-bucket.s3.amazonaws.com/@myorg/importmap.json
 - `npm run trigger:deploy:github` - Trigger GitHub deployment via GitHub Actions
 - `npm run trigger:github:pages` - Trigger robust GitHub Pages deployment
 - `npm run trigger:aws:s3` - Trigger advanced AWS S3 deployment with CDN
+
+### AWS Setup Scripts
+- `npm run s3:setup` - Basic S3 bucket setup
+- `npm run s3:setup:basic` - Basic S3 bucket
+- `npm run s3:setup:cors` - S3 bucket with CORS configuration
+- `npm run s3:setup:public` - Full public S3 setup (recommended)
+- `npm run cloudfront:setup` - Basic CloudFront distribution
+- `npm run cloudfront:setup:basic` - Basic CloudFront distribution
+- `npm run cloudfront:setup:spa` - SPA-optimized CloudFront (recommended)
+- `npm run cloudfront:setup:full` - Full CloudFront setup with custom domain
 
 ### Mode Switching Scripts
 - `npm run mode:local` - Switch to local development mode
