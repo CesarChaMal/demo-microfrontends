@@ -8,7 +8,7 @@ This application demonstrates a comprehensive microfrontend architecture using S
 
 ## ▶️ Live Demo
 
-**Live Demo (CloudFront CDN):** [https://d3oyknhmr5oulj.cloudfront.net/](https://d3oyknhmr5oulj.cloudfront.net/)
+**Live Demo (CloudFront CDN):** [https://d3oyknhmr5oulj.cloudfront.net/](https://dn4u45z3eziu.cloudfront.net/)
 
 **Alternative (S3 Direct):** [http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/](http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/)
 
