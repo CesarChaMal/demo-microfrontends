@@ -25,7 +25,7 @@ module.exports = {
       vue: 'Vue',
       'vue-router': 'VueRouter',
       'single-spa-vue': 'singleSpaVue',
-      'bootstrap-vue': 'BootstrapVue'
+      'bootstrap-vue': 'BootstrapVue',
     },
   },
 };

@@ -85,17 +85,9 @@
 <div id="svelte-app" class="spa-mount-point content-mount"></div>
 
 <style>
-/* Content apps positioned below fixed header and navbar */
-#home-app,
-#angular-app,
-#vue-app,
-#react-app,
-#vanilla-app,
-#webcomponents-app,
-#typescript-app,
-#jquery-app,
-#svelte-app {
-  margin-top: 140px;
+/* Content apps positioned below fixed header and navbar when authenticated */
+body.mb .content-mount {
+    margin-top: 260px;
 }
 
 /* Hide auth app when not needed */

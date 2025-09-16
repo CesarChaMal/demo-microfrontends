@@ -1,8 +1,10 @@
 <template>
   <div id="layout-app">
-    <Header />
-    <Navbar />
-    <Footer />
+    <div v-if="isAuthenticated">
+      <Header />
+      <Navbar />
+      <Footer />
+    </div>
   </div>
 </template>
 
@@ -18,15 +20,37 @@ export default {
     Navbar,
     Footer,
   },
-  beforeCreate() {
-    if (!sessionStorage.getItem('token')) {
-      window.history.pushState(null, null, '/login');
-    }
-
-    document.querySelector('body').classList.add('mb');
+  data() {
+    return {
+      isAuthenticated: false,
+    };
   },
-  destroyed() {
+  mounted() {
+    this.checkAuth();
+    // Listen for authentication changes
+    window.addEventListener('storage', this.checkAuth);
+    window.addEventListener('popstate', this.checkAuth);
+    // Listen for login events
+    window.addEventListener('single-spa:routing-event', this.checkAuth);
+  },
+  beforeDestroy() {
+    window.removeEventListener('storage', this.checkAuth);
+    window.removeEventListener('popstate', this.checkAuth);
+    window.removeEventListener('single-spa:routing-event', this.checkAuth);
     document.querySelector('body').classList.remove('mb');
+  },
+  methods: {
+    checkAuth() {
+      const token = sessionStorage.getItem('token');
+      const isLoginPage = window.location.pathname === '/login';
+      this.isAuthenticated = !!token && !isLoginPage;
+
+      if (this.isAuthenticated) {
+        document.querySelector('body').classList.add('mb');
+      } else {
+        document.querySelector('body').classList.remove('mb');
+      }
+    },
   },
 };
 </script>

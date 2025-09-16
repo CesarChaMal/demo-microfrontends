@@ -1,6 +1,6 @@
 <template>
   <div id="header" class="clearfix">
-    <b-navbar type="light" variant="light" fixed="top" class="enhanced-navbar">
+    <b-navbar type="light" variant="light" fixed="top" class="enhanced-navbar fixed-top">
       <b-navbar-brand class="brand-section">
         <a href="https://single-spa.js.org" target="_blank" class="brand-link">
           <img id="logo" src="../assets/logo.svg" />

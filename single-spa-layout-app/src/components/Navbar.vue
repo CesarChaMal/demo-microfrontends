@@ -115,6 +115,12 @@ export default {
 
 <style lang="scss" scoped>
 #navbar {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  z-index: 1020;
+
   .enhanced-nav {
     background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%) !important;
     border-bottom: 2px solid #4fc08d;
@@ -124,6 +130,7 @@ export default {
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 0;
 
     .nav-item-enhanced {
       background: white;
