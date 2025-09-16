@@ -174,6 +174,21 @@ npm run trigger:deploy:github
 npm run trigger:github:pages
 ```
 
+### Advanced AWS S3 Deployment
+
+#### `npm run trigger:aws:s3`
+- **Execution**: Directly triggers advanced AWS S3 deployment workflow
+- **Process**: Uses AWS CLI to run parallel S3 deployment with optimization
+- **What it deploys**: All 12 apps in parallel with CloudFront invalidation
+- **Requirements**: AWS CLI configured, S3 bucket access, CloudFront distribution
+- **Speed**: ⚡ Fast trigger, parallel execution (3-5 minutes)
+- **Use Case**: Best AWS deployment method, production-ready with CDN
+
+**Example:**
+```bash
+npm run trigger:aws:s3
+```
+
 ## Deployment Comparison
 
 | Script | Where | What | Speed | Reliability | Use Case |
@@ -184,14 +199,19 @@ npm run trigger:github:pages
 | `trigger:deploy:aws` | GitHub Actions | Remote AWS deploy | 🔄 Medium | High | CI/CD AWS pipeline |
 | `trigger:deploy:github` | GitHub Actions | Remote GitHub deploy | 🔄 Medium | Medium | CI/CD GitHub pipeline |
 | `trigger:github:pages` | GitHub CLI | Parallel GitHub deploy | ⚡ Fast | High | Best GitHub deployment |
+| `trigger:aws:s3` | AWS CLI | Parallel S3 + CDN | ⚡ Fast | High | Best AWS deployment |
 
 ## Recommended Deployment Methods
 
 ### For AWS S3
-**Recommended**: `npm run deploy:aws:prod`
-- Fastest and most reliable
+**Recommended**: `npm run trigger:aws:s3`
+- Parallel execution with CloudFront invalidation
+- Most reliable with retry logic and optimization
+- Production-ready with CDN integration
+
+**Alternative**: `npm run deploy:aws:prod`
 - Direct upload from local machine
-- Single operation deploys everything
+- Single operation, good for quick deployments
 
 ### For GitHub Pages
 **Recommended**: `npm run trigger:github:pages`

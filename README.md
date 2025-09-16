@@ -573,6 +573,7 @@ IMPORTMAP_URL=https://custom-bucket.s3.amazonaws.com/@myorg/importmap.json
 - `npm run trigger:deploy:aws` - Trigger AWS deployment via GitHub Actions
 - `npm run trigger:deploy:github` - Trigger GitHub deployment via GitHub Actions
 - `npm run trigger:github:pages` - Trigger robust GitHub Pages deployment
+- `npm run trigger:aws:s3` - Trigger advanced AWS S3 deployment with CDN
 
 ### Mode Switching Scripts
 - `npm run mode:local` - Switch to local development mode
