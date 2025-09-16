@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-home-app",
-  "version": "1.0.17",
+  "version": "1.0.17", "_trigger": "1758043027",
   "description": "AngularJS application with home page for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-home-app.js",
   "scripts": {

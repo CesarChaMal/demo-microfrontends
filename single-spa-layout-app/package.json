@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-layout-app",
-  "version": "1.0.17",
+  "version": "1.0.17", "_trigger": "1758043027",
   "description": "Vue application with header, navbar and footer for be included in a single-spa application as registered app.",
   "main": "dist/single-spa-layout-app.umd.js",
   "scripts": {
