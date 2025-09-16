@@ -68,7 +68,7 @@ powershell -Command "(Get-Content package.json) -replace '\"@%ORG_NAME%/single-s
 
 echo ✅ Dependencies and version updated
 
-REM 4. Update all app package versions to match (if called from publishing)
+REM 4. Update all app package versions and mode-specific files (if called from publishing)
 if "%FROM_RUN_SCRIPT%"=="true" (
     echo 🔄 Updating all app versions to match Nexus registry (%AVAILABLE_VERSION%)...
     cd ..
@@ -79,6 +79,23 @@ if "%FROM_RUN_SCRIPT%"=="true" (
             powershell -Command "(Get-Content %%a/package.json) -replace '\"version\": \"[^\"]*\"', '\"version\": \"%AVAILABLE_VERSION%\"' | Set-Content %%a/package.json"
             echo 📝 Updated %%a version to %AVAILABLE_VERSION%
         )
+    )
+    
+    REM Update package-nexus.json dependencies to match Nexus registry
+    if exist "package-nexus.json" (
+        echo 📝 Updating package-nexus.json dependencies to %AVAILABLE_VERSION%...
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-auth-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-auth-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-layout-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-layout-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-home-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-home-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-angular-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-angular-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-vue-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-vue-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-react-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-react-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-vanilla-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-vanilla-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-webcomponents-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-webcomponents-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-typescript-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-typescript-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-jquery-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-jquery-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-svelte-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-svelte-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        echo ✅ Updated package-nexus.json dependencies
     )
     
     echo ⏭️ Skipping dependency installation (called from publishing workflow)

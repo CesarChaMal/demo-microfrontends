@@ -1,13 +1,2 @@
-registry=http://localhost:8081/repository/npm-group/
-
-# Scoped authentication for Nexus registry
-
-//localhost:8081/repository/npm-group/:_auth=YWRtaW46JEJBYmEyODYxMjkzMA==
-//localhost:8081/repository/npm-group/:email=cesarchamal@gmail.com
-//localhost:8081/repository/npm-group/:always-auth=true
-
-# Publishing to hosted repository
-//localhost:8081/repository/npm-hosted-releases/:_auth=YWRtaW46JEJBYmEyODYxMjkzMA==
-//localhost:8081/repository/npm-hosted-releases/:email=cesarchamal@gmail.com
-//localhost:8081/repository/npm-hosted-releases/:always-auth=true
-strict-ssl=false
+registry=https://registry.npmjs.org/
+strict-ssl=true
