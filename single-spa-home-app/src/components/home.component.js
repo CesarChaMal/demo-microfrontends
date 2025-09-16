@@ -6,7 +6,7 @@ angular
   .component('homeComponent', {
     template,
     controllerAs: 'home',
-    controller: ['$scope', function($scope) {
+    controller: ['$scope', '$timeout', function($scope, $timeout) {
       const vm = this;
       vm.$scope = $scope;
 
@@ -27,27 +27,21 @@ angular
 
       if (window.stateManager) {
         vm.userStateSub = window.stateManager.userState$.subscribe(state => {
-          vm.userState = state;
-          // Use $evalAsync to avoid digest conflicts
-          if (!vm.$scope.$$phase) {
-            vm.$scope.$apply();
-          }
+          $timeout(() => {
+            vm.userState = state;
+          });
         });
         vm.employeesSub = window.stateManager.employees$.subscribe(employees => {
           console.log('🏠 Home received employees update:', employees);
-          vm.employees = employees;
-          // Use $evalAsync to avoid digest conflicts
-          if (!vm.$scope.$$phase) {
-            vm.$scope.$apply();
-          }
+          $timeout(() => {
+            vm.employees = employees;
+          });
         });
         vm.eventsSub = window.stateManager.events$.subscribe(event => {
           console.log('🏠 Home received event:', event);
-          vm.events = [...vm.events.slice(-4), event];
-          // Use $evalAsync to avoid digest conflicts
-          if (!vm.$scope.$$phase) {
-            vm.$scope.$apply();
-          }
+          $timeout(() => {
+            vm.events = [...vm.events.slice(-4), event];
+          });
         });
       }
 

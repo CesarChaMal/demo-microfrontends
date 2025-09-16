@@ -22,9 +22,11 @@ Vue.config.productionTip = false;
 const vueLifecycles = singleSpaVue({
   Vue,
   appOptions: {
-    el: '#auth-app',
     render: (h) => h(App),
     router,
+  },
+  handleInstance: (app) => {
+    app.$mount('#auth-app');
   },
 });
 
