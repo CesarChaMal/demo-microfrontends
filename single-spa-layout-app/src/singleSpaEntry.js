@@ -28,9 +28,6 @@ const vueLifecycles = singleSpaVue({
   appOptions: {
     render: (h) => h(App),
   },
-  handleInstance: (app) => {
-    app.$mount('#layout-app');
-  },
 });
 
 // Add debug logging to original functions

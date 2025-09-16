@@ -73,48 +73,34 @@
 
 <!-- Mount points for microfrontends -->
 <div id="auth-app" class="spa-mount-point"></div>
-<div id="layout-app" class="spa-mount-point"></div>
-<div id="home-app" class="spa-mount-point"></div>
-<div id="angular-app" class="spa-mount-point"></div>
-<div id="vue-app" class="spa-mount-point"></div>
-<div id="react-app" class="spa-mount-point"></div>
-<div id="vanilla-app" class="spa-mount-point"></div>
-<div id="webcomponents-app" class="spa-mount-point"></div>
-<div id="typescript-app" class="spa-mount-point"></div>
-<div id="jquery-app" class="spa-mount-point"></div>
-<div id="svelte-app" class="spa-mount-point"></div>
+<div id="layout-app" class="spa-mount-point layout-mount"></div>
+<div id="home-app" class="spa-mount-point content-mount"></div>
+<div id="angular-app" class="spa-mount-point content-mount"></div>
+<div id="vue-app" class="spa-mount-point content-mount"></div>
+<div id="react-app" class="spa-mount-point content-mount"></div>
+<div id="vanilla-app" class="spa-mount-point content-mount"></div>
+<div id="webcomponents-app" class="spa-mount-point content-mount"></div>
+<div id="typescript-app" class="spa-mount-point content-mount"></div>
+<div id="jquery-app" class="spa-mount-point content-mount"></div>
+<div id="svelte-app" class="spa-mount-point content-mount"></div>
 
 <style>
-/* Hide empty mount points to prevent layout issues */
-.spa-mount-point:empty {
-  display: none !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+/* Content apps positioned below fixed header and navbar */
+#home-app,
+#angular-app,
+#vue-app,
+#react-app,
+#vanilla-app,
+#webcomponents-app,
+#typescript-app,
+#jquery-app,
+#svelte-app {
+  margin-top: 140px;
 }
 
-/* Hide inactive mount points */
-.spa-mount-point.spa-inactive {
-  display: none !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Ensure mount points don't take space when inactive */
-.spa-mount-point:not(:empty):not(.spa-inactive) {
-  display: block;
-}
-
-/* Additional safety for auth app specifically */
-#auth-app:empty,
-#auth-app.spa-inactive {
-  display: none !important;
-  height: 0 !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
+/* Hide auth app when not needed */
+#auth-app:empty {
+  display: none;
 }
 </style>
 
@@ -131,55 +117,7 @@
         console.error('🚨 Unhandled promise rejection:', e.reason);
     });
 
-    // Single-SPA mount point management
-    function manageMountPoints() {
-        // Map of app names to their mount point IDs
-        const appMountPoints = {
-            'login': 'auth-app',
-            'layout': 'layout-app', 
-            'home': 'home-app',
-            'angular': 'angular-app',
-            'vue': 'vue-app',
-            'react': 'react-app',
-            'vanilla': 'vanilla-app',
-            'webcomponents': 'webcomponents-app',
-            'typescript': 'typescript-app',
-            'jquery': 'jquery-app',
-            'svelte': 'svelte-app'
-        };
 
-        // Listen for Single-SPA app lifecycle events
-        window.addEventListener('single-spa:app-change', function(evt) {
-            // Hide all mount points first
-            Object.values(appMountPoints).forEach(function(mountId) {
-                const mountPoint = document.getElementById(mountId);
-                if (mountPoint) {
-                    mountPoint.classList.add('spa-inactive');
-                }
-            });
-
-            // Show mount points for active apps
-            if (window.singleSpa && window.singleSpa.getMountedApps) {
-                const mountedApps = window.singleSpa.getMountedApps();
-                mountedApps.forEach(function(appName) {
-                    const mountId = appMountPoints[appName];
-                    if (mountId) {
-                        const mountPoint = document.getElementById(mountId);
-                        if (mountPoint) {
-                            mountPoint.classList.remove('spa-inactive');
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    // Initialize mount point management when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', manageMountPoints);
-    } else {
-        manageMountPoints();
-    }
 </script>
 </body>
 </html>
