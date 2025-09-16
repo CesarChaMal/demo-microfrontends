@@ -294,6 +294,7 @@
     "deploy:github:svelte": "bash ./scripts/deploy-github.sh single-spa-svelte-app",
     "deploy:github:root": "bash ./scripts/deploy-github.sh root",
     "deploy:github:main": "bash ./scripts/deploy-github.sh main",
+    "deploy:github:all": "npm run deploy:github:auth && npm run deploy:github:layout && npm run deploy:github:home && npm run deploy:github:angular && npm run deploy:github:vue && npm run deploy:github:react && npm run deploy:github:vanilla && npm run deploy:github:webcomponents && npm run deploy:github:typescript && npm run deploy:github:jquery && npm run deploy:github:svelte && npm run deploy:github:root",
     "check:local": "bash ./scripts/check-local-status.sh",
     "check:npm": "bash ./scripts/check-npm-status.sh",
     "check:nexus": "bash ./scripts/check-nexus-status.sh",
