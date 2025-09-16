@@ -63,7 +63,7 @@ if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
     exit 1
 fi
 
-ORIGIN_DOMAIN="$BUCKET_NAME.s3-website-$REGION.amazonaws.com"
+ORIGIN_DOMAIN="$BUCKET_NAME.s3-website.$REGION.amazonaws.com"
 
 create_basic_distribution() {
     echo "📦 Creating basic CloudFront distribution..."

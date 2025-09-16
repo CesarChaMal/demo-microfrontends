@@ -632,6 +632,7 @@ IMPORTMAP_URL=https://custom-bucket.s3.amazonaws.com/@myorg/importmap.json
 - `npm run check:nexus` - Check Nexus registry and package availability
 - `npm run check:github` - Check GitHub repositories and Pages status
 - `npm run check:aws` - Check AWS S3 bucket and file accessibility
+- `npm run check:cdn` - Check CloudFront CDN status and S3 origin health
 
 ### Hot Reload Scripts
 - `npm run aws:hot-sync` - Auto-sync file changes to AWS S3 bucket

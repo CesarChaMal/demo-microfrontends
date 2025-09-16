@@ -30,7 +30,7 @@ echo 🏢 Organization: %ORG_NAME%
 echo.
 
 REM S3 URL formats
-set "S3_WEBSITE_URL=http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com"
+set "S3_WEBSITE_URL=http://%S3_BUCKET%.s3-website.%AWS_REGION%.amazonaws.com"
 set "S3_API_URL=https://%S3_BUCKET%.s3.%AWS_REGION%.amazonaws.com"
 
 echo 🌐 S3 Website URL: %S3_WEBSITE_URL%

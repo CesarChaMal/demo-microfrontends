@@ -67,7 +67,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-set "ORIGIN_DOMAIN=%BUCKET_NAME%.s3-website-%AWS_REGION%.amazonaws.com"
+set "ORIGIN_DOMAIN=%BUCKET_NAME%.s3-website.%AWS_REGION%.amazonaws.com"
 
 if "%ACTION%"=="basic" goto :create_basic
 if "%ACTION%"=="spa" goto :create_spa

@@ -26,7 +26,7 @@ echo "🏢 Organization: $ORG_NAME"
 echo ""
 
 # S3 website URL format
-S3_WEBSITE_URL="http://${S3_BUCKET}.s3-website-${AWS_REGION}.amazonaws.com"
+S3_WEBSITE_URL="http://${S3_BUCKET}.s3-website.${AWS_REGION}.amazonaws.com"
 S3_API_URL="https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com"
 
 echo "🌐 S3 Website URL: $S3_WEBSITE_URL"
