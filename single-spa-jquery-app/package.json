@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-jquery-app",
-  "version": "1.0.14",
+  "version": "1.0.18",
   "description": "jQuery microfrontend for Single-SPA demonstrating legacy library integration",
   "main": "dist/single-spa-jquery-app.js",
   "scripts": {
