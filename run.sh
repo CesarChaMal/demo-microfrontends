@@ -175,32 +175,28 @@ case "$PLATFORM" in
         ;;
 esac
 
-# Fix dependencies and switch to appropriate mode (except NPM/Nexus prod which publish first)
-if ! (([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]); then
-    if [ "$MODE" != "local" ]; then
-        echo "🔧 Fixing dependencies for $MODE mode..."
-        case "$MODE" in
-            "npm")
-                echo "🔧 Running NPM dependency fix..."
-                SKIP_INSTALL=true npm run fix:npm:deps || echo "⚠️  NPM dependency fix completed with warnings"
-                ;;
-            "nexus")
-                echo "🔧 Running Nexus dependency fix..."
-                SKIP_INSTALL=true npm run fix:nexus:deps || echo "⚠️  Nexus dependency fix completed with warnings"
-                ;;
-            *)
-                echo "🔧 Running auto dependency fix for $MODE mode..."
-                SKIP_INSTALL=true npm run fix:auto:$MODE || echo "⚠️  Auto dependency fix completed with warnings"
-                ;;
-        esac
-    fi
-    
-    echo "🔄 Switching to $MODE mode..."
-    SKIP_INSTALL=true npm run mode:$MODE
-# shellcheck disable=SC2235
-elif ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
-    echo "📝 $MODE prod mode: Will publish packages first, then switch to $MODE mode"
+# Fix dependencies for all modes
+if [ "$MODE" != "local" ]; then
+    echo "🔧 Fixing dependencies for $MODE mode..."
+    case "$MODE" in
+        "npm")
+            echo "🔧 Running NPM dependency fix..."
+            SKIP_INSTALL=true npm run fix:npm:deps || echo "⚠️  NPM dependency fix completed with warnings"
+            ;;
+        "nexus")
+            echo "🔧 Running Nexus dependency fix..."
+            SKIP_INSTALL=true npm run fix:nexus:deps || echo "⚠️  Nexus dependency fix completed with warnings"
+            ;;
+        *)
+            echo "🔧 Running auto dependency fix for $MODE mode..."
+            SKIP_INSTALL=true npm run fix:auto:$MODE || echo "⚠️  Auto dependency fix completed with warnings"
+            ;;
+    esac
 fi
+
+# Switch to appropriate mode
+echo "🔄 Switching to $MODE mode..."
+SKIP_INSTALL=true npm run mode:$MODE
 
 # Clean npm cache and main package if cleanup enabled
 if [ "$CLEANUP" = true ]; then

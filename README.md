@@ -899,6 +899,32 @@ The AWS mode loads microfrontends from an S3-hosted import map:
 
 ## Deployment
 
+### 📋 Deployment Methods Overview
+
+This project supports multiple deployment strategies with different execution contexts and use cases. For detailed information, see [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md).
+
+#### Quick Deployment Reference
+
+| Method | Command | Execution | Speed | Use Case |
+|--------|---------|-----------|-------|----------|
+| **AWS S3** | `npm run deploy:aws:prod` | Local | ⚡ Fast | Quick AWS deployment |
+| **GitHub Pages** | `npm run deploy:github:all` | Local | 🐌 Slower | Local GitHub deployment |
+| **AWS via Actions** | `npm run trigger:deploy:aws` | GitHub Actions | 🔄 Medium | CI/CD AWS pipeline |
+| **GitHub via Actions** | `npm run trigger:deploy:github` | GitHub Actions | 🔄 Medium | CI/CD GitHub pipeline |
+| **GitHub Parallel** | `npm run trigger:github:pages` | GitHub CLI | ⚡ Fast | **Recommended GitHub** |
+
+#### Recommended Deployment Methods
+
+**For AWS S3**: `npm run deploy:aws:prod`
+- Fastest and most reliable
+- Direct upload from local machine
+- Single operation deploys everything
+
+**For GitHub Pages**: `npm run trigger:github:pages`
+- Parallel execution (fastest)
+- Most reliable with retry logic
+- Production-ready with proper error handling
+
 ### S3 Bucket Setup
 
 Before deploying, set up your S3 bucket for public website hosting:
