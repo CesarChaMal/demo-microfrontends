@@ -490,7 +490,7 @@ start_npm() {
         
         # Now switch to NPM mode after packages are published
         echo "🔄 Switching to NPM mode after publishing..."
-        npm run mode:npm
+        SKIP_INSTALL=true npm run mode:npm
         
         # Build root application with NPM mode configuration
         echo "🔨 Building root application for NPM prod mode..."
@@ -559,7 +559,7 @@ start_nexus() {
         
         # Now switch to Nexus mode after packages are published
         echo "🔄 Switching to Nexus mode after publishing..."
-        npm run mode:nexus
+        SKIP_INSTALL=true npm run mode:nexus
         
         # Build root application with Nexus mode configuration
         echo "🔨 Building root application for Nexus prod mode..."
