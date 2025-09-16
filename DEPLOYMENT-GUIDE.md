@@ -114,6 +114,21 @@ npm run deploy:github:all
 
 ## Remote Deployment (GitHub Actions)
 
+### General GitHub Actions Trigger
+
+#### `npm run trigger:actions`
+- **Execution**: Triggers all configured GitHub Actions workflows
+- **Process**: Adds triggers to all package.json files and pushes to GitHub
+- **What it triggers**: All available workflows (build, test, deploy, etc.)
+- **Requirements**: GitHub repository with Actions enabled
+- **Speed**: 🔄 Medium (depends on GitHub Actions queue)
+- **Use Case**: Trigger all CI/CD pipelines, comprehensive automation
+
+**Example:**
+```bash
+npm run trigger:actions
+```
+
 ### AWS via GitHub Actions
 
 #### `npm run trigger:deploy:aws`
@@ -165,6 +180,7 @@ npm run trigger:github:pages
 |--------|-------|------|-------|-------------|----------|
 | `deploy:aws:prod` | Local | Direct S3 upload | ⚡ Fast | High | Quick AWS deployment |
 | `deploy:github:all` | Local | 12 individual repos | 🐌 Slow | Medium | Local GitHub deployment |
+| `trigger:actions` | GitHub Actions | All workflows | 🔄 Medium | High | Complete CI/CD pipeline |
 | `trigger:deploy:aws` | GitHub Actions | Remote AWS deploy | 🔄 Medium | High | CI/CD AWS pipeline |
 | `trigger:deploy:github` | GitHub Actions | Remote GitHub deploy | 🔄 Medium | Medium | CI/CD GitHub pipeline |
 | `trigger:github:pages` | GitHub CLI | Parallel GitHub deploy | ⚡ Fast | High | Best GitHub deployment |

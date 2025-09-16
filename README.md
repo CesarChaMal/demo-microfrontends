@@ -569,6 +569,7 @@ IMPORTMAP_URL=https://custom-bucket.s3.amazonaws.com/@myorg/importmap.json
 ### Deployment Scripts
 - `npm run deploy:aws:prod` - Deploy to AWS S3
 - `npm run deploy:github:all` - Deploy to GitHub Pages
+- `npm run trigger:actions` - Trigger all GitHub Actions workflows
 - `npm run trigger:deploy:aws` - Trigger AWS deployment via GitHub Actions
 - `npm run trigger:deploy:github` - Trigger GitHub deployment via GitHub Actions
 - `npm run trigger:github:pages` - Trigger robust GitHub Pages deployment
