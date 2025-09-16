@@ -6,6 +6,77 @@ This guide explains the different deployment methods available for the Demo Micr
 
 The project supports multiple deployment strategies with different execution contexts and use cases.
 
+## NPM/Nexus Package Publishing
+
+### Publishing Scripts Comparison
+
+| Script | Process | Registry | Use Case |
+|--------|---------|----------|----------|
+| `publish:all` | NPM → Nexus (sequential) | Both registries | Publish to both NPM and Nexus |
+| `publish:npm:all` | Build → Publish → Fix → Switch | NPM only | Complete NPM workflow |
+| `publish:nexus:all` | Build → Publish → Fix → Switch | Nexus only | Complete Nexus workflow |
+
+#### `npm run publish:all`
+- **Process**: Runs `publish:npm:all` then `publish:nexus:all` sequentially
+- **Registries**: Both NPM and Nexus
+- **Use Case**: Publish packages to both registries for maximum distribution
+- **Time**: Longest (builds twice, publishes to both)
+
+#### `npm run publish:npm:all`
+- **Process**: 
+  1. Build all apps in production mode
+  2. Publish packages to NPM registry
+  3. Fix dependencies to use published NPM versions
+  4. Switch to NPM mode for testing
+- **Registry**: NPM (https://registry.npmjs.org/)
+- **Use Case**: NPM-only publishing and testing
+- **Time**: Medium (single registry)
+
+#### `npm run publish:nexus:all`
+- **Process**:
+  1. Build all apps in production mode
+  2. Publish packages to Nexus registry
+  3. Fix dependencies to use published Nexus versions
+  4. Switch to Nexus mode for testing
+- **Registry**: Nexus (from .npmrc.nexus)
+- **Use Case**: Private registry publishing and testing
+- **Time**: Medium (single registry)
+
+### Publishing Workflow Details
+
+Each publishing script follows this pattern:
+```bash
+# 1. Build (in local mode)
+npm run build:prod
+
+# 2. Publish packages
+npm run publish:[registry]:prod
+
+# 3. Fix dependencies (force correct registry)
+SKIP_INSTALL=true npm run fix:[registry]:deps
+
+# 4. Switch to target mode
+SKIP_INSTALL=true npm run mode:[registry]
+```
+
+### Registry-Specific Version Detection
+
+- **NPM Fix**: Forces `--registry https://registry.npmjs.org/` to get NPM versions
+- **Nexus Fix**: Forces `--registry [nexus-url]` from `.npmrc.nexus` to get Nexus versions
+- **Prevents Cross-Contamination**: Each fix script checks only its target registry
+
+### Publishing Requirements
+
+#### NPM Publishing
+- **Authentication**: `NPM_TOKEN` environment variable or `npm login`
+- **Registry**: Public NPM registry
+- **Packages**: Published as `@cesarchamal/single-spa-*`
+
+#### Nexus Publishing  
+- **Authentication**: `.npmrc.nexus` with registry and auth configuration
+- **Registry**: Private Nexus repository
+- **Packages**: Published to private registry for internal use
+
 ## Direct Deployment (Local Machine)
 
 ### AWS S3 Deployment

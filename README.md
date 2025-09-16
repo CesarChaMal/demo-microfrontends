@@ -546,11 +546,43 @@ npm run publish:nexus:patch  # 1.0.0 → 1.0.1
 - `:minor` - New features (0.1.0 → 0.2.0)
 - `:major` - Breaking changes (0.1.0 → 1.0.0)
 
+#### Complete Publishing Scripts
+- `npm run publish:all` - Publish to both NPM and Nexus registries (sequential)
+- `npm run publish:npm:all` - Complete NPM workflow (build → publish → fix → switch)
+- `npm run publish:nexus:all` - Complete Nexus workflow (build → publish → fix → switch)
+
 #### Backward-Compatible Aliases
-- `npm run publish:all` - Publish all packages to NPM (alias for publish:npm)
 - `npm run publish:patch` - Bump patch version and publish to NPM
 - `npm run publish:minor` - Bump minor version and publish to NPM
 - `npm run publish:major` - Bump major version and publish to NPM
+
+#### Publishing Workflow Comparison
+
+| Script | Process | Time | Use Case |
+|--------|---------|------|----------|
+| `publish:all` | NPM → Nexus (sequential) | Longest | Publish to both registries |
+| `publish:npm:all` | Build → Publish → Fix → Switch | Medium | NPM-only complete workflow |
+| `publish:nexus:all` | Build → Publish → Fix → Switch | Medium | Nexus-only complete workflow |
+
+**Detailed Process:**
+```bash
+# publish:npm:all workflow
+npm run build:prod                    # Build all apps
+npm run publish:npm:prod              # Publish to NPM
+SKIP_INSTALL=true npm run fix:npm:deps    # Fix deps to NPM versions
+SKIP_INSTALL=true npm run mode:npm        # Switch to NPM mode
+
+# publish:nexus:all workflow  
+npm run build:prod                    # Build all apps
+npm run publish:nexus:prod            # Publish to Nexus
+SKIP_INSTALL=true npm run fix:nexus:deps  # Fix deps to Nexus versions
+SKIP_INSTALL=true npm run mode:nexus      # Switch to Nexus mode
+
+# publish:all workflow
+npm run publish:npm:all && npm run publish:nexus:all  # Both workflows
+```
+
+For detailed publishing information, see [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md#npm-nexus-package-publishing).
 
 ### Build Scripts Overview
 
