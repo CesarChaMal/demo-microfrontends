@@ -301,8 +301,7 @@ start_local() {
         echo "🌐 Local production: Static apps + root server only"
         echo "🔍 DEBUG: Production mode - serving built files from single-spa-root/dist"
         echo "Main application: http://localhost:8080"
-        exec_npm npm run serve:local:prod
-    else
+     else
         echo "🌐 Local development: Starting all 12 microfrontends"
         echo "🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211"
         echo "Main application: http://localhost:8080"
@@ -376,6 +375,7 @@ start_github() {
     
     echo "🌐 Main application: http://localhost:8080?mode=github"
     echo "🔍 DEBUG: GitHub username: ${GITHUB_USERNAME:-cesarchamal}"
+#    exec_npm npm run serve:github
     exec_npm npm run serve:root -- --env.mode=github
 }
 
@@ -442,6 +442,7 @@ start_aws() {
     echo "🔍 DEBUG: Import map URL: https://$S3_BUCKET.s3.$AWS_REGION.amazonaws.com/@$ORG_NAME/importmap.json"
 
     # Start local server for development/testing
+#    exec_npm npm run serve:aws
     exec_npm npm run serve:root -- --env.mode=aws
 }
 
@@ -514,7 +515,8 @@ start_npm() {
     echo "✅ NPM mode setup complete!"
     echo "🌐 Main application: http://localhost:8080?mode=npm"
     echo "🔍 DEBUG: Loading microfrontends from NPM: @cesarchamal/single-spa-*"
-    exec_npm npm run serve:npm
+#    exec_npm npm run serve:npm
+    exec_npm npm run serve:root -- --env.mode=npm
 }
 
 start_nexus() {
