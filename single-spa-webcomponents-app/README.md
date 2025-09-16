@@ -1,5 +1,9 @@
 # single-spa-webcomponents-app
 
+<img src="https://single-spa.js.org/img/logo-white-bgblue.svg" width="50" height="50">
+
+[![npm version](https://img.shields.io/npm/v/@cesarchamal/single-spa-webcomponents-app.svg?style=flat-square)](https://www.npmjs.com/package/@cesarchamal/single-spa-webcomponents-app)
+
 > **Part of [Demo Microfrontends](https://github.com/cesarchamal/demo-microfrontends)** - A comprehensive Single-SPA microfrontend architecture demonstration
 
 A Web Components microfrontend using Lit for Single-SPA, demonstrating browser-native standards and component encapsulation.
@@ -10,6 +14,7 @@ This application is one of **12 microfrontends** in the demo-microfrontends proj
 
 | Microfrontend | Framework | Port | Route | Repository |
 |---------------|-----------|------|-------|------------|
+| 🎯 Root App | Single-SPA | 8080 | Orchestrator | [single-spa-root](https://github.com/cesarchamal/single-spa-root) |
 | 🔐 Auth App | Vue.js | 4201 | /login | [single-spa-auth-app](https://github.com/cesarchamal/single-spa-auth-app) |
 | 🎨 Layout App | Vue.js | 4202 | All routes | [single-spa-layout-app](https://github.com/cesarchamal/single-spa-layout-app) |
 | 🏠 Home App | AngularJS | 4203 | / | [single-spa-home-app](https://github.com/cesarchamal/single-spa-home-app) |
@@ -21,7 +26,6 @@ This application is one of **12 microfrontends** in the demo-microfrontends proj
 | 📘 TypeScript App | TypeScript | 4209 | /typescript/* | [single-spa-typescript-app](https://github.com/cesarchamal/single-spa-typescript-app) |
 | 💎 jQuery App | jQuery 3.6 | 4210 | /jquery/* | [single-spa-jquery-app](https://github.com/cesarchamal/single-spa-jquery-app) |
 | 🔥 Svelte App | Svelte 3 | 4211 | /svelte/* | [single-spa-svelte-app](https://github.com/cesarchamal/single-spa-svelte-app) |
-| 🎯 Root App | Single-SPA | 8080 | Orchestrator | [single-spa-root](https://github.com/cesarchamal/single-spa-root) |
 
 **Main Repository**: [demo-microfrontends](https://github.com/cesarchamal/demo-microfrontends)
 

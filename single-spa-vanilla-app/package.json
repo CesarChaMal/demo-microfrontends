@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-vanilla-app",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Vanilla JavaScript ES Module microfrontend for Single-SPA",
   "main": "dist/single-spa-vanilla-app.js",
   "type": "module",
