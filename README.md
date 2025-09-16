@@ -8,7 +8,9 @@ This application demonstrates a comprehensive microfrontend architecture using S
 
 ## ▶️ Live Demo
 
-**Live Demo:** [http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/](http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/)
+**Live Demo (CloudFront CDN):** [https://d3oyknhmr5oulj.cloudfront.net/](https://d3oyknhmr5oulj.cloudfront.net/)
+
+**Alternative (S3 Direct):** [http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/](http://single-spa-demo-774145483743.s3-website.eu-central-1.amazonaws.com/)
 
 **Login credentials:**
 
@@ -193,6 +195,12 @@ npm run cloudfront:setup:spa
 # 3. Deploy with CDN invalidation
 npm run trigger:aws:s3
 ```
+
+**Current Setup:**
+- 🌍 **CloudFront CDN**: https://d3oyknhmr5oulj.cloudfront.net/
+- 📦 **S3 Bucket**: single-spa-demo-774145483743
+- 🆔 **Distribution ID**: E22CAYA3V9WRA9
+- 🔒 **Features**: HTTPS, Custom error pages, JS caching, Gzip compression
 
 ### Launcher Scripts (Recommended)
 
