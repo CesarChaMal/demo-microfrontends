@@ -2023,7 +2023,7 @@ module.exports = function (IteratorConstructor, NAME, next) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"345f303a-vue-loader-template"}!./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/views/Login.vue?vue&type=template&id=69c9360e&scoped=true
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"d1c16652-vue-loader-template"}!./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/views/Login.vue?vue&type=template&id=69c9360e&scoped=true
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
@@ -15039,7 +15039,7 @@ var index_es_iconsCache = {
 // EXTERNAL MODULE: ./node_modules/@fortawesome/vue-fontawesome/index.es.js
 var vue_fontawesome_index_es = __webpack_require__("ad3d");
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"345f303a-vue-loader-template"}!./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/App.vue?vue&type=template&id=059e5bbe
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"d1c16652-vue-loader-template"}!./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/App.vue?vue&type=template&id=059e5bbe
 var Appvue_type_template_id_059e5bbe_render = function render() {
   var _vm = this,
     _c = _vm._self._c;
@@ -15148,11 +15148,13 @@ external_Vue_default.a.config.productionTip = false;
 var vueLifecycles = external_singleSpaVue_default()({
   Vue: external_Vue_default.a,
   appOptions: {
-    el: '#auth-app',
     render: function render(h) {
       return h(App);
     },
     router: router
+  },
+  handleInstance: function handleInstance(app) {
+    app.$mount('#auth-app');
   }
 });
 
@@ -15164,7 +15166,17 @@ var mount = function mount(props) {
 };
 var unmount = function unmount(props) {
   console.log('🔐 Auth App unmounting');
-  return vueLifecycles.unmount(props);
+  return vueLifecycles.unmount(props).then(function () {
+    // Clean up the mount point to prevent layout issues
+    var mountPoint = document.getElementById('auth-app');
+    if (mountPoint) {
+      mountPoint.innerHTML = '';
+      mountPoint.style.display = 'none';
+      mountPoint.style.height = '0';
+      mountPoint.style.margin = '0';
+      mountPoint.style.padding = '0';
+    }
+  });
 };
 
 // For UMD builds, expose on window

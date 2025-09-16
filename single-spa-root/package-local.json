@@ -100,18 +100,7 @@
     "vue-cli-plugin-single-spa": "1.1.0",
     "vue-router": "3.1.4",
     "vue-toastr": "2.1.2",
-    "zone.js": "0.9.1",
-    "@cesarchamal/single-spa-auth-app": "1.0.20",
-    "@cesarchamal/single-spa-layout-app": "1.0.20",
-    "@cesarchamal/single-spa-home-app": "1.0.20",
-    "@cesarchamal/single-spa-angular-app": "1.0.20",
-    "@cesarchamal/single-spa-vue-app": "1.0.20",
-    "@cesarchamal/single-spa-react-app": "1.0.20",
-    "@cesarchamal/single-spa-vanilla-app": "1.0.20",
-    "@cesarchamal/single-spa-webcomponents-app": "1.0.20",
-    "@cesarchamal/single-spa-typescript-app": "1.0.20",
-    "@cesarchamal/single-spa-jquery-app": "1.0.20",
-    "@cesarchamal/single-spa-svelte-app": "1.0.20"
+    "zone.js": "0.9.1"
   },
   "files": [
     "dist/",
