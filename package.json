@@ -1,6 +1,6 @@
 {
   "name": "demo-microfrontends",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Demo Microfrontends with Single-SPA",
   "engines": {
     "node": ">=18.0.0",
@@ -145,8 +145,8 @@
     "publish:nexus:prod": "bash -c \"SKIP_INSTALL=true npm run fix:nexus:deps\" && bash ./scripts/publish-nexus.sh patch prod",
     "publish:nexus:nobump": "bash ./scripts/publish-nexus.sh patch prod nobump",
     "publish:nexus:prod:nobump": "bash ./scripts/publish-nexus.sh patch prod nobump",
-    "publish:npm:all": "bash -c \"SKIP_INSTALL=true npm run fix:npm:deps\" && bash ./scripts/publish-npm.sh",
-    "publish:nexus:all": "bash -c \"SKIP_INSTALL=true npm run fix:nexus:deps\" && bash ./scripts/publish-nexus.sh",
+    "publish:npm:all": "bash -c \"SKIP_INSTALL=true npm run fix:npm:deps\" && npm run publish:npm:prod",
+    "publish:nexus:all": "bash -c \"SKIP_INSTALL=true npm run fix:nexus:deps\" && npm run publish:nexus:prod",
     "publish:patch": "bash ./scripts/publish-npm.sh patch",
     "publish:minor": "bash ./scripts/publish-npm.sh minor",
     "publish:major": "bash ./scripts/publish-npm.sh major",
