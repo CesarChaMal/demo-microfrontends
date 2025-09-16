@@ -121,7 +121,7 @@ show_results() {
     echo "🎉 S3 configuration complete!"
     echo "📍 Bucket: $BUCKET_NAME"
     echo "🌍 Region: $REGION"
-    echo "🔗 Website URL: http://$BUCKET_NAME.s3-website-$REGION.amazonaws.com"
+    echo "🔗 Website URL: http://$BUCKET_NAME.s3-website,$REGION.amazonaws.com"
     echo "📦 S3 URL: https://$BUCKET_NAME.s3.$REGION.amazonaws.com"
     echo "✅ Ready for microfrontend deployment!"
 }

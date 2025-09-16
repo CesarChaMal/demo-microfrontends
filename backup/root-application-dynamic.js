@@ -280,7 +280,7 @@ switch (mode) {
 
     // AWS - different behavior for dev vs prod
     const { S3_WEBSITE_URL } = window;
-    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
+    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website,${AWS_CONFIG.region}.amazonaws.com`;
     if (envEnvironment === 'prod') {
       // Production: S3 deployment handled by launcher script
       console.log('🔧 AWS prod mode: S3 deployment completed by launcher');

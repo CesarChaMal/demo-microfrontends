@@ -69,7 +69,7 @@ echo.
 echo 🎉 S3 bucket setup complete!
 echo 📍 Bucket: %BUCKET_NAME%
 echo 🌍 Region: %REGION%
-echo 🔗 Website URL: http://%BUCKET_NAME%.s3-website-%REGION%.amazonaws.com
+echo 🔗 Website URL: http://%BUCKET_NAME%.s3-website,%REGION%.amazonaws.com
 echo 📦 S3 URL: https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com
 echo.
 echo ✅ Your bucket is now publicly accessible and ready for microfrontend deployment!

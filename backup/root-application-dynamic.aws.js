@@ -25,7 +25,7 @@ const envEnvironment = process.env.SPA_ENV || 'dev';
 
 // Auto-detect mode based on hostname
 let detectedMode = envMode;
-if (window.location.hostname.includes('.s3-website-')
+if (window.location.hostname.includes('.s3-website,')
     || window.location.hostname.includes('.s3.')
     || window.location.hostname.includes('amazonaws.com')) {
   console.log('🔍 Auto-detected S3 website, switching to AWS mode');
@@ -41,7 +41,7 @@ const mode = urlParams.get('mode')
     || envMode;
 
 // Save mode to localStorage for persistence (only if not auto-detected)
-if (!window.location.hostname.includes('.s3-website-')
+if (!window.location.hostname.includes('.s3-website,')
     && !window.location.hostname.includes('.s3.')
     && !window.location.hostname.includes('amazonaws.com')) {
   localStorage.setItem('spa-mode', mode);
@@ -310,7 +310,7 @@ switch (mode) {
     }
 
     // AWS - different behavior for dev vs prod
-    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website-${AWS_CONFIG.region}.amazonaws.com`;
+    const publicUrl = S3_WEBSITE_URL || `http://${AWS_CONFIG.s3Bucket}.s3-website,${AWS_CONFIG.region}.amazonaws.com`;
     if (envEnvironment === 'prod') {
       // Production: S3 deployment handled by launcher script
       console.log('🔧 AWS prod mode: S3 deployment completed by launcher');

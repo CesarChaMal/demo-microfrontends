@@ -64,7 +64,7 @@ else
 fi
 
 # Display results
-S3_WEBSITE_URL="http://$S3_BUCKET.s3-website-$AWS_REGION.amazonaws.com"
+S3_WEBSITE_URL="http://$S3_BUCKET.s3-website,$AWS_REGION.amazonaws.com"
 echo ""
 echo "✅ Advanced AWS S3 deployment completed!"
 echo "🌍 Website URL: $S3_WEBSITE_URL"

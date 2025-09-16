@@ -425,7 +425,7 @@ start_aws() {
     fi
 
     # Set S3 website URL for display
-    S3_WEBSITE_URL_DISPLAY="${S3_WEBSITE_URL:-http://$S3_BUCKET.s3-website-$AWS_REGION.amazonaws.com}"
+    S3_WEBSITE_URL_DISPLAY="${S3_WEBSITE_URL:-http://$S3_BUCKET.s3-website,$AWS_REGION.amazonaws.com}"
 
     echo "✅ S3 deployment complete!"
     if [ "$ENV" = "prod" ]; then

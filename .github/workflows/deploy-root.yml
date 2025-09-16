@@ -67,7 +67,7 @@ jobs:
         echo "Deploying root application to S3..."
         aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }}/ --delete --cache-control 'public, must-revalidate, max-age=0'
         echo "Root application deployed successfully"
-        echo "Website URL: http://${{ secrets.S3_BUCKET }}.s3-website-${{ secrets.AWS_REGION || 'eu-central-1' }}.amazonaws.com"
+        echo "Website URL: http://${{ secrets.S3_BUCKET }}.s3-website,${{ secrets.AWS_REGION || 'eu-central-1' }}.amazonaws.com"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

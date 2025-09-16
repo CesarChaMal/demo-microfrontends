@@ -438,7 +438,7 @@ AWS_REGION=eu-central-1
 ORG_NAME=cesarchamal
 
 # URLs
-Website: http://bucket.s3-website-region.amazonaws.com
+Website: http://bucket.s3-website,region.amazonaws.com
 Import Map: https://bucket.s3.region.amazonaws.com/@cesarchamal/importmap.json
 
 # Use Case: AWS S3 static website hosting

@@ -206,7 +206,7 @@ if "%MODE%"=="local" (
             echo Main application: http://localhost:8080?mode=%MODE%
             echo.
             echo 🌍 Public S3 Website:
-            echo   http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com
+            echo   http://single-spa-demo-774145483743.s3-website,eu-central-1.amazonaws.com
         ) else (
             echo 🌐 Starting production server...
             echo Main application: http://localhost:8080?mode=%MODE%
@@ -488,12 +488,12 @@ if "%MODE%"=="local" (
             
             echo ✅ S3 deployment complete!
             if "%ENV%"=="prod" (
-                echo 🌍 Production S3 Website: http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com
+                echo 🌍 Production S3 Website: http://%S3_BUCKET%.s3-website,%AWS_REGION%.amazonaws.com
                 echo 🌍 Production: Both local server AND public website available
-                echo 🔗 Direct S3 Link: http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com/index.html?mode=aws
+                echo 🔗 Direct S3 Link: http://%S3_BUCKET%.s3-website,%AWS_REGION%.amazonaws.com/index.html?mode=aws
             ) else (
                 echo 📖 Development: Local server with S3 deployment
-                echo 🔗 S3 Development Site: http://%S3_BUCKET%.s3-website-%AWS_REGION%.amazonaws.com/index.html?mode=aws
+                echo 🔗 S3 Development Site: http://%S3_BUCKET%.s3-website,%AWS_REGION%.amazonaws.com/index.html?mode=aws
             )
             echo 🌐 Main application: http://localhost:8080?mode=aws
         )

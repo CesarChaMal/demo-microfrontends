@@ -58,4 +58,4 @@ git push origin main
 
 echo ""
 echo "🌍 After deployment, your app will be live at:"
-echo "${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website-eu-central-1.amazonaws.com}"
+echo "${S3_WEBSITE_URL:-http://single-spa-demo-774145483743.s3-website,eu-central-1.amazonaws.com}"

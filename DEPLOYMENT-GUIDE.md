@@ -270,7 +270,7 @@ ORG_NAME=your-organization-name  # optional
 ## Deployment Outputs
 
 ### AWS S3 Result
-- **Website URL**: `http://bucket-name.s3-website-region.amazonaws.com`
+- **Website URL**: `http://bucket-name.s3-website,region.amazonaws.com`
 - **Import Map**: `https://bucket.s3.region.amazonaws.com/@org/importmap.json`
 - **Individual Apps**: `https://bucket.s3.region.amazonaws.com/@org/app-name/`
 

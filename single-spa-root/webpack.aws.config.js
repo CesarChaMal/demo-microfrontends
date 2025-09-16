@@ -35,7 +35,7 @@ module.exports = (env, argv) => {
   //   const s3Bucket = process.env.S3_BUCKET || 'single-spa-demo-774145483743';
   //   const awsRegion = process.env.AWS_REGION || 'eu-central-1';
   //   // Use S3 website URL format, not S3 API format
-  //   publicPath = `https://${s3Bucket}.s3-website-${awsRegion}.amazonaws.com/`;
+  //   publicPath = `https://${s3Bucket}.s3-website,${awsRegion}.amazonaws.com/`;
   //   console.log('🔍 S3 Mode Activated:');
   //   console.log('  - useS3Paths:', useS3Paths);
   //   console.log('  - publicPath:', publicPath);
@@ -154,7 +154,7 @@ module.exports = (env, argv) => {
             awsRegion: process.env.AWS_REGION || 'eu-central-1',
             orgName: process.env.ORG_NAME || 'cesarchamal',
             githubUsername: process.env.GITHUB_USERNAME || 'cesarchamal',
-            s3WebsiteUrl: process.env.S3_WEBSITE_URL || `http://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3-website-${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com`,
+            s3WebsiteUrl: process.env.S3_WEBSITE_URL || `http://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3-website,${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com`,
             publicPath: publicPath
           };
           console.log('🔍 Template Parameters:');

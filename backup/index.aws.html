@@ -50,7 +50,7 @@
         orgName: '<%= orgName %>'
     };
     window.GITHUB_USERNAME = '<%= githubUsername %>';
-    window.S3_WEBSITE_URL = '<%= mode === "aws" ? "https://" + s3Bucket + ".s3-website-" + awsRegion + ".amazonaws.com" : "" %>';
+    window.S3_WEBSITE_URL = '<%= mode === "aws" ? "https://" + s3Bucket + ".s3-website," + awsRegion + ".amazonaws.com" : "" %>';
 
     // Debug information
     console.log('🔧 HTML Template Configuration:');

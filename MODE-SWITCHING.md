@@ -142,7 +142,7 @@ ORG_NAME=cesarchamal
 - Deploys to S3 bucket
 
 # URLs
-Website: http://bucket.s3-website-region.amazonaws.com
+Website: http://bucket.s3-website,region.amazonaws.com
 Import Map: https://bucket.s3.region.amazonaws.com/@cesarchamal/importmap.json
 ```
 
