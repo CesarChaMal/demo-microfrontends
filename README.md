@@ -576,6 +576,29 @@ CLOUDFRONT_DISTRIBUTION_ID=E1234567890ABC
 IMPORTMAP_URL=https://custom-bucket.s3.amazonaws.com/@myorg/importmap.json
 ```
 
+### Custom Domain Configuration
+
+To use a custom domain with CloudFront (e.g., `microfrontends.yourdomain.com`):
+
+```bash
+# 1. Create SSL certificate in AWS Certificate Manager (ACM)
+aws acm request-certificate --domain-name microfrontends.yourdomain.com --validation-method DNS
+
+# 2. Update CloudFront distribution to use custom domain
+# Use AWS Console or CLI to add alternate domain name and SSL certificate
+
+# 3. Update DNS records to point to CloudFront
+# Create CNAME record: microfrontends.yourdomain.com -> d1234567890abc.cloudfront.net
+
+# Environment variable
+CUSTOM_DOMAIN=microfrontends.yourdomain.com
+```
+
+**Note**: Custom domain setup requires:
+- Valid SSL certificate in AWS Certificate Manager
+- DNS configuration pointing to CloudFront distribution
+- CloudFront distribution configured with custom domain and SSL certificate
+
 ## Available Scripts
 
 ### Core Scripts
