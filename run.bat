@@ -129,7 +129,7 @@ if "%CLEANUP%"=="true" (
     echo 🔍 Cleanup disabled - skipping application cleanup
 )
 
-REM Install all dependencies based on environment
+REM Install all dependencies - root app needs them regardless of mode
 if "%ENV%"=="prod" (
     echo 📦 Installing all dependencies for production (CI)...
     call npm run install:all:ci
@@ -144,7 +144,7 @@ if "%ENV%"=="prod" (
     if errorlevel 1 exit /b 1
 )
 
-REM Build applications based on environment
+REM Build all applications - root app needs them regardless of mode
 if "%ENV%"=="prod" (
     echo 🔨 Building all applications for production...
     set NODE_OPTIONS=--openssl-legacy-provider
