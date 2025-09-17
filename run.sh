@@ -234,27 +234,46 @@ else
     echo "🔍 Cleanup disabled - skipping application cleanup"
 fi
 
-# Install all dependencies based on environment (skip for NPM/Nexus prod which publish first)
-# shellcheck disable=SC2235
-if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
-    echo "📝 Skipping dependency installation for $MODE prod mode (will build in local mode first)"
-else
-    if [ "$ENV" = "prod" ]; then
-        echo "📦 Installing all dependencies for production (CI)..."
-        exec_npm npm run install:all:ci || {
-            echo "⚠️  CI install failed, falling back to regular install..."
-            exec_npm npm run install:all
-        }
-    else
-        echo "📦 Installing all dependencies for development..."
+# Install all dependencies - root app needs them regardless of mode
+if [ "$ENV" = "prod" ]; then
+    echo "📦 Installing all dependencies for production (CI)..."
+    exec_npm npm run install:all:ci || {
+        echo "⚠️  CI install failed, falling back to regular install..."
         exec_npm npm run install:all
-    fi
+    }
+else
+    echo "📦 Installing all dependencies for development..."
+    exec_npm npm run install:all
 fi
 
-# Build applications based on environment (skip for NPM/Nexus prod which build in local mode)
-# shellcheck disable=SC2235
-if ([ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]) && [ "$ENV" = "prod" ]; then
-    echo "📝 Skipping build for $MODE prod mode (will build in local mode during publishing)"
+# Build applications based on environment and mode
+if [ "$MODE" = "local" ]; then
+    # Local mode always builds applications
+    if [ "$ENV" = "prod" ]; then
+        echo "🔨 Building all applications for production..."
+        exec_npm npm run build:all:prod
+    else
+        echo "🔨 Building all applications for development..."
+        exec_npm npm run build:all
+    fi
+elif [ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]; then
+    # NPM/Nexus modes use pre-built packages, only build root
+    echo "📝 $MODE mode uses pre-built packages, building root application only..."
+    if [ "$ENV" = "prod" ]; then
+        exec_npm npm run build:root:prod
+    else
+        exec_npm npm run build:root
+    fi
+else
+    # GitHub/AWS modes build all applications
+    if [ "$ENV" = "prod" ]; then
+        echo "🔨 Building all applications for production..."
+        exec_npm npm run build:all:prod
+    else
+        echo "🔨 Building all applications for development..."
+        exec_npm npm run build:all
+    fi
+fiuring publishing)"
 else
     if [ "$ENV" = "prod" ]; then
         echo "🔨 Building all applications for production..."
