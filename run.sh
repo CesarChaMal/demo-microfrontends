@@ -248,8 +248,8 @@ fi
 
 # build all dependencies - root app needs them regardless of mode
 if [ "$ENV" = "prod" ]; then
-      echo "🔨 Building all applications for production..."
-      exec_build npm run build:prod
+    echo "🔨 Building all applications for production..."
+    exec_build npm run build:prod
 else
     echo "🔨 Building all applications for development..."
     exec_build npm run build:dev
