@@ -246,42 +246,13 @@ else
     exec_npm npm run install:all
 fi
 
-# Build applications based on environment and mode
-if [ "$MODE" = "local" ]; then
-    # Local mode always builds applications
-    if [ "$ENV" = "prod" ]; then
-        echo "🔨 Building all applications for production..."
-        exec_npm npm run build:all:prod
-    else
-        echo "🔨 Building all applications for development..."
-        exec_npm npm run build:all
-    fi
-elif [ "$MODE" = "npm" ] || [ "$MODE" = "nexus" ]; then
-    # NPM/Nexus modes use pre-built packages, only build root
-    echo "📝 $MODE mode uses pre-built packages, building root application only..."
-    if [ "$ENV" = "prod" ]; then
-        exec_npm npm run build:root:prod
-    else
-        exec_npm npm run build:root
-    fi
+# build all dependencies - root app needs them regardless of mode
+if [ "$ENV" = "prod" ]; then
+      echo "🔨 Building all applications for production..."
+      exec_build npm run build:prod
 else
-    # GitHub/AWS modes build all applications
-    if [ "$ENV" = "prod" ]; then
-        echo "🔨 Building all applications for production..."
-        exec_npm npm run build:all:prod
-    else
-        echo "🔨 Building all applications for development..."
-        exec_npm npm run build:all
-    fi
-fiuring publishing)"
-else
-    if [ "$ENV" = "prod" ]; then
-        echo "🔨 Building all applications for production..."
-        exec_build npm run build:prod
-    else
-        echo "🔨 Building all applications for development..."
-        exec_build npm run build:dev
-    fi
+    echo "🔨 Building all applications for development..."
+    exec_build npm run build:dev
 fi
 
 # Define startup behavior based on mode and environment
