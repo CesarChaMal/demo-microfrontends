@@ -165,8 +165,8 @@ function loadModule(url, options = {}) {
   
   // Debug logging to track module loading
   console.log(`📦 Loading module: ${url}`);
-  console.log(`🔍 Options:`, { isExternalUrl, isCdnUrl, isPackageName });
-  console.log(`⚙️ Using SystemJS (required for UMD modules)`);
+  console.log('🔍 Options:', { isExternalUrl, isCdnUrl, isPackageName });
+  console.log('⚙️ Using SystemJS (required for UMD modules)');
   
   // Validate SystemJS availability
   if (!window.System || !window.System.import) {
@@ -178,15 +178,15 @@ function loadModule(url, options = {}) {
   // All paths use SystemJS - this is intentional and required
   if (isCdnUrl || isExternalUrl) {
     // Use SystemJS for external URLs (GitHub, AWS, Local URLs, CDN URLs)
-    console.log(`🌐 Loading external/CDN URL via SystemJS`);
+    console.log('🌐 Loading external/CDN URL via SystemJS');
     return window.System.import(url);
   } else if (isPackageName) {
     // Use SystemJS for package names (NPM/Nexus imports)
-    console.log(`📦 Loading package name via SystemJS`);
+    console.log('📦 Loading package name via SystemJS');
     return window.System.import(url);
   } else {
     // Default: use SystemJS for all other URLs
-    console.log(`⚙️ Loading default URL via SystemJS`);
+    console.log('⚙️ Loading default URL via SystemJS');
     return window.System.import(url);
   }
 }

@@ -1,6 +1,6 @@
 @echo off
 REM Demo Microfrontends Launcher Script for Windows
-REM Usage: run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build]
+REM Usage: run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
 REM Mode: local (default), npm, nexus, github, aws
 REM Environment: dev (default), prod
 REM Options: 
@@ -8,6 +8,7 @@ REM   --clean (cleanup node_modules and package-lock.json, default: off)
 REM   --fix-network (configure npm for problematic networks, default: off)
 REM   --skip-install (skip npm install/ci for main package and microfrontends, default: off)
 REM   --skip-build (skip build for main package and microfrontends, default: off)
+REM   --offline (use local dependencies instead of CDN, works with local/nexus modes only, default: off)
 REM Examples:
 REM   run.bat                     Default: local dev (all 12 apps)
 REM   run.bat local               Local dev (all 12 apps)
@@ -40,6 +41,7 @@ set CLEANUP=false
 set FIX_NETWORK=false
 set SKIP_INSTALL=false
 set SKIP_BUILD=false
+set OFFLINE=false
 if "%MODE%"=="" set MODE=local
 if "%ENV%"=="" set ENV=dev
 
@@ -68,6 +70,12 @@ if "%3"=="--skip-build" set SKIP_BUILD=true
 if "%4"=="--skip-build" set SKIP_BUILD=true
 if "%5"=="--skip-build" set SKIP_BUILD=true
 if "%6"=="--skip-build" set SKIP_BUILD=true
+if "%1"=="--offline" set OFFLINE=true
+if "%2"=="--offline" set OFFLINE=true
+if "%3"=="--offline" set OFFLINE=true
+if "%4"=="--offline" set OFFLINE=true
+if "%5"=="--offline" set OFFLINE=true
+if "%6"=="--offline" set OFFLINE=true
 
 REM Update .env file with current mode and environment
 echo 📝 Updating SPA configuration in .env...

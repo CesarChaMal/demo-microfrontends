@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Demo Microfrontends Launcher Script
-# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build]
+# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
 # Mode: local (default), npm, nexus, github, aws
 # Environment: dev (default), prod
 # Options: 
@@ -9,6 +9,7 @@
 #   --fix-network (configure npm for problematic networks, default: off)
 #   --skip-install (skip npm install/ci for main package and microfrontends, default: off)
 #   --skip-build (skip build for main package and microfrontends, default: off)
+#   --offline (use local dependencies instead of CDN, works with local/nexus modes only, default: off)
 # Examples:
 #   ./run.sh local dev    # Full development environment
 #   ./run.sh local prod   # Production build locally
@@ -17,11 +18,14 @@
 #   ./run.sh aws prod --clean     # AWS S3 with production build and cleanup
 #   ./run.sh local dev --fix-network  # Local dev with network fixes
 #   ./run.sh local prod --skip-install --skip-build  # Skip install and build steps
+#   ./run.sh local prod --offline  # Local production with offline dependencies
+#   ./run.sh nexus dev --offline   # Nexus development with offline dependencies
 #
 # Sequential Workflow Examples:
 #   ./run.sh local prod                              # Run 1: Full setup
 #   ./run.sh local prod --skip-install --skip-build # Run 2: Fast restart (same mode)
 #   ./run.sh aws prod --skip-install                # Run 3: Mode change - auto-detects and rebuilds
+#   ./run.sh local prod --offline                   # Run 4: Offline mode for no internet
 set -e
 
 # Parse arguments
@@ -31,6 +35,7 @@ CLEANUP=false
 FIX_NETWORK=false
 SKIP_INSTALL=false
 SKIP_BUILD=false
+OFFLINE=false
 
 # Check for flags in any position
 for arg in "$@"; do
@@ -42,6 +47,8 @@ for arg in "$@"; do
         SKIP_INSTALL=true
     elif [ "$arg" = "--skip-build" ]; then
         SKIP_BUILD=true
+    elif [ "$arg" = "--offline" ]; then
+        OFFLINE=true
     fi
 done
 
@@ -51,10 +58,38 @@ if [ -f ".env" ]; then
     PREV_MODE=$(grep "^SPA_MODE=" .env | cut -d'=' -f2 || echo "unknown")
 fi
 
-# Update .env file with current mode and environment
+# Update .env file with current mode, environment, and offline setting
 echo "📝 Updating SPA configuration in .env..."
 sed -i "s/^SPA_MODE=.*/SPA_MODE=$MODE/" .env
 sed -i "s/^SPA_ENV=.*/SPA_ENV=$ENV/" .env
+if [ "$OFFLINE" = true ]; then
+    if grep -q "^OFFLINE=" .env; then
+        sed -i "s/^OFFLINE=.*/OFFLINE=true/" .env
+    else
+        echo "OFFLINE=true" >> .env
+    fi
+else
+    if grep -q "^OFFLINE=" .env; then
+        sed -i "s/^OFFLINE=.*/OFFLINE=false/" .env
+    else
+        echo "OFFLINE=false" >> .env
+    fi
+fi
+
+# Validate offline mode compatibility
+if [ "$OFFLINE" = true ]; then
+    case "$MODE" in
+        "local"|"nexus")
+            echo "📱 Offline mode enabled for $MODE mode"
+            ;;
+        *)
+            echo "❌ Error: Offline mode only supported for local and nexus modes"
+            echo "💡 Supported: ./run.sh local [dev|prod] --offline"
+            echo "💡 Supported: ./run.sh nexus [dev|prod] --offline"
+            exit 1
+            ;;
+    esac
+fi
 
 echo "🚀 Starting Demo Microfrontends Application in $MODE mode ($ENV environment)..."
 echo "🔍 DEBUG: Script execution started at $(date)"
@@ -319,7 +354,19 @@ fi
 
 # Define startup behavior based on mode and environment
 start_local() {
-    echo "🔍 DEBUG: Local mode - ENV=$ENV, NODE_VERSION=$(node --version), NPM_VERSION=$(npm --version)"
+    echo "🔍 DEBUG: Local mode - ENV=$ENV, OFFLINE=$OFFLINE, NODE_VERSION=$(node --version), NPM_VERSION=$(npm --version)"
+    
+    # Check offline mode compatibility and setup
+    if [ "$OFFLINE" = true ]; then
+        echo "📱 Offline mode enabled - checking local dependencies..."
+        if [ ! -d "single-spa-root/dist/lib" ]; then
+            echo "📦 Local dependencies not found. Downloading..."
+            bash ./scripts/download-offline-deps.sh
+        else
+            echo "✅ Local dependencies found"
+        fi
+        export OFFLINE=true
+    fi
     
     # Restore original .npmrc for local mode
     if [ -f ".npmrc.backup" ]; then
@@ -352,14 +399,28 @@ start_local() {
     if [ "$ENV" = "prod" ]; then
         echo "🌐 Local production: Static apps + root server only"
         echo "🔍 DEBUG: Production mode - serving built files from single-spa-root/dist"
+        if [ "$OFFLINE" = true ]; then
+            echo "📱 Offline mode: Using local dependencies"
+        fi
         echo "Main application: http://localhost:8080"
-        exec_npm npm run serve:local:prod
+        if [ "$OFFLINE" = true ]; then
+            OFFLINE=true exec_npm npm run serve:local:prod
+        else
+            exec_npm npm run serve:local:prod
+        fi
      else
         echo "🌐 Local development: Starting all 12 microfrontends"
         echo "🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211"
+        if [ "$OFFLINE" = true ]; then
+            echo "📱 Offline mode: Using local dependencies"
+        fi
         echo "Main application: http://localhost:8080"
         echo "Microfrontend ports: 4201-4211"
-        exec_npm npm run serve:local:dev
+        if [ "$OFFLINE" = true ]; then
+            OFFLINE=true exec_npm npm run serve:local:dev
+        else
+            exec_npm npm run serve:local:dev
+        fi
     fi
 }
 
@@ -573,7 +634,19 @@ start_npm() {
 }
 
 start_nexus() {
-    echo "🔍 DEBUG: Nexus mode - ENV=$ENV, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
+    echo "🔍 DEBUG: Nexus mode - ENV=$ENV, OFFLINE=$OFFLINE, NEXUS_REGISTRY=${NEXUS_REGISTRY:-NOT_SET}"
+    
+    # Check offline mode compatibility and setup
+    if [ "$OFFLINE" = true ]; then
+        echo "📱 Offline mode enabled - checking local dependencies..."
+        if [ ! -d "single-spa-root/dist/lib" ]; then
+            echo "📦 Local dependencies not found. Downloading..."
+            bash ./scripts/download-offline-deps.sh
+        else
+            echo "✅ Local dependencies found"
+        fi
+        export OFFLINE=true
+    fi
     # Nexus mode uses local file serving, no CORS proxy needed
     echo "📝 Nexus mode: Using local file serving + Nexus registry"
     
@@ -638,10 +711,20 @@ start_nexus() {
     echo "🌐 Main application: http://localhost:8080?mode=nexus"
     if [ "$ENV" = "prod" ]; then
         echo "🔍 DEBUG: Nexus prod mode - static files + Nexus registry"
-        exec_npm npm run serve:nexus:prod
+        if [ "$OFFLINE" = true ]; then
+            echo "📱 Offline mode: Using local dependencies"
+            OFFLINE=true exec_npm npm run serve:nexus:prod
+        else
+            exec_npm npm run serve:nexus:prod
+        fi
     else
         echo "🔍 DEBUG: Nexus dev mode - individual servers + Nexus registry"
-        exec_npm npm run serve:nexus:dev
+        if [ "$OFFLINE" = true ]; then
+            echo "📱 Offline mode: Using local dependencies"
+            OFFLINE=true exec_npm npm run serve:nexus:dev
+        else
+            exec_npm npm run serve:nexus:dev
+        fi
     fi
 }
 

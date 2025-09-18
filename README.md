@@ -209,9 +209,9 @@ npm run trigger:aws:s3
 **Basic Usage:**
 ```bash
 # Linux/Mac
-./run.sh [mode] [environment] [--clean] [--fix-network]
+./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
 # Windows
-run.bat [mode] [environment] [--clean] [--fix-network]
+run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
 ```
 
 **Parameters:**
@@ -220,6 +220,9 @@ run.bat [mode] [environment] [--clean] [--fix-network]
 - **Options:**
   - `--clean`: Cleanup node_modules and package-lock.json (default: off)
   - `--fix-network`: Configure npm for problematic networks (default: off)
+  - `--skip-install`: Skip npm install/ci for faster restarts (default: off)
+  - `--skip-build`: Skip build process for faster restarts (default: off)
+  - `--offline`: Use local dependencies instead of CDN (local/nexus only, default: off)
 
 **Available Modes:**
 - `local` - Local development with SystemJS
@@ -237,6 +240,14 @@ run.bat [mode] [environment] [--clean] [--fix-network]
 # Development (default)
 ./run.sh local dev
 ./run.sh local        # dev is default
+
+# Fast restarts (skip install/build)
+./run.sh local prod --skip-install --skip-build
+./run.sh npm dev --skip-install
+
+# Offline mode (no internet required)
+./run.sh local prod --offline
+./run.sh nexus dev --offline
 
 # With cleanup and network fixes
 ./run.sh local dev --clean --fix-network
@@ -256,6 +267,8 @@ run.bat [mode] [environment] [--clean] [--fix-network]
 run.bat local prod --clean
 run.bat npm dev --fix-network
 run.bat aws prod --clean --fix-network
+run.bat local prod --offline
+run.bat nexus dev --skip-install --skip-build
 ```
 
 #### Quick Development Launcher (`dev-all.sh` / `dev-all.bat`)
@@ -661,6 +674,11 @@ CUSTOM_DOMAIN=microfrontends.yourdomain.com
 - `npm run aws:hot-sync` - Auto-sync file changes to AWS S3 bucket
 - `npm run github:hot-sync` - Auto-deploy file changes to GitHub repositories
 
+### Offline Mode Scripts
+- `npm run offline:setup` - Download CDN dependencies locally (one-time setup)
+- `npm run offline:serve` - Run in offline mode with local dependencies
+- `npm run offline:build` - Build and serve in offline mode
+
 ### Authentication Testing Scripts
 - `npm run test:npm:auth` - Test NPM authentication with NPM_TOKEN
 - `npm run test:nexus:auth` - Test Nexus authentication with .npmrc.nexus
@@ -683,6 +701,9 @@ For a complete list of all available scripts, see the individual application dir
 # Apply network fixes for unstable connections
 ./run.sh local dev --fix-network
 run.bat npm prod --fix-network
+
+# Use offline mode if network is completely unavailable
+./run.sh local prod --offline
 ```
 
 ### Clean Installation
@@ -690,6 +711,19 @@ run.bat npm prod --fix-network
 # Remove node_modules and package-lock.json before install
 ./run.sh local dev --clean
 run.bat aws prod --clean
+```
+
+### Offline Mode (No Internet Required)
+```bash
+# First time setup - download dependencies
+npm run offline:setup
+
+# Run without internet connection
+./run.sh local prod --offline
+./run.sh nexus dev --offline
+
+# Quick offline development
+npm run offline:serve
 ```
 
 ### NPM Publishing Issues

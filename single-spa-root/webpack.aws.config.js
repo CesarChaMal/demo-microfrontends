@@ -28,7 +28,7 @@ module.exports = (env, argv) => {
 
   // This is for static S3 website builds only
   const useS3Paths = (mode === 'aws' && isProduction);
-  let publicPath = '/';
+  const publicPath = '/';
 
   // ORIGINAL LOGIC (commented out - was causing blank page on S3)
   // if (useS3Paths) {
@@ -62,9 +62,9 @@ module.exports = (env, argv) => {
 
   const config = {
     mode: isProduction ? 'production' : 'development',
-    entry: entry,
+    entry,
     output: {
-      publicPath: publicPath,
+      publicPath,
       filename: '[name].js',
       path: path.resolve(__dirname, 'dist'),
     },
@@ -101,7 +101,7 @@ module.exports = (env, argv) => {
     resolve: {
       modules: [__dirname, 'node_modules'],
       alias: {
-        'rxjs': path.resolve(__dirname, 'node_modules/rxjs'),
+        rxjs: path.resolve(__dirname, 'node_modules/rxjs'),
       },
     },
     plugins: [
@@ -128,8 +128,8 @@ module.exports = (env, argv) => {
         },
         {
           from: path.resolve(
-              __dirname,
-              '../single-spa-layout-app/dist/img',
+            __dirname,
+            '../single-spa-layout-app/dist/img',
           ),
           to: path.resolve(__dirname, 'dist/img'),
           noErrorOnMissing: true,
@@ -145,17 +145,17 @@ module.exports = (env, argv) => {
         inject: false,
         templateParameters: (() => {
           const params = {
-            isLocal: env && env.isLocal === "true",
-            mode: mode,
-            isProduction: isProduction,
-            useS3Paths: useS3Paths,
+            isLocal: env && env.isLocal === 'true',
+            mode,
+            isProduction,
+            useS3Paths,
             importmapUrl: process.env.IMPORTMAP_URL || `https://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3.${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com/@${process.env.ORG_NAME || 'cesarchamal'}/importmap.json`,
             s3Bucket: process.env.S3_BUCKET || 'single-spa-demo-774145483743',
             awsRegion: process.env.AWS_REGION || 'eu-central-1',
             orgName: process.env.ORG_NAME || 'cesarchamal',
             githubUsername: process.env.GITHUB_USERNAME || 'cesarchamal',
             s3WebsiteUrl: process.env.S3_WEBSITE_URL || `http://${process.env.S3_BUCKET || 'single-spa-demo-774145483743'}.s3-website,${process.env.AWS_REGION || 'eu-central-1'}.amazonaws.com`,
-            publicPath: publicPath
+            publicPath,
           };
           console.log('🔍 Template Parameters:');
           console.log('  - mode:', params.mode);
@@ -163,7 +163,7 @@ module.exports = (env, argv) => {
           console.log('  - useS3Paths:', params.useS3Paths);
           console.log('  - publicPath:', params.publicPath);
           return params;
-        })()
+        })(),
       }),
     ],
     devtool: isProduction ? false : 'source-map',
