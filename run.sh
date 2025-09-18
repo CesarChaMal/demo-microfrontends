@@ -213,13 +213,14 @@ fi
 if [ "$ENV" = "prod" ]; then
     echo "📦 Installing main package dependencies for production (CI)..."
     if [ -f "package-lock.json" ]; then
+        echo "package-lock.json exists for (CI)..."
         exec_npm npm ci || {
             echo "⚠️  npm ci failed, falling back to npm install..."
             exec_npm npm install
         }
     else
         echo "📝 No package-lock.json found, using npm install..."
-        exec_npm npm install
+#        exec_npm npm install
     fi
 else
     echo "📦 Installing main package dependencies for development..."
@@ -291,6 +292,7 @@ start_local() {
         echo "🌐 Local production: Static apps + root server only"
         echo "🔍 DEBUG: Production mode - serving built files from single-spa-root/dist"
         echo "Main application: http://localhost:8080"
+        exec_npm npm run serve:local:prod
      else
         echo "🌐 Local development: Starting all 12 microfrontends"
         echo "🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211"
