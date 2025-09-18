@@ -87,6 +87,11 @@ module.exports = (env, argv) => {
       }),
       new CleanWebpackPlugin({
         cleanAfterEveryBuildPatterns: ['dist'],
+        cleanOnceBeforeBuildPatterns: [
+          '**/*',
+          // Preserve offline dependencies when in offline mode
+          ...(process.env.OFFLINE === 'true' ? ['!lib', '!lib/**'] : [])
+        ],
       }),
       new CopyWebpackPlugin([
         {
