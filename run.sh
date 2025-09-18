@@ -329,13 +329,18 @@ if [ "$SKIP_INSTALL" = true ]; then
 else
     if [ "$ENV" = "prod" ]; then
         echo "📦 Installing all dependencies for production (CI)..."
-        exec_npm npm run install:all:ci || {
+#        exec_npm npm run install:all:ci || {
+#            echo "⚠️  CI install failed, falling back to regular install..."
+#            exec_npm npm run install:all
+#        }
+        exec_npm npm run install:apps:concurrent:ci || {
             echo "⚠️  CI install failed, falling back to regular install..."
-            exec_npm npm run install:all
+            exec_npm npm install:apps:concurrent
         }
     else
         echo "📦 Installing all dependencies for development..."
-        exec_npm npm run install:all
+#        exec_npm npm run install:all
+        exec_npm npm run install:apps:concurrent
     fi
 fi
 
@@ -345,10 +350,12 @@ if [ "$SKIP_BUILD" = true ]; then
 else
     if [ "$ENV" = "prod" ]; then
         echo "🔨 Building all applications for production..."
-        exec_build npm run build:prod
+#        exec_build npm run build:prod
+        exec_build npm run build:concurrent:prod
     else
         echo "🔨 Building all applications for development..."
-        exec_build npm run build:dev
+#        exec_build npm run build:dev
+        exec_build npm run build:concurrent:dev
     fi
 fi
 
