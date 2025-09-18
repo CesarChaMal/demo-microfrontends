@@ -123,65 +123,6 @@ if (mode === MODES.AWS && (!AWS_CONFIG || !IMPORTMAP_URL)) {
   console.warn('⚠️ AWS configuration not found. Make sure environment variables are set: S3_BUCKET, AWS_REGION, ORG_NAME');
 }
 
-// Shared function to resolve single-spa lifecycle functions from loaded modules
-function resolveLifecycles(module, name) {
-  console.log('🔍 Module keys:', Object.keys(module));
-  console.log('🔍 Has bootstrap:', typeof module.bootstrap);
-  console.log('🔍 Has mount:', typeof module.mount);
-  console.log('🔍 Has unmount:', typeof module.unmount);
-
-  let lifecycles;
-
-  // Check if it's a proper single-spa app with lifecycle functions
-  if (module.bootstrap && module.mount && module.unmount) {
-    lifecycles = module;
-  } else if (module.default && module.default.bootstrap) {
-    lifecycles = module.default;
-  // } else if (window['single-spa-layout-app']) {
-  //   // Check if it's exposed on window (UMD)
-  //   lifecycles = window['single-spa-layout-app'];
-  } else if (window[name]) {
-    // Check if it's exposed on window (UMD)
-    lifecycles = window[name];
-  } else if (window[name.replace(/-/g, '')]) {
-    // Check if it's exposed on window (UMD)
-    const globalName = name.replace(/-/g, '');
-    console.log('globalName: ', globalName);
-    lifecycles = window[globalName];
-  } else {
-    // Try specific UMD global names
-    const umdGlobals = {
-      'single-spa-auth-app': 'singleSpaAuthApp',
-      'single-spa-layout-app': 'singleSpaLayoutApp',
-      'single-spa-home-app': 'singleSpaHomeApp',
-      'single-spa-angular-app': 'singleSpaAngularApp',
-      'single-spa-vue-app': 'singleSpaVueApp',
-      'single-spa-react-app': 'singleSpaReactApp',
-      'single-spa-vanilla-app': 'singleSpaVanillaApp',
-      'single-spa-webcomponents-app': 'singleSpaWebcomponentsApp',
-      'single-spa-typescript-app': 'singleSpaTypescriptApp',
-      'single-spa-jquery-app': 'singleSpaJqueryApp',
-      'single-spa-svelte-app': 'singleSpaSvelteApp',
-    };
-    const umdGlobalName = umdGlobals[name];
-    console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
-    console.log('🔍 Debug: Available globals:', Object.keys(window).filter((k) => k.includes('single') || k.includes('Spa')));
-
-    if (umdGlobalName && window[umdGlobalName]) {
-      console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
-      lifecycles = window[umdGlobalName];
-    } else {
-      console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
-      console.log('🔍 Debug: Module structure:', module);
-      console.log('🔍 Debug: Expected UMD global:', umdGlobalName);
-      console.log('🔍 Debug: Available on window:', !!window[umdGlobalName]);
-      throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
-    }
-  }
-
-  return lifecycles;
-}
-
 /**
  * Unified module loading strategy for Single-SPA microfrontends
  * 
@@ -250,15 +191,112 @@ function loadModule(url, options = {}) {
   }
 }
 
+/**
+ * CRITICAL: Resolves Single-SPA lifecycle functions from UMD modules
+ * 
+ * This function is essential for the UMD + SystemJS architecture. It handles the complex
+ * process of extracting Single-SPA lifecycles from different module formats.
+ * 
+ * UMD Module Resolution Strategy (in order of priority):
+ * 1. Direct module exports (module.bootstrap, module.mount, module.unmount)
+ * 2. Default export with lifecycles (module.default.bootstrap)
+ * 3. Window global with exact name (window['single-spa-auth-app'])
+ * 4. Window global with dashes removed (window['singlespaautapp'])
+ * 5. Predefined UMD global mapping (window['singleSpaAuthApp'])
+ * 
+ * Why this complexity is needed:
+ * - Different frameworks build UMD bundles differently
+ * - Some expose lifecycles directly, others via default export
+ * - UMD bundles register globals with varying naming conventions
+ * - SystemJS may return the module object or just trigger global registration
+ * 
+ * CRITICAL: DO NOT modify this function without understanding UMD module formats.
+ * Breaking this function will prevent microfrontends from loading properly.
+ * 
+ * For ES Modules (hypothetical), this would be simplified to:
+ * function resolveLifecycles(module) { return module; }
+ * 
+ * @param {Object} module - The loaded module from SystemJS
+ * @param {string} name - The microfrontend name (e.g., 'single-spa-auth-app')
+ * @returns {Object} Object with bootstrap, mount, unmount lifecycle functions
+ * @throws {Error} If no valid Single-SPA lifecycles are found
+ */
+// Shared function to resolve single-spa lifecycle functions from loaded modules
+function resolveLifecycles(module, name) {
+  console.log('🔍 Module keys:', Object.keys(module));
+  console.log('🔍 Has bootstrap:', typeof module.bootstrap);
+  console.log('🔍 Has mount:', typeof module.mount);
+  console.log('🔍 Has unmount:', typeof module.unmount);
+
+  let lifecycles;
+
+  // Check if it's a proper single-spa app with lifecycle functions
+  if (module.bootstrap && module.mount && module.unmount) {
+    lifecycles = module;
+  } else if (module.default && module.default.bootstrap) {
+    lifecycles = module.default;
+    // } else if (window['single-spa-layout-app']) {
+    //   // Check if it's exposed on window (UMD)
+    //   lifecycles = window['single-spa-layout-app'];
+  } else if (window[name]) {
+    // Check if it's exposed on window (UMD)
+    lifecycles = window[name];
+  } else if (window[name.replace(/-/g, '')]) {
+    // Check if it's exposed on window (UMD)
+    const globalName = name.replace(/-/g, '');
+    console.log('globalName: ', globalName);
+    lifecycles = window[globalName];
+  } else {
+    // Try specific UMD global names
+    const umdGlobals = {
+      'single-spa-auth-app': 'singleSpaAuthApp',
+      'single-spa-layout-app': 'singleSpaLayoutApp',
+      'single-spa-home-app': 'singleSpaHomeApp',
+      'single-spa-angular-app': 'singleSpaAngularApp',
+      'single-spa-vue-app': 'singleSpaVueApp',
+      'single-spa-react-app': 'singleSpaReactApp',
+      'single-spa-vanilla-app': 'singleSpaVanillaApp',
+      'single-spa-webcomponents-app': 'singleSpaWebcomponentsApp',
+      'single-spa-typescript-app': 'singleSpaTypescriptApp',
+      'single-spa-jquery-app': 'singleSpaJqueryApp',
+      'single-spa-svelte-app': 'singleSpaSvelteApp',
+    };
+    const umdGlobalName = umdGlobals[name];
+    console.log(`🔍 Debug: Trying UMD global '${umdGlobalName}' for ${name}`);
+    console.log('🔍 Debug: Available globals:', Object.keys(window).filter((k) => k.includes('single') || k.includes('Spa')));
+
+    if (umdGlobalName && window[umdGlobalName]) {
+      console.log(`✅ Found UMD global '${umdGlobalName}' for ${name}`);
+      lifecycles = window[umdGlobalName];
+    } else {
+      console.error(`❌ Invalid module format for ${name}. Expected single-spa lifecycles.`);
+      console.log('🔍 Debug: Module structure:', module);
+      console.log('🔍 Debug: Expected UMD global:', umdGlobalName);
+      console.log('🔍 Debug: Available on window:', !!window[umdGlobalName]);
+      throw new Error(`Module ${name} does not export valid single-spa lifecycles`);
+    }
+  }
+
+  return lifecycles;
+}
+
 // Configure loading strategy based on mode
 let loadApp;
 let importMapPromise;
 
 console.log('🔍 Mode comparison debug:');
-console.log(`  - mode: '${mode}' (type: ${typeof mode})`);
-console.log(`  - MODES.AWS: '${MODES.AWS}' (type: ${typeof MODES.AWS})`);
-console.log(`  - mode === MODES.AWS: ${mode === MODES.AWS}`);
-console.log(`  - mode === 'aws': ${mode === 'aws'}`);
+console.log(`  - Selected mode: '${mode}' (type: ${typeof mode})`);
+console.log('  - Mode comparisons:');
+console.log(`    • LOCAL: '${MODES.LOCAL}' → ${mode === MODES.LOCAL} (${mode === 'local'})`);
+console.log(`    • NPM: '${MODES.NPM}' → ${mode === MODES.NPM} (${mode === 'npm'})`);
+console.log(`    • NEXUS: '${MODES.NEXUS}' → ${mode === MODES.NEXUS} (${mode === 'nexus'})`);
+console.log(`    • GITHUB: '${MODES.GITHUB}' → ${mode === MODES.GITHUB} (${mode === 'github'})`);
+console.log(`    • AWS: '${MODES.AWS}' → ${mode === MODES.AWS} (${mode === 'aws'})`);
+console.log('  - Mode sources:');
+console.log(`    • URL param: ${urlParams.get('mode')}`);
+console.log(`    • Environment: ${envMode}`);
+console.log(`    • LocalStorage: ${localStorage.getItem('spa-mode')}`);
+console.log(`    • Auto-detected: ${detectedMode}`);
 
 function getLocalAppUrls(isProduction) {
   return isProduction ? {

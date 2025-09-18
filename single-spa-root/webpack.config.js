@@ -132,14 +132,3 @@ module.exports = (env, argv) => {
   };
 };
 
-
-/*
-{
-  from: path.resolve(
-      __dirname,
-      'node_modules/single-spa-layout-app/dist/img',
-  ),
-      to: path.resolve(__dirname, 'dist/img'),
-    noErrorOnMissing: true,
-},
-*/
