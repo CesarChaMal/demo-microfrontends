@@ -1,11 +1,13 @@
 @echo off
 REM Demo Microfrontends Launcher Script for Windows
-REM Usage: run.bat [mode] [environment] [--clean] [--fix-network]
+REM Usage: run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build]
 REM Mode: local (default), npm, nexus, github, aws
 REM Environment: dev (default), prod
 REM Options: 
 REM   --clean (cleanup node_modules and package-lock.json, default: off)
 REM   --fix-network (configure npm for problematic networks, default: off)
+REM   --skip-install (skip npm install/ci for main package and microfrontends, default: off)
+REM   --skip-build (skip build for main package and microfrontends, default: off)
 REM Examples:
 REM   run.bat                     Default: local dev (all 12 apps)
 REM   run.bat local               Local dev (all 12 apps)
@@ -23,6 +25,11 @@ REM   run.bat github prod         GitHub prod - create repos + deploy (root only
 REM   run.bat aws                 AWS dev (root only)
 REM   run.bat aws dev             AWS dev (root only)
 REM   run.bat aws prod            AWS prod (root only)
+REM
+REM Sequential Workflow Examples:
+REM   run.bat local prod                              REM Run 1: Full setup
+REM   run.bat local prod --skip-install --skip-build REM Run 2: Fast restart (same mode)
+REM   run.bat aws prod --skip-install                REM Run 3: Mode change - auto-detects and rebuilds
 
 setlocal enabledelayedexpansion
 
@@ -31,6 +38,8 @@ set MODE=%1
 set ENV=%2
 set CLEANUP=false
 set FIX_NETWORK=false
+set SKIP_INSTALL=false
+set SKIP_BUILD=false
 if "%MODE%"=="" set MODE=local
 if "%ENV%"=="" set ENV=dev
 
@@ -39,10 +48,26 @@ if "%1"=="--clean" set CLEANUP=true
 if "%2"=="--clean" set CLEANUP=true
 if "%3"=="--clean" set CLEANUP=true
 if "%4"=="--clean" set CLEANUP=true
+if "%5"=="--clean" set CLEANUP=true
+if "%6"=="--clean" set CLEANUP=true
 if "%1"=="--fix-network" set FIX_NETWORK=true
 if "%2"=="--fix-network" set FIX_NETWORK=true
 if "%3"=="--fix-network" set FIX_NETWORK=true
 if "%4"=="--fix-network" set FIX_NETWORK=true
+if "%5"=="--fix-network" set FIX_NETWORK=true
+if "%6"=="--fix-network" set FIX_NETWORK=true
+if "%1"=="--skip-install" set SKIP_INSTALL=true
+if "%2"=="--skip-install" set SKIP_INSTALL=true
+if "%3"=="--skip-install" set SKIP_INSTALL=true
+if "%4"=="--skip-install" set SKIP_INSTALL=true
+if "%5"=="--skip-install" set SKIP_INSTALL=true
+if "%6"=="--skip-install" set SKIP_INSTALL=true
+if "%1"=="--skip-build" set SKIP_BUILD=true
+if "%2"=="--skip-build" set SKIP_BUILD=true
+if "%3"=="--skip-build" set SKIP_BUILD=true
+if "%4"=="--skip-build" set SKIP_BUILD=true
+if "%5"=="--skip-build" set SKIP_BUILD=true
+if "%6"=="--skip-build" set SKIP_BUILD=true
 
 REM Update .env file with current mode and environment
 echo 📝 Updating SPA configuration in .env...
@@ -100,24 +125,28 @@ if "%CLEANUP%"=="true" (
 )
 
 REM Install main package dependencies first (needed for rimraf)
-if "%ENV%"=="prod" (
-    echo 📦 Installing main package dependencies for production (CI)...
-    if exist "package-lock.json" (
-        call npm ci
-        if errorlevel 1 (
-            echo ⚠️ npm ci failed, falling back to npm install...
+if "%SKIP_INSTALL%"=="true" (
+    echo ⏭️ Skipping main package installation (--skip-install flag)
+) else (
+    if "%ENV%"=="prod" (
+        echo 📦 Installing main package dependencies for production (CI)...
+        if exist "package-lock.json" (
+            call npm ci
+            if errorlevel 1 (
+                echo ⚠️ npm ci failed, falling back to npm install...
+                call npm install
+                if errorlevel 1 exit /b 1
+            )
+        ) else (
+            echo 📝 No package-lock.json found, using npm install...
             call npm install
             if errorlevel 1 exit /b 1
         )
     ) else (
-        echo 📝 No package-lock.json found, using npm install...
+        echo 📦 Installing main package dependencies for development...
         call npm install
         if errorlevel 1 exit /b 1
     )
-) else (
-    echo 📦 Installing main package dependencies for development...
-    call npm install
-    if errorlevel 1 exit /b 1
 )
 
 REM Clean other applications if cleanup enabled
@@ -129,32 +158,72 @@ if "%CLEANUP%"=="true" (
     echo 🔍 Cleanup disabled - skipping application cleanup
 )
 
+REM Check if mode change requires rebuild (override --skip-build)
+set MODE_CHANGED=false
+set NEEDS_REBUILD=false
+if not "%PREV_MODE%"=="%MODE%" if not "%PREV_MODE%"=="unknown" (
+    set MODE_CHANGED=true
+    echo 🔄 Mode changed from %PREV_MODE% to %MODE%
+    
+    REM Check if mode change requires different build outputs
+    if "%PREV_MODE%--%MODE%"=="local--aws" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="local--github" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="local--npm" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="local--nexus" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="aws--local" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="github--local" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="npm--local" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="nexus--local" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="aws--github" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="github--aws" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="npm--nexus" set NEEDS_REBUILD=true
+    if "%PREV_MODE%--%MODE%"=="nexus--npm" set NEEDS_REBUILD=true
+    
+    if "%NEEDS_REBUILD%"=="true" (
+        echo ⚠️ Mode change between %PREV_MODE% and %MODE% requires rebuild
+    )
+    
+    if "%NEEDS_REBUILD%"=="true" if "%SKIP_BUILD%"=="true" (
+        echo 🔧 Automatically enabling build due to mode compatibility requirements
+        echo 💡 Use same mode to benefit from --skip-build optimization
+        set SKIP_BUILD=false
+    )
+)
+
 REM Install all dependencies - root app needs them regardless of mode
-if "%ENV%"=="prod" (
-    echo 📦 Installing all dependencies for production (CI)...
-    call npm run install:all:ci
-    if errorlevel 1 (
-        echo ⚠️ CI install failed, falling back to regular install...
+if "%SKIP_INSTALL%"=="true" (
+    echo ⏭️ Skipping all dependencies installation (--skip-install flag)
+) else (
+    if "%ENV%"=="prod" (
+        echo 📦 Installing all dependencies for production (CI)...
+        call npm run install:all:ci
+        if errorlevel 1 (
+            echo ⚠️ CI install failed, falling back to regular install...
+            call npm run install:all
+            if errorlevel 1 exit /b 1
+        )
+    ) else (
+        echo 📦 Installing all dependencies for development...
         call npm run install:all
         if errorlevel 1 exit /b 1
     )
-) else (
-    echo 📦 Installing all dependencies for development...
-    call npm run install:all
-    if errorlevel 1 exit /b 1
 )
 
 REM Build all applications - root app needs them regardless of mode
-if "%ENV%"=="prod" (
-    echo 🔨 Building all applications for production...
-    set NODE_OPTIONS=--openssl-legacy-provider
-    call npm run build:prod
-    if errorlevel 1 exit /b 1
+if "%SKIP_BUILD%"=="true" (
+    echo ⏭️ Skipping build for all applications (--skip-build flag)
 ) else (
-    echo 🔨 Building all applications for development...
-    set NODE_OPTIONS=--openssl-legacy-provider
-    call npm run build:dev
-    if errorlevel 1 exit /b 1
+    if "%ENV%"=="prod" (
+        echo 🔨 Building all applications for production...
+        set NODE_OPTIONS=--openssl-legacy-provider
+        call npm run build:prod
+        if errorlevel 1 exit /b 1
+    ) else (
+        echo 🔨 Building all applications for development...
+        set NODE_OPTIONS=--openssl-legacy-provider
+        call npm run build:dev
+        if errorlevel 1 exit /b 1
+    )
 )
 
 if "%MODE%"=="local" (
@@ -513,9 +582,9 @@ if "%MODE%"=="local" (
     )
 )
 
-REM Cleanup function to restore local mode
-echo.
-echo 🔄 Cleaning up and switching back to local mode...
-set SKIP_INSTALL=true
-call npm run mode:local >nul 2>&1
-echo ✅ Switched back to local mode
+REM Cleanup function to restore local mode (commented out to preserve mode detection)
+REM echo.
+REM echo 🔄 Cleaning up and switching back to local mode...
+REM set SKIP_INSTALL=true
+REM call npm run mode:local >nul 2>&1
+REM echo ✅ Switched back to local mode

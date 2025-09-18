@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # Demo Microfrontends Launcher Script
-# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network]
+# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build]
 # Mode: local (default), npm, nexus, github, aws
 # Environment: dev (default), prod
 # Options: 
 #   --clean (cleanup node_modules and package-lock.json, default: off)
 #   --fix-network (configure npm for problematic networks, default: off)
+#   --skip-install (skip npm install/ci for main package and microfrontends, default: off)
+#   --skip-build (skip build for main package and microfrontends, default: off)
 # Examples:
 #   ./run.sh local dev    # Full development environment
 #   ./run.sh local prod   # Production build locally
@@ -14,6 +16,12 @@
 #   ./run.sh github dev   # GitHub Pages with development build
 #   ./run.sh aws prod --clean     # AWS S3 with production build and cleanup
 #   ./run.sh local dev --fix-network  # Local dev with network fixes
+#   ./run.sh local prod --skip-install --skip-build  # Skip install and build steps
+#
+# Sequential Workflow Examples:
+#   ./run.sh local prod                              # Run 1: Full setup
+#   ./run.sh local prod --skip-install --skip-build # Run 2: Fast restart (same mode)
+#   ./run.sh aws prod --skip-install                # Run 3: Mode change - auto-detects and rebuilds
 set -e
 
 # Parse arguments
@@ -21,6 +29,8 @@ MODE=${1:-local}
 ENV=${2:-dev}
 CLEANUP=false
 FIX_NETWORK=false
+SKIP_INSTALL=false
+SKIP_BUILD=false
 
 # Check for flags in any position
 for arg in "$@"; do
@@ -28,8 +38,18 @@ for arg in "$@"; do
         CLEANUP=true
     elif [ "$arg" = "--fix-network" ]; then
         FIX_NETWORK=true
+    elif [ "$arg" = "--skip-install" ]; then
+        SKIP_INSTALL=true
+    elif [ "$arg" = "--skip-build" ]; then
+        SKIP_BUILD=true
     fi
 done
+
+# Check previous mode for build compatibility
+PREV_MODE="unknown"
+if [ -f ".env" ]; then
+    PREV_MODE=$(grep "^SPA_MODE=" .env | cut -d'=' -f2 || echo "unknown")
+fi
 
 # Update .env file with current mode and environment
 echo "📝 Updating SPA configuration in .env..."
@@ -210,21 +230,24 @@ else
 fi
 
 # Install main package dependencies first (needed for rimraf)
-if [ "$ENV" = "prod" ]; then
-    echo "📦 Installing main package dependencies for production (CI)..."
-    if [ -f "package-lock.json" ]; then
-        echo "package-lock.json exists for (CI)..."
-        exec_npm npm ci || {
-            echo "⚠️  npm ci failed, falling back to npm install..."
-            exec_npm npm install
-        }
-    else
-        echo "📝 No package-lock.json found, using npm install..."
-#        exec_npm npm install
-    fi
+if [ "$SKIP_INSTALL" = true ]; then
+    echo "⏭️  Skipping main package installation (--skip-install flag)"
 else
-    echo "📦 Installing main package dependencies for development..."
-    exec_npm npm install
+    if [ "$ENV" = "prod" ]; then
+        echo "📦 Installing main package dependencies for production (CI)..."
+        if [ -f "package-lock.json" ]; then
+            exec_npm npm ci || {
+                echo "⚠️  npm ci failed, falling back to npm install..."
+                exec_npm npm install
+            }
+        else
+            echo "📝 No package-lock.json found, using npm install..."
+            exec_npm npm install
+        fi
+    else
+        echo "📦 Installing main package dependencies for development..."
+        exec_npm npm install
+    fi
 fi
 
 # Clean other applications if cleanup enabled
@@ -235,25 +258,63 @@ else
     echo "🔍 Cleanup disabled - skipping application cleanup"
 fi
 
-# Install all dependencies - root app needs them regardless of mode
-if [ "$ENV" = "prod" ]; then
-    echo "📦 Installing all dependencies for production (CI)..."
-    exec_npm npm run install:all:ci || {
-        echo "⚠️  CI install failed, falling back to regular install..."
-        exec_npm npm run install:all
-    }
-else
-    echo "📦 Installing all dependencies for development..."
-    exec_npm npm run install:all
+# Check if mode change requires rebuild (override --skip-build)
+MODE_CHANGED=false
+if [ "$PREV_MODE" != "$MODE" ] && [ "$PREV_MODE" != "unknown" ]; then
+    MODE_CHANGED=true
+    echo "🔄 Mode changed from $PREV_MODE to $MODE"
+    
+    # Check if mode change requires different build outputs
+    NEEDS_REBUILD=false
+    case "$PREV_MODE-$MODE" in
+        "local-aws"|"local-github"|"local-npm"|"local-nexus")
+            NEEDS_REBUILD=true
+            echo "⚠️  Mode change from local to external requires rebuild"
+            ;;
+        "aws-local"|"github-local"|"npm-local"|"nexus-local")
+            NEEDS_REBUILD=true
+            echo "⚠️  Mode change from external to local requires rebuild"
+            ;;
+        "aws-github"|"github-aws"|"npm-nexus"|"nexus-npm")
+            NEEDS_REBUILD=true
+            echo "⚠️  Mode change between different external sources requires rebuild"
+            ;;
+    esac
+    
+    if [ "$NEEDS_REBUILD" = true ] && [ "$SKIP_BUILD" = true ]; then
+        echo "🔧 Automatically enabling build due to mode compatibility requirements"
+        echo "💡 Use same mode to benefit from --skip-build optimization"
+        SKIP_BUILD=false
+    fi
 fi
 
-# build all dependencies - root app needs them regardless of mode
-if [ "$ENV" = "prod" ]; then
-    echo "🔨 Building all applications for production..."
-    exec_build npm run build:prod
+# Install all dependencies - root app needs them regardless of mode
+if [ "$SKIP_INSTALL" = true ]; then
+    echo "⏭️  Skipping all dependencies installation (--skip-install flag)"
 else
-    echo "🔨 Building all applications for development..."
-    exec_build npm run build:dev
+    if [ "$ENV" = "prod" ]; then
+        echo "📦 Installing all dependencies for production (CI)..."
+        exec_npm npm run install:all:ci || {
+            echo "⚠️  CI install failed, falling back to regular install..."
+            exec_npm npm run install:all
+        }
+    else
+        echo "📦 Installing all dependencies for development..."
+        exec_npm npm run install:all
+    fi
+fi
+
+# Build all applications - root app needs them regardless of mode
+if [ "$SKIP_BUILD" = true ]; then
+    echo "⏭️  Skipping build for all applications (--skip-build flag)"
+else
+    if [ "$ENV" = "prod" ]; then
+        echo "🔨 Building all applications for production..."
+        exec_build npm run build:prod
+    else
+        echo "🔨 Building all applications for development..."
+        exec_build npm run build:dev
+    fi
 fi
 
 # Define startup behavior based on mode and environment
@@ -614,17 +675,17 @@ case "$MODE" in
         ;;
 esac
 
-# Cleanup function to restore local mode
-cleanup() {
-    echo ""
-    echo "🔄 Cleaning up and switching back to local mode..."
-    SKIP_INSTALL=true npm run mode:local 2>/dev/null || true
-    echo "✅ Switched back to local mode"
-    exit 0
-}
+# Cleanup function to restore local mode (commented out to preserve mode detection)
+# cleanup() {
+#     echo ""
+#     echo "🔄 Cleaning up and switching back to local mode..."
+#     SKIP_INSTALL=true npm run mode:local 2>/dev/null || true
+#     echo "✅ Switched back to local mode"
+#     exit 0
+# }
 
-# Set trap to run cleanup on script exit
-trap cleanup EXIT INT TERM
+# Set trap to run cleanup on script exit (commented out)
+# trap cleanup EXIT INT TERM
 
 echo ""
 echo "Press Ctrl+C to stop"

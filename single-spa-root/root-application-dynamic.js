@@ -182,7 +182,39 @@ function resolveLifecycles(module, name) {
   return lifecycles;
 }
 
-// Unified module loading strategy
+/**
+ * Unified module loading strategy for Single-SPA microfrontends
+ * 
+ * CRITICAL: This function MUST use SystemJS for ALL module loading in this architecture.
+ * DO NOT use webpack's import() as it doesn't work with UMD modules.
+ * 
+ * Why SystemJS only:
+ * - All microfrontends are built as UMD bundles that register globals
+ * - SystemJS handles UMD module loading and global registration properly
+ * - webpack import() only works with ES modules, not UMD bundles
+ * - Local dev works with import() because dev servers serve ES modules
+ * - Local prod fails with import() because it serves UMD bundles
+ * 
+ * When webpack import() WOULD work (but we don't use):
+ * - Pure ES module architecture: export { bootstrap, mount, unmount }
+ * - Webpack Module Federation instead of Single-SPA
+ * - Same-origin ES modules from CDNs like Skypack
+ * - All apps rebuilt as ES modules (major architecture change)
+ * 
+ * Why we stick with UMD + SystemJS (current setup):
+ * - Industry standard for Single-SPA
+ * - Framework agnostic (works with any framework)
+ * - Browser compatible without transpilation
+ * - Deployment flexible (any URL/CDN)
+ * - Production ready and battle-tested
+ * 
+ * @param {string} url - The URL to load the module from
+ * @param {Object} options - Loading options
+ * @param {boolean} options.isExternalUrl - External URL (GitHub, AWS, Local URLs)
+ * @param {boolean} options.isCdnUrl - CDN URL (NPM, Nexus CDNs)
+ * @param {boolean} options.isPackageName - Package name for import maps
+ * @returns {Promise} Promise that resolves to the loaded module
+ */
 function loadModule(url, options = {}) {
   const { 
     isExternalUrl = false, 
@@ -190,14 +222,30 @@ function loadModule(url, options = {}) {
     isPackageName = false, 
   } = options;
   
+  // Debug logging to track module loading
+  console.log(`📦 Loading module: ${url}`);
+  console.log(`🔍 Options:`, { isExternalUrl, isCdnUrl, isPackageName });
+  console.log(`⚙️ Using SystemJS (required for UMD modules)`);
+  
+  // Validate SystemJS availability
+  if (!window.System || !window.System.import) {
+    const error = new Error('SystemJS is not available. Required for UMD module loading.');
+    console.error('❌ SystemJS Error:', error.message);
+    throw error;
+  }
+  
+  // All paths use SystemJS - this is intentional and required
   if (isCdnUrl || isExternalUrl) {
     // Use SystemJS for external URLs (GitHub, AWS, Local URLs, CDN URLs)
+    console.log(`🌐 Loading external/CDN URL via SystemJS`);
     return window.System.import(url);
   } else if (isPackageName) {
-    // Use webpack import() for package names (direct NPM/Nexus imports)
+    // Use SystemJS for package names (NPM/Nexus imports)
+    console.log(`📦 Loading package name via SystemJS`);
     return window.System.import(url);
   } else {
-    // Default: use SystemJS for all other URLs to avoid webpack warnings
+    // Default: use SystemJS for all other URLs
+    console.log(`⚙️ Loading default URL via SystemJS`);
     return window.System.import(url);
   }
 }
