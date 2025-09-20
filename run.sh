@@ -117,9 +117,18 @@ echo "🔍 DEBUG: Platform: $PLATFORM"
 # Handle conda environment conflicts
 if [[ "$CONDA_DEFAULT_ENV" != "" ]]; then
     echo "⚠️  Warning: Conda environment detected: $CONDA_DEFAULT_ENV"
-    echo "🔄 Deactivating conda to avoid NVM conflicts..."
-    conda deactivate
-    echo "✅ Conda deactivated"
+    echo "🔄 Attempting to deactivate conda to avoid NVM conflicts..."
+    
+    # Try multiple methods to deactivate conda
+    if conda deactivate 2>/dev/null; then
+        echo "✅ Conda deactivated successfully"
+    elif source deactivate 2>/dev/null; then
+        echo "✅ Conda deactivated using legacy method"
+    else
+        echo "⚠️  Could not deactivate conda automatically"
+        echo "💡 Continuing with conda active - NVM may have conflicts"
+        echo "💡 If issues occur, manually run: conda deactivate && ./run.sh local dev"
+    fi
 fi
 
 # Set Node.js version using nvm
