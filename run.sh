@@ -117,22 +117,57 @@ echo "🔍 DEBUG: Platform: $PLATFORM"
 # Set Node.js version using nvm
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
     echo "🔄 Setting Node.js version..."
+    echo "🔍 DEBUG: Loading NVM from $HOME/.nvm/nvm.sh"
     source "$HOME/.nvm/nvm.sh"
+    
     if [ -f ".nvmrc" ]; then
         REQUIRED_NODE=$(cat .nvmrc)
         echo "📋 .nvmrc specifies Node.js $REQUIRED_NODE"
-        nvm use $REQUIRED_NODE || {
-            echo "📥 Installing Node.js $REQUIRED_NODE..."
-            nvm install $REQUIRED_NODE
+        echo "🔍 DEBUG: Checking if Node.js $REQUIRED_NODE is available..."
+        
+        if nvm list | grep -q "v$REQUIRED_NODE"; then
+            echo "✅ Node.js $REQUIRED_NODE already installed"
+            echo "🔍 DEBUG: Using existing Node.js $REQUIRED_NODE"
             nvm use $REQUIRED_NODE
-        }
+        else
+            echo "📥 Installing Node.js $REQUIRED_NODE..."
+            echo "🔍 DEBUG: Running nvm install $REQUIRED_NODE"
+            if nvm install $REQUIRED_NODE; then
+                echo "✅ Node.js $REQUIRED_NODE installed successfully"
+                nvm use $REQUIRED_NODE
+            else
+                echo "❌ Failed to install Node.js $REQUIRED_NODE"
+                echo "💡 Trying to use any available Node.js version..."
+                nvm use node || nvm use default || {
+                    echo "❌ No Node.js version available"
+                    exit 1
+                }
+            fi
+        fi
     else
-        nvm use 18.20.0 || {
-            echo "📥 Installing Node.js 18.20.0..."
-            nvm install 18.20.0
+        echo "🔍 DEBUG: No .nvmrc found, using Node.js 18.20.0"
+        if nvm list | grep -q "v18.20.0"; then
+            echo "✅ Node.js 18.20.0 already installed"
             nvm use 18.20.0
-        }
+        else
+            echo "📥 Installing Node.js 18.20.0..."
+            if nvm install 18.20.0; then
+                echo "✅ Node.js 18.20.0 installed successfully"
+                nvm use 18.20.0
+            else
+                echo "❌ Failed to install Node.js 18.20.0"
+                echo "💡 Trying to use any available Node.js version..."
+                nvm use node || nvm use default || {
+                    echo "❌ No Node.js version available"
+                    exit 1
+                }
+            fi
+        fi
     fi
+    
+    echo "🔍 DEBUG: Current Node.js version: $(node --version 2>/dev/null || echo 'Not available')"
+    echo "🔍 DEBUG: Current NPM version: $(npm --version 2>/dev/null || echo 'Not available')"
+    echo "✅ NVM setup complete"
 elif command -v node >/dev/null 2>&1; then
     NODE_VERSION=$(node -v)
     echo "📋 Current Node.js version: $NODE_VERSION"
@@ -147,8 +182,40 @@ elif command -v node >/dev/null 2>&1; then
         echo "💡 Install nvm and Node.js 18.20.0 for best compatibility"
     fi
 else
-    echo "❌ Node.js not found. Please install Node.js 18.20.0"
-    exit 1
+    echo "❌ Node.js not found. Installing NVM and Node.js..."
+    
+    case "$PLATFORM" in
+        "Pop!_OS"|"WSL Ubuntu"|"Linux")
+            echo "📦 Installing NVM for $PLATFORM..."
+            echo "🔄 Running: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            
+            echo "🔄 Reloading shell configuration..."
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            
+            if [ -s "$HOME/.nvm/nvm.sh" ]; then
+                source "$HOME/.nvm/nvm.sh"
+                echo "📥 Installing Node.js 18.20.0..."
+                nvm install 18.20.0
+                nvm use 18.20.0
+                echo "✅ NVM and Node.js 18.20.0 installed successfully"
+            else
+                echo "❌ NVM installation failed. Please install manually:"
+                echo "   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
+                echo "   source ~/.bashrc"
+                echo "   nvm install 18.20.0"
+                exit 1
+            fi
+            ;;
+        *)
+            echo "❌ Please install Node.js 18.20.0 manually for $PLATFORM"
+            echo "💡 Recommended: Install NVM first, then Node.js 18.20.0"
+            echo "   Visit: https://github.com/nvm-sh/nvm#installation-and-update"
+            exit 1
+            ;;
+    esac
 fi
 
 # Load environment variables from .env file

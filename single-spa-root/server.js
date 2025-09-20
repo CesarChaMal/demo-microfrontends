@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 
 const port = process.env.PORT || 8080;
+const mode = process.env.SPA_MODE || 'local';
 const app = express();
 
 // Serve microfrontend static files
@@ -27,5 +28,7 @@ app.get('*', (req, res) => {
 
 app.listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log('App listening on port:', port);
+  console.log(`App listening on port: ${port}`);
+  // eslint-disable-next-line no-console
+  console.log(`SPA Mode: ${mode}`);
 });
