@@ -115,19 +115,40 @@ fi
 echo "🔍 DEBUG: Platform: $PLATFORM"
 
 # Handle conda environment conflicts
-if [[ "$CONDA_DEFAULT_ENV" != "" ]]; then
-    echo "⚠️  Warning: Conda environment detected: $CONDA_DEFAULT_ENV"
+if [[ "$CONDA_DEFAULT_ENV" != "" ]] || command -v conda >/dev/null 2>&1; then
+    echo "⚠️  Warning: Conda environment detected: ${CONDA_DEFAULT_ENV:-base}"
     echo "🔄 Attempting to deactivate conda to avoid NVM conflicts..."
     
-    # Try multiple methods to deactivate conda
-    if conda deactivate 2>/dev/null; then
+    # Method 1: Try conda deactivate
+    if command -v conda >/dev/null 2>&1 && conda deactivate 2>/dev/null; then
         echo "✅ Conda deactivated successfully"
+        unset CONDA_DEFAULT_ENV
+    # Method 2: Try source deactivate (legacy)
     elif source deactivate 2>/dev/null; then
         echo "✅ Conda deactivated using legacy method"
+        unset CONDA_DEFAULT_ENV
+    # Method 3: Manual PATH cleanup
     else
-        echo "⚠️  Could not deactivate conda automatically"
-        echo "💡 Continuing with conda active - NVM may have conflicts"
-        echo "💡 If issues occur, manually run: conda deactivate && ./run.sh local dev"
+        echo "⚠️  Automatic conda deactivation failed"
+        echo "🔧 Attempting manual conda PATH cleanup..."
+        
+        # Remove conda paths from PATH
+        if [[ "$PATH" == *"conda"* ]]; then
+            # Save original PATH without conda
+            CLEAN_PATH=$(echo "$PATH" | tr ':' '\n' | grep -v conda | tr '\n' ':' | sed 's/:$//')
+            export PATH="$CLEAN_PATH"
+            echo "✅ Conda paths removed from PATH"
+        fi
+        
+        # Unset conda environment variables
+        unset CONDA_DEFAULT_ENV
+        unset CONDA_PREFIX
+        unset CONDA_PROMPT_MODIFIER
+        unset CONDA_SHLVL
+        
+        echo "⚠️  Manual cleanup completed - some conda effects may persist"
+        echo "💡 For complete cleanup, run: conda deactivate && ./run.sh local dev"
+        echo "💡 Or start a new shell session without conda activation"
     fi
 fi
 
