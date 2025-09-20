@@ -114,35 +114,19 @@ else
 fi
 echo "🔍 DEBUG: Platform: $PLATFORM"
 
+# Handle conda environment conflicts
+if [[ "$CONDA_DEFAULT_ENV" != "" ]]; then
+    echo "⚠️  Warning: Conda environment detected: $CONDA_DEFAULT_ENV"
+    echo "🔄 Deactivating conda to avoid NVM conflicts..."
+    conda deactivate
+    echo "✅ Conda deactivated"
+fi
+
 # Set Node.js version using nvm
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
     echo "🔄 Setting Node.js version..."
     echo "🔍 DEBUG: Loading NVM from $HOME/.nvm/nvm.sh"
-    
-    # Check for conda environment conflict
-    if [[ "$CONDA_DEFAULT_ENV" != "" ]]; then
-        echo "⚠️  Warning: Conda environment detected: $CONDA_DEFAULT_ENV"
-        echo "💡 Conda may conflict with NVM. Trying to load NVM anyway..."
-    fi
-    
-    # Try to source NVM with timeout
-    echo "🔍 DEBUG: Sourcing NVM (this may take a moment)..."
-    if timeout 10s bash -c 'source "$HOME/.nvm/nvm.sh"' 2>/dev/null; then
-        source "$HOME/.nvm/nvm.sh"
-        echo "✅ NVM loaded successfully"
-    else
-        echo "❌ NVM loading timed out or failed"
-        echo "💡 Skipping NVM setup, checking for existing Node.js..."
-        if command -v node >/dev/null 2>&1; then
-            NODE_VERSION=$(node -v)
-            echo "📋 Using existing Node.js version: $NODE_VERSION"
-        else
-            echo "❌ No Node.js found. Please install Node.js manually"
-            exit 1
-        fi
-        # Skip to the rest of the script
-        echo "✅ Continuing without NVM..."
-    fi
+    source "$HOME/.nvm/nvm.sh"
     
     if [ -f ".nvmrc" ]; then
         REQUIRED_NODE=$(cat .nvmrc)
