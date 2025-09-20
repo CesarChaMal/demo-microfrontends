@@ -375,12 +375,6 @@ start_local() {
         export OFFLINE=true
     fi
     
-    # Restore original .npmrc for local mode
-    if [ -f ".npmrc.backup" ]; then
-        echo "🔄 Restoring original .npmrc configuration..."
-        cp .npmrc.backup .npmrc
-        rm .npmrc.backup
-    fi
     echo "🔍 DEBUG: Available ports check:"
     for port in 8080 4201 4202 4203 4204 4205 4206 4207 4208 4209 4210 4211; do
         # Cross-platform port checking
@@ -410,10 +404,18 @@ start_local() {
             echo "📱 Offline mode: Using local dependencies"
         fi
         echo "Main application: http://localhost:8080"
-        if [ "$OFFLINE" = true ]; then
-            OFFLINE=true exec_npm npm run serve:local:prod
+        if [ "$SKIP_BUILD" = true ]; then
+            if [ "$OFFLINE" = true ]; then
+                OFFLINE=true exec_npm npm run serve:local:prod:skip-build
+            else
+                exec_npm npm run serve:local:prod:skip-build
+            fi
         else
-            exec_npm npm run serve:local:prod
+            if [ "$OFFLINE" = true ]; then
+                OFFLINE=true exec_npm npm run serve:local:prod
+            else
+                exec_npm npm run serve:local:prod
+            fi
         fi
      else
         echo "🌐 Local development: Starting all 12 microfrontends"

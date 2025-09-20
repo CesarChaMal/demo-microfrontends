@@ -267,6 +267,7 @@
     "mode:status": "node scripts/switch-mode.js status",
     "serve:local:dev": "cd single-spa-root && npm run serve",
     "serve:local:prod": "bash -c \"SKIP_INSTALL=true npm run mode:local\" && npm run build:prod && cd single-spa-root && npm run build && npm run start",
+    "serve:local:prod:skip-build": "bash -c \"SKIP_INSTALL=true npm run mode:local\" && cd single-spa-root && npm run start:skip-build",
     "serve:nexus": "bash -c \"SKIP_INSTALL=true npm run mode:nexus\" && cd single-spa-root && npm run serve:nexus",
     "serve:nexus:dev": "bash -c \"SKIP_INSTALL=true npm run mode:nexus\" && cd single-spa-root && npm run serve",
     "serve:nexus:prod": "bash -c \"SKIP_INSTALL=true npm run mode:nexus\" && npm run build:prod && cd single-spa-root && npm run build && npm run start",

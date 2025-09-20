@@ -253,7 +253,11 @@ if "%MODE%"=="local" (
         echo Main application: http://localhost:8080
         echo.
         echo Press Ctrl+C to stop
-        call npm start
+        if "%SKIP_BUILD%"=="true" (
+            call npm run serve:local:prod:skip-build
+        ) else (
+            call npm start
+        )
     ) else (
         echo 🌐 Starting all microfrontends...
         echo 🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211
@@ -581,11 +585,23 @@ if "%MODE%"=="local" (
         echo.
         echo Press Ctrl+C to stop
         if "%MODE%"=="npm" (
-            call npm run serve:npm
+            if "%SKIP_BUILD%"=="true" (
+                call npm run serve:npm:skip-build
+            ) else (
+                call npm run serve:npm
+            )
         ) else if "%MODE%"=="nexus" (
-            call npm run serve:nexus
+            if "%SKIP_BUILD%"=="true" (
+                call npm run serve:nexus:skip-build
+            ) else (
+                call npm run serve:nexus
+            )
         ) else (
-            call npm run serve:root -- --env.mode=%MODE%
+            if "%SKIP_BUILD%"=="true" (
+                call npm run serve:root:skip-build -- --env.mode=%MODE%
+            ) else (
+                call npm run serve:root -- --env.mode=%MODE%
+            )
         )
     )
 )
