@@ -202,41 +202,51 @@ if [ -s "$HOME/.nvm/nvm.sh" ]; then
         echo "📋 .nvmrc specifies Node.js $REQUIRED_NODE"
         echo "🔍 DEBUG: Checking if Node.js $REQUIRED_NODE is available..."
         
-        if nvm list | grep -q "v$REQUIRED_NODE"; then
+        if timeout 10 nvm list 2>/dev/null | grep -q "v$REQUIRED_NODE"; then
             echo "✅ Node.js $REQUIRED_NODE already installed"
             echo "🔍 DEBUG: Using existing Node.js $REQUIRED_NODE"
-            nvm use $REQUIRED_NODE
+            timeout 10 nvm use $REQUIRED_NODE 2>/dev/null || echo "⚠️ Failed to switch to Node.js $REQUIRED_NODE"
         else
             echo "📥 Installing Node.js $REQUIRED_NODE..."
             echo "🔍 DEBUG: Running nvm install $REQUIRED_NODE"
-            if nvm install $REQUIRED_NODE; then
+            if timeout 60 nvm install $REQUIRED_NODE 2>/dev/null; then
                 echo "✅ Node.js $REQUIRED_NODE installed successfully"
-                nvm use $REQUIRED_NODE
+                timeout 10 nvm use $REQUIRED_NODE 2>/dev/null || echo "⚠️ Failed to switch to Node.js $REQUIRED_NODE"
             else
                 echo "❌ Failed to install Node.js $REQUIRED_NODE"
                 echo "💡 Trying to use any available Node.js version..."
-                nvm use node || nvm use default || {
-                    echo "❌ No Node.js version available"
-                    exit 1
+                timeout 10 nvm use node 2>/dev/null || timeout 10 nvm use default 2>/dev/null || {
+                    echo "❌ No Node.js version available via NVM"
+                    if command -v node >/dev/null 2>&1; then
+                        echo "📋 Falling back to system Node.js: $(node --version)"
+                    else
+                        echo "❌ No Node.js available at all"
+                        exit 1
+                    fi
                 }
             fi
         fi
-    else
+    elif command -v nvm >/dev/null 2>&1; then
         echo "🔍 DEBUG: No .nvmrc found, using Node.js 18.20.0"
-        if nvm list | grep -q "v18.20.0"; then
+        if timeout 10 nvm list 2>/dev/null | grep -q "v18.20.0"; then
             echo "✅ Node.js 18.20.0 already installed"
-            nvm use 18.20.0
+            timeout 10 nvm use 18.20.0 2>/dev/null || echo "⚠️ Failed to switch to Node.js 18.20.0"
         else
             echo "📥 Installing Node.js 18.20.0..."
-            if nvm install 18.20.0; then
+            if timeout 60 nvm install 18.20.0 2>/dev/null; then
                 echo "✅ Node.js 18.20.0 installed successfully"
-                nvm use 18.20.0
+                timeout 10 nvm use 18.20.0 2>/dev/null || echo "⚠️ Failed to switch to Node.js 18.20.0"
             else
                 echo "❌ Failed to install Node.js 18.20.0"
                 echo "💡 Trying to use any available Node.js version..."
-                nvm use node || nvm use default || {
-                    echo "❌ No Node.js version available"
-                    exit 1
+                timeout 10 nvm use node 2>/dev/null || timeout 10 nvm use default 2>/dev/null || {
+                    echo "❌ No Node.js version available via NVM"
+                    if command -v node >/dev/null 2>&1; then
+                        echo "📋 Falling back to system Node.js: $(node --version)"
+                    else
+                        echo "❌ No Node.js available at all"
+                        exit 1
+                    fi
                 }
             fi
         fi
