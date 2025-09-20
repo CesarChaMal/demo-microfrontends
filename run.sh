@@ -156,9 +156,48 @@ fi
 if [ -s "$HOME/.nvm/nvm.sh" ]; then
     echo "🔄 Setting Node.js version..."
     echo "🔍 DEBUG: Loading NVM from $HOME/.nvm/nvm.sh"
-    source "$HOME/.nvm/nvm.sh"
     
-    if [ -f ".nvmrc" ]; then
+    # Force clean environment for NVM loading
+    if [[ "$CONDA_DEFAULT_ENV" != "" ]] || command -v conda >/dev/null 2>&1; then
+        echo "🔧 Forcing clean environment for NVM..."
+        # Temporarily disable conda functions that might interfere
+        unset -f conda 2>/dev/null || true
+        unset -f __conda_activate 2>/dev/null || true
+        unset -f __conda_reactivate 2>/dev/null || true
+    fi
+    
+    # Load NVM with error handling
+    if source "$HOME/.nvm/nvm.sh" 2>/dev/null; then
+        echo "✅ NVM loaded successfully"
+    else
+        echo "❌ NVM loading failed, trying alternative method..."
+        # Try loading with explicit bash
+        if bash -c "source $HOME/.nvm/nvm.sh && echo 'NVM loaded'" >/dev/null 2>&1; then
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            echo "✅ NVM loaded with alternative method"
+        else
+            echo "⚠️ NVM loading failed - continuing with system Node.js"
+        fi
+    fi
+    
+    # Check if NVM is actually available after loading
+    if command -v nvm >/dev/null 2>&1; then
+        echo "✅ NVM command available"
+    else
+        echo "⚠️ NVM command not available after loading - using system Node.js"
+        # Skip NVM operations and continue with system Node.js
+        if command -v node >/dev/null 2>&1; then
+            echo "📋 Using system Node.js: $(node --version)"
+        else
+            echo "❌ No Node.js available"
+            exit 1
+        fi
+        # Skip to the next section
+        echo "🔍 DEBUG: Skipping NVM operations, continuing with system Node.js"
+    fi
+    
+    if [ -f ".nvmrc" ] && command -v nvm >/dev/null 2>&1; then
         REQUIRED_NODE=$(cat .nvmrc)
         echo "📋 .nvmrc specifies Node.js $REQUIRED_NODE"
         echo "🔍 DEBUG: Checking if Node.js $REQUIRED_NODE is available..."
