@@ -26,6 +26,11 @@ jobs:
         cache: 'npm'
         cache-dependency-path: shared/package-lock.json
 
+    - name: Switch to local mode
+      run: |
+        node scripts/switch-mode.js local
+      working-directory: .
+
     - name: Configure NPM registry
       run: |
         npm config delete registry || true
@@ -41,7 +46,9 @@ jobs:
         echo "Registry: $(npm config get registry)"
 
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: |
+        rm -f package-lock.json
+        npm install --legacy-peer-deps
 
     - name: Validate shared dependencies
       run: |
