@@ -19,7 +19,7 @@ This is a **production-ready microfrontend demonstration platform** showcasing S
 
 ## Architecture Overview
 
-### Microfrontend Structure (12 Applications)
+### Microfrontend Structure (13 Applications)
 
 | App | Framework | Port | Route | Purpose |
 |-----|-----------|------|-------|---------|
@@ -35,6 +35,7 @@ This is a **production-ready microfrontend demonstration platform** showcasing S
 | TypeScript | TypeScript | 4209 | /typescript/* | TypeScript features |
 | jQuery | jQuery 3.6 | 4210 | /jquery/* | Legacy jQuery integration |
 | Svelte | Svelte 3 | 4211 | /svelte/* | Svelte features |
+| Solid | SolidJS 1.x | 4212 | /solid/* | SolidJS features (signals, no virtual DOM) |
 
 ### Key Architectural Patterns
 
@@ -71,7 +72,7 @@ This is a **production-ready microfrontend demonstration platform** showcasing S
 **CRITICAL**: This codebase uses a unique multi-mode deployment strategy.
 
 **5 Deployment Modes:**
-- `local`: Development with localhost URLs (ports 4201-4211)
+- `local`: Development with localhost URLs (ports 4201-4212)
 - `npm`: NPM registry via unpkg.com CDN
 - `nexus`: Private Nexus registry
 - `github`: GitHub Pages deployment
@@ -681,6 +682,7 @@ cp .env.example .env
 - React 16 (single-spa-react-app)
 - Vue.js 2 (single-spa-vue-app, auth, layout)
 - Svelte 3 (single-spa-svelte-app)
+- SolidJS 1.x (single-spa-solid-app)
 - AngularJS 1.x (single-spa-home-app)
 - TypeScript (single-spa-typescript-app)
 - Lit/Web Components (single-spa-webcomponents-app)
@@ -776,7 +778,7 @@ npm run offline:setup                  # One-time setup
 This is a **sophisticated microfrontend platform**, not a simple demo. Key characteristics:
 
 1. **Multi-mode deployment** - Single codebase, 5 deployment targets
-2. **Framework diversity** - 11 apps across 9+ frameworks
+2. **Framework diversity** - 12 apps across 10+ frameworks
 3. **Shared state** - RxJS-based cross-framework communication
 4. **Production-ready** - Live on CloudFront CDN
 5. **Highly automated** - 366 npm scripts, comprehensive CI/CD

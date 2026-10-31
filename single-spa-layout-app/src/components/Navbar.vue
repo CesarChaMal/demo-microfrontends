@@ -97,6 +97,18 @@
         />
         <span class="nav-text">Svelte</span>
       </b-nav-item>
+      <b-nav-item
+        href="/solid"
+        v-on:click.prevent="navigateTo('/solid')"
+        class="nav-item-enhanced"
+      >
+        <img
+          src="https://cdn.simpleicons.org/solid/2c4f7c"
+          class="tech-icon"
+          alt="Solid"
+        />
+        <span class="nav-text">Solid</span>
+      </b-nav-item>
     </b-nav>
   </div>
 </template>
