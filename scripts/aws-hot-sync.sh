@@ -39,6 +39,7 @@ APPS["single-spa-webcomponents-app"]="@${ORG_NAME}/webcomponents-app/"
 APPS["single-spa-typescript-app"]="@${ORG_NAME}/typescript-app/"
 APPS["single-spa-jquery-app"]="@${ORG_NAME}/jquery-app/"
 APPS["single-spa-svelte-app"]="@${ORG_NAME}/svelte-app/"
+APPS["single-spa-solid-app"]="@${ORG_NAME}/solid-app/"
 
 # Function to sync a single app
 sync_app() {

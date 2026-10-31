@@ -104,7 +104,7 @@ in this repo are kept in lockstep — check any sibling's `package.json` and use
 
 Copy the closest sibling as a model: `single-spa-jquery-app` (simplest, no framework
 adapter), `single-spa-svelte-app` (compiler-based framework), or `single-spa-solid-app`
-(hand-rolled lifecycle + signals). You need four files:
+(hand-rolled lifecycle + signals). You need five files:
 
 **`single-spa-x-app/package.json`**
 - `name`: `@cesarchamal/single-spa-x-app`, `version`: `1.0.18`,
@@ -151,6 +151,10 @@ export default { bootstrap, mount, unmount };
 **`single-spa-x-app/src/App.jsx`** (or `.js`/`.vue`/…) — your UI. House style: a title card
 naming the framework + version, a short "why this framework" note, one interactive
 reactivity demo, and a shared-state section subscribing to `window.stateManager`.
+
+**`single-spa-x-app/README.md`** — every app has one, in the same shape: the full
+13-row framework table with your row last and marked `**This repo**`, feature
+snippets, lifecycle snippet, dev commands on `421N`. Model: the solid or svelte README.
 
 ### Step 2 — Mount point div
 
@@ -245,7 +249,10 @@ in `package.json` but missing from a variant breaks that whole mode.
 APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte" "solid" "x")
 ```
 
-This drives `./run.sh local dev` install/build/serve loops.
+This drives `./run.sh local dev` install/build/serve loops. The Windows twin
+`run.bat` has no `APPS` array (its loops run off the root package.json scripts), but
+it does have a hand-written `deploy:github:*` menu — add your `call npm run
+deploy:github:x` line there too.
 
 ### Step 7 — CI workflows
 
@@ -261,16 +268,42 @@ This drives `./run.sh local dev` install/build/serve loops.
   ```
   `scripts/update-importmap-github.mjs` is driven entirely by this matrix via env vars —
   no other change is needed for Pages deploys.
+- **`.github/workflows/deploy-github-simple.yml`** — the "simple" GitHub mode loops
+  over an app list inline: add the app to **both** `for app in …` loops and add one
+  `./scripts/deploy-github.sh single-spa-x-app` call before the root deploy.
 
-### Step 8 — Documentation
+### Step 8 — Deployment helpers (scripts/)
 
-Both docs enumerate apps; update them in the same commit:
+**This is the step that was originally missed for Solid — the app worked locally but
+never reached the S3 bucket.** Roughly 30 helper scripts (each with a `.bat` Windows
+twin) hardcode the app list for aws/github/npm/nexus status checks, hot-sync,
+publishing, dep-fixing, triggering, and version management. Every one needs the new
+app, and several have non-obvious mechanics (importmap heredoc commas, `for /l` loop
+bounds, indexed arrays where root must stay last, "N packages" counts). The full
+file-by-file list lives in **Part 3 — Edit (deployment helpers)** below; work from
+that checklist. Two ways to find anything you missed:
+
+```bash
+# every file that mentions the previous newest app but not yours is a miss:
+grep -ril "svelte" --include="*.sh" --include="*.bat" --include="*.js" . | xargs grep -Li "solid"
+```
+
+and for npm/nexus serving, add one `express.static` route to
+`single-spa-root/server.js` (Part 3 has the exact line).
+
+### Step 9 — Documentation
+
+Docs enumerate apps too; update them in the same commit:
 - **`README.md`**: applications table row, project-structure tree, showcase matrix,
   routes list, framework list, port table, and every "N microfrontends"/"N apps" count.
 - **`CLAUDE.md`**: the structure table + heading count, the port range line
   (`ports 4201-421N`), the framework list, and the "framework diversity" counts.
+- **Every other app's `README.md`** (12+ files): each carries the full framework
+  table — add your row to all of them.
+- **`single-spa-root/NPM-PUBLISHING.md`** (importmap example), **`VERSION-MANAGEMENT.md`**
+  and **`MODULE-FORMATS-COMPARISON.md`** (app counts).
 
-### Step 9 — Install, build, verify
+### Step 10 — Install, build, verify
 
 ```bash
 cd single-spa-x-app && npm install          # then check .bin shims if you're on WSL (see Part 5)
@@ -282,17 +315,25 @@ cd .. && npm run build:x                    # → dist/single-spa-x-app.js
 
 ## Part 3 — Complete file checklist
 
-Copy this when adding an app:
+Copy this when adding an app. It is grouped the way you should work: app first,
+orchestration second, **deployment helpers third** — that last group is the one that
+bit us: the Solid app shipped with every orchestration edit in place, but the
+`scripts/` helpers were missed and `npm run deploy:aws:prod` exited 0 while silently
+syncing only the 12 old apps to S3 (no `solid-app/` folder in the bucket, no
+importmap entry). The helpers — not the npm scripts — are what actually touch
+S3/npm/Nexus/GitHub. Treat this group as mandatory, not optional.
 
-**Create (4 + 2 files)**
+**Create (5 + 2 files)**
 - [ ] `single-spa-x-app/package.json`
 - [ ] `single-spa-x-app/webpack.config.js`
 - [ ] `single-spa-x-app/src/single-spa-x-app.js` (lifecycle: bootstrap/mount/unmount)
 - [ ] `single-spa-x-app/src/App.jsx` (UI + `window.stateManager` integration)
+- [ ] `single-spa-x-app/README.md` (every app has one; framework table row marked
+      `**This repo**`, all other apps listed with repo links)
 - [ ] `scripts/trigger-x.sh` (copy of `trigger-svelte.sh`, `chmod +x`)
 - [ ] `.github/workflows/deploy-x.yml` (copy of `deploy-svelte.yml`, 5-line diff)
 
-**Edit (9 files)**
+**Edit — orchestration (9 files)**
 - [ ] `single-spa-root/root-application-dynamic.js` — 9 module-map literals + 1
       `registerApplication` block
 - [ ] `single-spa-root/index.html` — `<div id="x-app" class="spa-mount-point content-mount">`
@@ -305,11 +346,70 @@ Copy this when adding an app:
 - [ ] `README.md` — table/tree/matrix/routes/frameworks/ports/counts
 - [ ] `CLAUDE.md` — structure table/ports/framework list/counts
 
+**Edit — deployment helpers (every one enumerates all apps; .sh and .bat twins must stay in sync)**
+
+- [ ] `scripts/deploy-s3.sh` — **two spots**: the importmap heredoc entry (add a
+      trailing comma to the entry that was last) **and** the `APPS=(… "x")` array.
+      This is the script behind `npm run deploy:aws:prod`.
+- [ ] `scripts/deploy-s3.bat` — same two spots (echo'd importmap inside the
+      `( … ) > importmap.json` block + `set APPS=…`); a missing comma here corrupts
+      importmap.json on Windows.
+- [ ] `scripts/aws-hot-sync.sh` / `.bat` and `scripts/github-hot-sync.sh` / `.bat` —
+      the `APPS[...]` / `set "APPS=…"` enumerations
+- [ ] `scripts/check-aws-status.sh` / `.bat` — `APPS[...]` map (+ `for /l` bounds, below)
+- [ ] `scripts/check-local-status.sh` / `.bat` — **two maps**: the port map
+      `APPS["single-spa-x-app"]="421N"` and `BUNDLE_FILES["single-spa-x-app"]`
+- [ ] `scripts/check-npm-status.sh` / `.bat`, `check-nexus-status.sh` / `.bat`,
+      `check-github-status.sh` / `.bat` — package/repo maps. In the `.bat` variants
+      the root entry must stay last: append the new app **before** root and shift
+      root's array index (`apps[11]=…root` → `apps[12]=…root`).
+- [ ] `scripts/fix-npm-deps.sh` / `.bat` and `scripts/fix-nexus-deps.sh` / `.bat` —
+      one `sed` line per dependency-manifest target, **and** the `for app in …` list
+- [ ] `scripts/publish-npm.sh` / `.bat` and `scripts/publish-nexus.sh` / `.bat` — the
+      production `APPS` array (root last) and the "N packages" comments/echoes
+      (12 → 13)
+- [ ] `scripts/trigger-deploy-aws.sh` / `.bat`, `trigger-actions.sh` / `.bat`,
+      `trigger-deploy-github.sh` — `APPS` arrays
+- [ ] `scripts/version-manager.sh` / `.bat` — the usage `echo` line;
+      `scripts/version-manager.js` — the `packages` array (add the trailing comma to
+      the entry that was last)
+- [ ] `single-spa-root/server.js` — one
+      `app.use('/single-spa-x-app.js', express.static(path.resolve(__dirname, '../single-spa-x-app/dist/single-spa-x-app.js')))`
+      route. Without it, npm/nexus modes 404 on the bundle when serving locally.
+- [ ] `run.bat` — the `call npm run deploy:github:x` menu line (the Windows twin of
+      the deploy:github family; `run.sh`'s `APPS` array covers the Linux side)
+- [ ] `.github/workflows/deploy-github-simple.yml` — **two** `for app in …` loops
+      gain the new app, **plus** one `./scripts/deploy-github.sh single-spa-x-app`
+      call before the root deploy
+
+**`.bat` loop bounds.** The batch status/hot-sync scripts iterate indexed arrays with
+`for /l %%i in (0,1,N)` and a hardcoded `N`. Adding `apps[12]` without bumping `N`
+from 11 to 12 makes the loop silently skip the new entry. Grep case-insensitively —
+the flag is lowercase `/l`, which a case-sensitive `grep "for /L"` misses.
+
+**Edit — docs beyond README/CLAUDE**
+- [ ] every **other** app's `README.md` — each has a full framework table needing the
+      new row (12+ files) and a "one of N microfrontends" count
+- [ ] `single-spa-root/README.md` — table row + port bullet + counts
+- [ ] `single-spa-root/NPM-PUBLISHING.md` — the importmap example entry
+- [ ] `VERSION-MANAGEMENT.md` — "N microfrontends" counts
+- [ ] `MODULE-FORMATS-COMPARISON.md` — app count
+
 **No change needed** (verified): `shared/*` (no app enumerations),
-`scripts/switch-mode.js` (generic), `scripts/deploy.sh` (parameterized),
-`scripts/update-importmap-github.mjs` (env-driven from the workflow matrix),
-`single-spa-root/root-application.js` (**stale prebuilt — never hand-edit; rebuilt by the
-root build**).
+`scripts/switch-mode.js` (generic), `scripts/deploy.sh` and `scripts/deploy-github.sh`
+(parameterized — take the app name as an argument), `scripts/create-github-repo.sh`,
+`scripts/setup-s3.sh`, `scripts/setup-cloudfront.sh`, `scripts/check-cdn-status.*`,
+`scripts/download-offline-deps.*`, `scripts/auto-fix-mode.*`, `scripts/stop-github-server.*`,
+`scripts/test-{npm,nexus}-auth.*`, `scripts/update-importmap-github.mjs` (env-driven
+from the workflow matrix), `scripts/update-importmap.mjs`, `backup/*` (dead snapshots,
+referenced by nothing), and `single-spa-root/root-application.js` (**stale prebuilt —
+never hand-edit; rebuilt by the root build**).
+
+**Finding them all**: `grep -ril "<previous newest app>" --include="*.sh" --include="*.bat" --include="*.js" --include="*.yml" .`
+(svelte, in this case) lists every file that enumerates apps — anything that matches
+but has no mention of your new app is a miss. Run it again after editing; the only
+survivors should be the previous app's own files (its `trigger-svelte.sh`, its
+workflow, its internal sources) and `backup/`.
 
 ---
 
@@ -361,6 +461,23 @@ div you don't own, it can't be an MFE.**
 
 ### Gotchas hit during the Solid integration
 
+- **The helpers, not the npm scripts, do the deploying** — the single biggest miss of
+  the Solid integration. All orchestration was wired correctly, but ~30 `scripts/`
+  helpers still hardcoded the 12-app list. Symptom: `npm run deploy:aws:prod` exited 0
+  and the S3 bucket had no `solid-app/` folder, because `scripts/deploy-s3.sh` (not the
+  npm script) owns the importmap heredoc and the per-app sync loop. Nothing fails
+  loudly — the new app is just silently absent from every non-local mode. Sweep with
+  `grep -ril "svelte" --include="*.sh" --include="*.bat" --include="*.js" --include="*.yml" .`
+  (Step 8) and see Part 3 for the full helper list.
+- **`.bat` enumerations have three coupled parts**: the indexed array
+  (`set "apps[12]=…"`), the loop bound (`for /l %%i in (0,1,12)`), and sometimes a
+  "N packages" comment. Adding the array entry without bumping the bound makes the
+  loop skip it silently. And the flag is lowercase `/l` — a case-sensitive
+  `grep "for /L"` finds nothing.
+- **JSON commas when appending**: in `deploy-s3.sh`'s importmap heredoc and
+  `version-manager.js`'s package array, the previous last entry needs a trailing
+  comma. Miss it and you corrupt importmap.json; glue the comma onto the wrong line
+  and you break the heredoc.
 - **webpack 4 + Node 18**: every build needs `NODE_OPTIONS=--openssl-legacy-provider`
   (already baked into the scripts — don't drop it when copying).
 - **Modern packages vs webpack 4 resolution** (hit with `solid-js` 1.9): webpack 4 can't

@@ -508,6 +508,7 @@ if "%MODE%"=="local" (
                 call npm run deploy:github:typescript
                 call npm run deploy:github:jquery
                 call npm run deploy:github:svelte
+                call npm run deploy:github:solid
                 call npm run deploy:github:root
                 call npm run deploy:github:main
                 if errorlevel 1 (

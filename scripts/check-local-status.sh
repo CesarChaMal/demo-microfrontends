@@ -22,6 +22,7 @@ APPS["single-spa-webcomponents-app"]="4208"
 APPS["single-spa-typescript-app"]="4209"
 APPS["single-spa-jquery-app"]="4210"
 APPS["single-spa-svelte-app"]="4211"
+APPS["single-spa-solid-app"]="4212"
 
 # Expected bundle files for each app
 declare -A BUNDLE_FILES
@@ -37,6 +38,7 @@ BUNDLE_FILES["single-spa-webcomponents-app"]="single-spa-webcomponents-app.js"
 BUNDLE_FILES["single-spa-typescript-app"]="single-spa-typescript-app.js"
 BUNDLE_FILES["single-spa-jquery-app"]="single-spa-jquery-app.js"
 BUNDLE_FILES["single-spa-svelte-app"]="single-spa-svelte-app.js"
+BUNDLE_FILES["single-spa-solid-app"]="single-spa-solid-app.js"
 
 echo "🏠 Checking local development servers..."
 

@@ -35,6 +35,7 @@ REPOS["single-spa-webcomponents-app"]="single-spa-webcomponents-app.js"
 REPOS["single-spa-typescript-app"]="single-spa-typescript-app.js"
 REPOS["single-spa-jquery-app"]="single-spa-jquery-app.js"
 REPOS["single-spa-svelte-app"]="single-spa-svelte-app.js"
+REPOS["single-spa-solid-app"]="single-spa-solid-app.js"
 REPOS["single-spa-root"]="root-application.js"
 
 for repo in "${!REPOS[@]}"; do

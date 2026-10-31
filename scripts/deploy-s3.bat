@@ -146,7 +146,8 @@ echo     "@%ORG_NAME%/vanilla-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws
 echo     "@%ORG_NAME%/webcomponents-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com/@%ORG_NAME%/webcomponents-app/single-spa-webcomponents-app.js",
 echo     "@%ORG_NAME%/typescript-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com/@%ORG_NAME%/typescript-app/single-spa-typescript-app.js",
 echo     "@%ORG_NAME%/jquery-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com/@%ORG_NAME%/jquery-app/single-spa-jquery-app.js",
-echo     "@%ORG_NAME%/svelte-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com/@%ORG_NAME%/svelte-app/single-spa-svelte-app.js"
+echo     "@%ORG_NAME%/svelte-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com/@%ORG_NAME%/svelte-app/single-spa-svelte-app.js",
+echo     "@%ORG_NAME%/solid-app": "https://%BUCKET_NAME%.s3.%REGION%.amazonaws.com/@%ORG_NAME%/solid-app/single-spa-solid-app.js"
 echo   }
 echo }
 ) > importmap.json
@@ -157,7 +158,7 @@ if errorlevel 1 exit /b 1
 del importmap.json
 
 REM Upload each microfrontend
-set APPS=auth layout home angular vue react vanilla webcomponents typescript jquery svelte
+set APPS=auth layout home angular vue react vanilla webcomponents typescript jquery svelte solid
 
 for %%a in (%APPS%) do (
     set app_dir=single-spa-%%a-app

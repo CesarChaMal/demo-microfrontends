@@ -61,11 +61,12 @@ set "packages[7]=@%ORG_NAME%/single-spa-webcomponents-app:single-spa-webcomponen
 set "packages[8]=@%ORG_NAME%/single-spa-typescript-app:single-spa-typescript-app.js"
 set "packages[9]=@%ORG_NAME%/single-spa-jquery-app:single-spa-jquery-app.js"
 set "packages[10]=@%ORG_NAME%/single-spa-svelte-app:single-spa-svelte-app.js"
-set "packages[11]=@%ORG_NAME%/single-spa-root:root-application.js"
+set "packages[11]=@%ORG_NAME%/single-spa-solid-app:single-spa-solid-app.js"
+set "packages[12]=@%ORG_NAME%/single-spa-root:root-application.js"
 
 echo 📋 Checking package availability in Nexus...
 
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!packages[%%i]!") do (
         set "package=%%a"
         set "expected_file=%%b"
@@ -153,7 +154,7 @@ echo.
 echo Package                             Version    Nexus Direct    NPM Proxy
 echo -------                             -------    ------------    ---------
 
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!packages[%%i]!") do (
         set "package=%%a"
         set "expected_file=%%b"

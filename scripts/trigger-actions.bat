@@ -21,7 +21,7 @@ if errorlevel 1 (
 )
 
 REM List of all microfrontend directories
-set APPS=single-spa-root single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app
+set APPS=single-spa-root single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-solid-app
 
 REM Trigger actions for all apps
 for %%a in (%APPS%) do (

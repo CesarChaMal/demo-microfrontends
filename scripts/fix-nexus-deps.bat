@@ -65,6 +65,7 @@ powershell -Command "(Get-Content package.json) -replace '\"@%ORG_NAME%/single-s
 powershell -Command "(Get-Content package.json) -replace '\"@%ORG_NAME%/single-spa-typescript-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-typescript-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package.json"
 powershell -Command "(Get-Content package.json) -replace '\"@%ORG_NAME%/single-spa-jquery-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-jquery-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package.json"
 powershell -Command "(Get-Content package.json) -replace '\"@%ORG_NAME%/single-spa-svelte-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-svelte-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package.json"
+powershell -Command "(Get-Content package.json) -replace '\"@%ORG_NAME%/single-spa-solid-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-solid-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package.json"
 
 echo ✅ Dependencies and version updated
 
@@ -74,7 +75,7 @@ if "%FROM_RUN_SCRIPT%"=="true" (
     cd ..
     
     REM Update all app package.json versions
-    for %%a in (single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app) do (
+    for %%a in (single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-solid-app) do (
         if exist "%%a" (
             powershell -Command "(Get-Content %%a/package.json) -replace '\"version\": \"[^\"]*\"', '\"version\": \"%AVAILABLE_VERSION%\"' | Set-Content %%a/package.json"
             echo 📝 Updated %%a version to %AVAILABLE_VERSION%
@@ -95,6 +96,7 @@ if "%FROM_RUN_SCRIPT%"=="true" (
         powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-typescript-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-typescript-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
         powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-jquery-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-jquery-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
         powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-svelte-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-svelte-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
+        powershell -Command "(Get-Content package-nexus.json) -replace '\"@%ORG_NAME%/single-spa-solid-app\": \"[^\"]*\"', '\"@%ORG_NAME%/single-spa-solid-app\": \"%AVAILABLE_VERSION%\"' | Set-Content package-nexus.json"
         echo ✅ Updated package-nexus.json dependencies
     )
     

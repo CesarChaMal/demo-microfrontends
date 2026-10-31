@@ -65,6 +65,7 @@ sed -i "s/\"@${ORG_NAME}\/single-spa-webcomponents-app\": \"[^\"]*\"/\"@${ORG_NA
 sed -i "s/\"@${ORG_NAME}\/single-spa-typescript-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-typescript-app\": \"$AVAILABLE_VERSION\"/g" package.json
 sed -i "s/\"@${ORG_NAME}\/single-spa-jquery-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-jquery-app\": \"$AVAILABLE_VERSION\"/g" package.json
 sed -i "s/\"@${ORG_NAME}\/single-spa-svelte-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-svelte-app\": \"$AVAILABLE_VERSION\"/g" package.json
+sed -i "s/\"@${ORG_NAME}\/single-spa-solid-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-solid-app\": \"$AVAILABLE_VERSION\"/g" package.json
 
 echo "✅ Dependencies and version updated"
 
@@ -74,7 +75,7 @@ if [ "${FROM_RUN_SCRIPT}" = "true" ] || [ "${SKIP_INSTALL}" = "true" ]; then
     cd ..
     
     # Update all app package.json versions
-    for app in single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app; do
+    for app in single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-solid-app; do
         if [ -d "$app" ]; then
             sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$AVAILABLE_VERSION\"/g" "$app/package.json"
             echo "📝 Updated $app version to $AVAILABLE_VERSION"
@@ -95,6 +96,7 @@ if [ "${FROM_RUN_SCRIPT}" = "true" ] || [ "${SKIP_INSTALL}" = "true" ]; then
         sed -i "s/\"@${ORG_NAME}\/single-spa-typescript-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-typescript-app\": \"$AVAILABLE_VERSION\"/g" package-nexus.json
         sed -i "s/\"@${ORG_NAME}\/single-spa-jquery-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-jquery-app\": \"$AVAILABLE_VERSION\"/g" package-nexus.json
         sed -i "s/\"@${ORG_NAME}\/single-spa-svelte-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-svelte-app\": \"$AVAILABLE_VERSION\"/g" package-nexus.json
+        sed -i "s/\"@${ORG_NAME}\/single-spa-solid-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-solid-app\": \"$AVAILABLE_VERSION\"/g" package-nexus.json
         echo "✅ Updated package-nexus.json dependencies"
     fi
     
@@ -112,6 +114,7 @@ if [ "${FROM_RUN_SCRIPT}" = "true" ] || [ "${SKIP_INSTALL}" = "true" ]; then
         sed -i "s/\"@${ORG_NAME}\/single-spa-typescript-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-typescript-app\": \"$AVAILABLE_VERSION\"/g" single-spa-root/package-nexus.json
         sed -i "s/\"@${ORG_NAME}\/single-spa-jquery-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-jquery-app\": \"$AVAILABLE_VERSION\"/g" single-spa-root/package-nexus.json
         sed -i "s/\"@${ORG_NAME}\/single-spa-svelte-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-svelte-app\": \"$AVAILABLE_VERSION\"/g" single-spa-root/package-nexus.json
+        sed -i "s/\"@${ORG_NAME}\/single-spa-solid-app\": \"[^\"]*\"/\"@${ORG_NAME}\/single-spa-solid-app\": \"$AVAILABLE_VERSION\"/g" single-spa-root/package-nexus.json
         echo "✅ Updated single-spa-root/package-nexus.json dependencies"
     fi
     

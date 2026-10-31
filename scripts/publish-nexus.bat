@@ -96,8 +96,8 @@ echo 📋 New version: %NEW_VERSION%
 
 REM Define packages based on environment
 if "%ENVIRONMENT%"=="prod" (
-    REM Production: publish all 12 packages including root
-    set APPS=single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-root
+    REM Production: publish all 13 packages including root
+    set APPS=single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-solid-app single-spa-root
 ) else (
     REM Development: publish nothing
     set APPS=
@@ -118,7 +118,7 @@ if errorlevel 1 (
 
 echo.
 if "%ENVIRONMENT%"=="prod" (
-    echo 📋 Packages to publish (12 packages):
+    echo 📋 Packages to publish (13 packages):
     echo   📦 Microfrontend Applications (11):
     for %%a in (%APPS%) do (
         echo     - @cesarchamal/%%a

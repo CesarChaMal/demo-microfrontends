@@ -80,7 +80,8 @@ Add the published package to root dependencies:
     "@your-org/single-spa-webcomponents-app": "^1.0.0",
     "@your-org/single-spa-typescript-app": "^1.0.0",
     "@your-org/single-spa-jquery-app": "^1.0.0",
-    "@your-org/single-spa-svelte-app": "^1.0.0"
+    "@your-org/single-spa-svelte-app": "^1.0.0",
+    "@your-org/single-spa-solid-app": "^1.0.0"
   }
 }
 ```

@@ -63,6 +63,7 @@ if "%COMMAND%"=="" (
     echo   - @cesarchamal/single-spa-typescript-app
     echo   - @cesarchamal/single-spa-jquery-app
     echo   - @cesarchamal/single-spa-svelte-app
+    echo   - @cesarchamal/single-spa-solid-app
     echo.
     exit /b 1
 )

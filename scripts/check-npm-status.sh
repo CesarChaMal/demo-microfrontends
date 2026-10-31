@@ -34,6 +34,7 @@ PACKAGES["@${ORG_NAME}/single-spa-webcomponents-app"]="single-spa-webcomponents-
 PACKAGES["@${ORG_NAME}/single-spa-typescript-app"]="single-spa-typescript-app.js"
 PACKAGES["@${ORG_NAME}/single-spa-jquery-app"]="single-spa-jquery-app.js"
 PACKAGES["@${ORG_NAME}/single-spa-svelte-app"]="single-spa-svelte-app.js"
+PACKAGES["@${ORG_NAME}/single-spa-solid-app"]="single-spa-solid-app.js"
 PACKAGES["@${ORG_NAME}/single-spa-root"]="root-application.js"
 
 echo "📋 Checking package availability..."

@@ -207,7 +207,7 @@ location ~* \.js$ {
 ### Migration Effort Estimate
 
 #### Phase 1: Build System Changes (1-2 weeks)
-- [ ] Update all 12 microfrontend webpack configs
+- [ ] Update all 13 microfrontend webpack configs
 - [ ] Change Angular CLI configurations
 - [ ] Update Vue CLI build targets
 - [ ] Modify React build scripts

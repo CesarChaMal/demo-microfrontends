@@ -154,7 +154,8 @@ cat > importmap.json << EOF
     "@${ORG_NAME}/webcomponents-app": "https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/@${ORG_NAME}/webcomponents-app/single-spa-webcomponents-app.js",
     "@${ORG_NAME}/typescript-app": "https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/@${ORG_NAME}/typescript-app/single-spa-typescript-app.js",
     "@${ORG_NAME}/jquery-app": "https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/@${ORG_NAME}/jquery-app/single-spa-jquery-app.js",
-    "@${ORG_NAME}/svelte-app": "https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/@${ORG_NAME}/svelte-app/single-spa-svelte-app.js"
+    "@${ORG_NAME}/svelte-app": "https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/@${ORG_NAME}/svelte-app/single-spa-svelte-app.js",
+    "@${ORG_NAME}/solid-app": "https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/@${ORG_NAME}/solid-app/single-spa-solid-app.js"
   }
 }
 EOF
@@ -168,7 +169,7 @@ echo "📊 Uploading employees.json for shared state..."
 aws s3 cp single-spa-root/public/employees.json s3://$BUCKET_NAME/employees.json
 
 # Upload each microfrontend
-APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
+APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte" "solid")
 
 for app in "${APPS[@]}"; do
     app_dir="single-spa-${app}-app"

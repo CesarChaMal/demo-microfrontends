@@ -62,6 +62,7 @@ if [ -z "$COMMAND" ]; then
     echo "  - @cesarchamal/single-spa-typescript-app"
     echo "  - @cesarchamal/single-spa-jquery-app"
     echo "  - @cesarchamal/single-spa-svelte-app"
+    echo "  - @cesarchamal/single-spa-solid-app"
     echo ""
     exit 1
 fi

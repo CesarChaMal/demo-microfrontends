@@ -42,6 +42,7 @@ APPS["single-spa-webcomponents-app"]="single-spa-webcomponents-app"
 APPS["single-spa-typescript-app"]="single-spa-typescript-app"
 APPS["single-spa-jquery-app"]="single-spa-jquery-app"
 APPS["single-spa-svelte-app"]="single-spa-svelte-app"
+APPS["single-spa-solid-app"]="single-spa-solid-app"
 
 # Function to deploy a single app
 deploy_app() {

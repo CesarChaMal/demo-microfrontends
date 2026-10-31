@@ -24,6 +24,7 @@ APPS=(
     "single-spa-typescript-app"
     "single-spa-jquery-app"
     "single-spa-svelte-app"
+    "single-spa-solid-app"
 )
 
 # Clean up previous triggers and add new one to each app
