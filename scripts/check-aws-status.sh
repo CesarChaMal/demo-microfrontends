@@ -46,6 +46,7 @@ APPS["webcomponents-app"]="single-spa-webcomponents-app.js"
 APPS["typescript-app"]="single-spa-typescript-app.js"
 APPS["jquery-app"]="single-spa-jquery-app.js"
 APPS["svelte-app"]="single-spa-svelte-app.js"
+APPS["solid-app"]="single-spa-solid-app.js"
 
 # Check root application files
 echo "🏠 Checking root application files..."

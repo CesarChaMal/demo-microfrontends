@@ -36,7 +36,8 @@ const PACKAGES = [
   'single-spa-webcomponents-app',
   'single-spa-typescript-app',
   'single-spa-jquery-app',
-  'single-spa-svelte-app'
+  'single-spa-svelte-app',
+  'single-spa-solid-app'
 ].map(dir => path.join(PROJECT_ROOT, dir));
 
 function readPackageJson(packageDir) {

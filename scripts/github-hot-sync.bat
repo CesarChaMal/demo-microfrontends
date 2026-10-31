@@ -30,7 +30,7 @@ echo 🔑 Token: %GITHUB_API_TOKEN:~0,8%...
 echo.
 
 REM List of applications and their repositories
-set "APPS=single-spa-root single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app"
+set "APPS=single-spa-root single-spa-auth-app single-spa-layout-app single-spa-home-app single-spa-angular-app single-spa-vue-app single-spa-react-app single-spa-vanilla-app single-spa-webcomponents-app single-spa-typescript-app single-spa-jquery-app single-spa-svelte-app single-spa-solid-app"
 
 REM Function to deploy a single app
 :deploy_app

@@ -49,6 +49,7 @@ set "apps[7]=webcomponents-app:single-spa-webcomponents-app.js"
 set "apps[8]=typescript-app:single-spa-typescript-app.js"
 set "apps[9]=jquery-app:single-spa-jquery-app.js"
 set "apps[10]=svelte-app:single-spa-svelte-app.js"
+set "apps[11]=solid-app:single-spa-solid-app.js"
 
 REM Check root application files
 echo 🏠 Checking root application files...
@@ -113,7 +114,7 @@ echo.
 REM Check each microfrontend
 echo 🧩 Checking microfrontend files...
 
-for /l %%i in (0,1,10) do (
+for /l %%i in (0,1,11) do (
     for /f "tokens=1,2 delims=:" %%a in ("!apps[%%i]!") do (
         set "app=%%a"
         set "expected_file=%%b"
@@ -221,7 +222,7 @@ set "website_padded=!website_padded:~0,15!"
 echo !app_padded! !file_padded! !website_padded! N/A
 
 REM Microfrontends summary
-for /l %%i in (0,1,10) do (
+for /l %%i in (0,1,11) do (
     for /f "tokens=1,2 delims=:" %%a in ("!apps[%%i]!") do (
         set "app=%%a"
         set "expected_file=%%b"

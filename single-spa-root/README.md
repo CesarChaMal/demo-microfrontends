@@ -10,7 +10,7 @@ Single-spa application example which imports registered applications from NPM pa
 
 ## 🏗️ Microfrontend Architecture
 
-This application is the **orchestrator** of **12 microfrontends** in the demo-microfrontends project:
+This application is the **orchestrator** of **13 microfrontends** in the demo-microfrontends project:
 
 | Microfrontend | Framework | Build Tool | Port | Route | Repository |
 |---------------|-----------|------------|------|-------|------------|
@@ -26,6 +26,7 @@ This application is the **orchestrator** of **12 microfrontends** in the demo-mi
 | 📘 TypeScript App | TypeScript + Strict Mode | Webpack 4 + TS Loader | 4209 | /typescript/* | [single-spa-typescript-app](https://github.com/cesarchamal/single-spa-typescript-app) |
 | 💎 jQuery App | jQuery 3.6 + Bootstrap | Webpack 4 | 4210 | /jquery/* | [single-spa-jquery-app](https://github.com/cesarchamal/single-spa-jquery-app) |
 | 🔥 Svelte App | Svelte 3 + Rollup | Rollup + Svelte Plugin | 4211 | /svelte/* | [single-spa-svelte-app](https://github.com/cesarchamal/single-spa-svelte-app) |
+| 🔶 Solid App | SolidJS 1.x | Webpack 4 + Babel | 4212 | /solid/* | [single-spa-solid-app](https://github.com/cesarchamal/single-spa-solid-app) |
 
 **Main Repository**: [demo-microfrontends](https://github.com/cesarchamal/demo-microfrontends)
 
@@ -224,6 +225,7 @@ npm run serve:aws               # AWS S3 mode (import map loading)
   - **Features**: Legacy support, DOM queries, event handling
 
 * **🔥 single-spa-svelte-app** - Svelte 3 compile-time optimization (Port 4211)
+* **🔥 single-spa-solid-app** - SolidJS 1.x fine-grained reactivity (signals, no virtual DOM) (Port 4212)
   - **Tech Stack**: Svelte 3, Rollup, compile-time optimization, reactive statements
   - **Features**: No virtual DOM, compile-time optimization, reactive updates
 
@@ -347,7 +349,7 @@ npm run prod:build:apps         # ~3-5 minutes (3-4x faster)
 * Bootstrap & FontAwesome CSS are imported in **root-application-dynamic.js** to avoid duplication.
 * FontAwesome dependencies added to all microfrontends with framework-specific packages.
 * Login logic is hardcoded for demo purposes.
-* `serve` script runs both the root and all 12 microfrontends in parallel.
+* `serve` script runs both the root and all 13 microfrontends in parallel.
 * Use `lint-all:loose` or `lint-all:strict` to lint all MFEs at once.
 * `install:all` script ensures dependencies for all MFEs are installed.
 * ESLint configs added to all new microfrontends with appropriate parsers and rules.

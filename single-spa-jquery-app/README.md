@@ -10,7 +10,7 @@ A jQuery microfrontend for Single-SPA demonstrating legacy library integration a
 
 ## 🏗️ Microfrontend Architecture
 
-This application is one of **12 microfrontends** in the demo-microfrontends project:
+This application is one of **13 microfrontends** in the demo-microfrontends project:
 
 | Microfrontend | Framework | Port | Route | Repository |
 |---------------|-----------|------|-------|------------|
@@ -26,6 +26,7 @@ This application is one of **12 microfrontends** in the demo-microfrontends proj
 | 📘 TypeScript App | TypeScript | 4209 | /typescript/* | [single-spa-typescript-app](https://github.com/cesarchamal/single-spa-typescript-app) |
 | **💎 jQuery App** | **jQuery 3.6** | **4210** | **/jquery/*** | **This repo** |
 | 🔥 Svelte App | Svelte 3 | 4211 | /svelte/* | [single-spa-svelte-app](https://github.com/cesarchamal/single-spa-svelte-app) |
+| 🔶 Solid App | SolidJS 1.x | 4212 | /solid/* | [single-spa-solid-app](https://github.com/cesarchamal/single-spa-solid-app) |
 
 **Main Repository**: [demo-microfrontends](https://github.com/cesarchamal/demo-microfrontends)
 

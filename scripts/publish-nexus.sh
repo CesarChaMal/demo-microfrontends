@@ -102,7 +102,7 @@ echo "📋 New version: $NEW_VERSION"
 
 # Define packages based on environment
 if [ "$ENVIRONMENT" = "prod" ]; then
-    # Production: publish all 12 packages including root
+    # Production: publish all 13 packages including root
     APPS=(
       "single-spa-auth-app"
       "single-spa-layout-app"
@@ -115,6 +115,7 @@ if [ "$ENVIRONMENT" = "prod" ]; then
       "single-spa-typescript-app"
       "single-spa-jquery-app"
       "single-spa-svelte-app"
+      "single-spa-solid-app"
       "single-spa-root"
     )
 else
@@ -211,7 +212,7 @@ fi
 
 echo ""
 if [ "$ENVIRONMENT" = "prod" ]; then
-    echo "📋 All packages to publish (12 packages):"
+    echo "📋 All packages to publish (13 packages):"
     for app in "${APPS[@]}"; do
         echo "  - @cesarchamal/$app"
     done

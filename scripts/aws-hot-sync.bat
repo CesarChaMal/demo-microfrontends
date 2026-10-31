@@ -42,6 +42,7 @@ set "apps[8]=single-spa-webcomponents-app:@%ORG_NAME%/webcomponents-app/"
 set "apps[9]=single-spa-typescript-app:@%ORG_NAME%/typescript-app/"
 set "apps[10]=single-spa-jquery-app:@%ORG_NAME%/jquery-app/"
 set "apps[11]=single-spa-svelte-app:@%ORG_NAME%/svelte-app/"
+set "apps[12]=single-spa-solid-app:@%ORG_NAME%/solid-app/"
 
 REM Function to sync a single app
 :sync_app
@@ -63,7 +64,7 @@ goto :eof
 
 REM Initial sync of all apps
 echo 🚀 Performing initial sync of all apps...
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!apps[%%i]!") do (
         call :sync_app "%%a" "%%b"
     )
@@ -86,7 +87,7 @@ timeout /t 5 /nobreak >nul
 
 REM Check if any dist directory has been modified
 set "changed=false"
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!apps[%%i]!") do (
         set "app=%%a"
         if exist "!app!\dist" (
@@ -106,7 +107,7 @@ if "%changed%"=="false" goto :watch_loop
 
 :sync_all
 echo 📁 File changes detected, syncing all apps...
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!apps[%%i]!") do (
         call :sync_app "%%a" "%%b"
     )

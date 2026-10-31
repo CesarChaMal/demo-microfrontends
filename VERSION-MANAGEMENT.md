@@ -1,11 +1,11 @@
 # Version Management Guide
 
-This guide covers version management across all 12 microfrontends, including synchronization, publishing, and deployment strategies.
+This guide covers version management across all 13 microfrontends, including synchronization, publishing, and deployment strategies.
 
 ## Version Strategy
 
 ### Synchronized Versioning
-All 12 microfrontends use **synchronized versioning** - they share the same version number for consistency and easier management.
+All 13 microfrontends use **synchronized versioning** - they share the same version number for consistency and easier management.
 
 **Current Architecture:**
 - **Root App**: Orchestrator (always matches other apps)

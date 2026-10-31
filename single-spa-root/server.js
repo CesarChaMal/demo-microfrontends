@@ -17,6 +17,7 @@ app.use('/single-spa-webcomponents-app.js', express.static(path.resolve(__dirnam
 app.use('/single-spa-typescript-app.js', express.static(path.resolve(__dirname, '../single-spa-typescript-app/dist/single-spa-typescript-app.js')));
 app.use('/single-spa-jquery-app.js', express.static(path.resolve(__dirname, '../single-spa-jquery-app/dist/single-spa-jquery-app.js')));
 app.use('/single-spa-svelte-app.js', express.static(path.resolve(__dirname, '../single-spa-svelte-app/dist/single-spa-svelte-app.js')));
+app.use('/single-spa-solid-app.js', express.static(path.resolve(__dirname, '../single-spa-solid-app/dist/single-spa-solid-app.js')));
 
 // Serve root application static files
 app.use(express.static(path.resolve(__dirname, 'dist')));

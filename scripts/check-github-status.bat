@@ -43,10 +43,11 @@ set "repos[7]=single-spa-webcomponents-app:single-spa-webcomponents-app.js"
 set "repos[8]=single-spa-typescript-app:single-spa-typescript-app.js"
 set "repos[9]=single-spa-jquery-app:single-spa-jquery-app.js"
 set "repos[10]=single-spa-svelte-app:single-spa-svelte-app.js"
-set "repos[11]=single-spa-root:root-application.js"
+set "repos[11]=single-spa-solid-app:single-spa-solid-app.js"
+set "repos[12]=single-spa-root:root-application.js"
 
 REM Check each repository
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!repos[%%i]!") do (
         set "repo=%%a"
         set "expected_file=%%b"
@@ -149,7 +150,7 @@ echo.
 echo Repository               Expected File                  GitHub Pages    Raw GitHub
 echo ----------               -------------                  ------------    -----------
 
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2 delims=:" %%a in ("!repos[%%i]!") do (
         set "repo=%%a"
         set "expected_file=%%b"

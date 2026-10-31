@@ -20,10 +20,11 @@ set "apps[8]=single-spa-webcomponents-app:4208:single-spa-webcomponents-app.js"
 set "apps[9]=single-spa-typescript-app:4209:single-spa-typescript-app.js"
 set "apps[10]=single-spa-jquery-app:4210:single-spa-jquery-app.js"
 set "apps[11]=single-spa-svelte-app:4211:single-spa-svelte-app.js"
+set "apps[12]=single-spa-solid-app:4212:single-spa-solid-app.js"
 
 echo 🏠 Checking local development servers...
 
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2,3 delims=:" %%a in ("!apps[%%i]!") do (
         set "app=%%a"
         set "port=%%b"
@@ -77,7 +78,7 @@ for /l %%i in (0,1,11) do (
 
 echo 📁 Checking built files in dist directories...
 
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2,3 delims=:" %%a in ("!apps[%%i]!") do (
         set "app=%%a"
         set "port=%%b"
@@ -128,7 +129,7 @@ echo.
 echo Application               Port   Server          Bundle URL      Built File
 echo -----------               ----   ------          ----------      ----------
 
-for /l %%i in (0,1,11) do (
+for /l %%i in (0,1,12) do (
     for /f "tokens=1,2,3 delims=:" %%a in ("!apps[%%i]!") do (
         set "app=%%a"
         set "port=%%b"
