@@ -26,6 +26,7 @@ jobs:
           - { name: "single-spa-typescript-app", bundle: "single-spa-typescript-app.js" }
           - { name: "single-spa-jquery-app", bundle: "single-spa-jquery-app.js" }
           - { name: "single-spa-svelte-app", bundle: "single-spa-svelte-app.js" }
+          - { name: "single-spa-solid-app", bundle: "single-spa-solid-app.js" }
           - { name: "single-spa-root", bundle: "root-application.js" }
 
     steps:

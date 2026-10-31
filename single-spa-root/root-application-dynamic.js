@@ -312,6 +312,7 @@ function getLocalAppUrls(isProduction) {
     'single-spa-typescript-app': '/single-spa-typescript-app.js',
     'single-spa-jquery-app': '/single-spa-jquery-app.js',
     'single-spa-svelte-app': '/single-spa-svelte-app.js',
+    'single-spa-solid-app': '/single-spa-solid-app.js',
   } : {
     // Development: Load from individual ports
     'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
@@ -325,6 +326,7 @@ function getLocalAppUrls(isProduction) {
     'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
     'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
     'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
+    'single-spa-solid-app': 'http://localhost:4212/single-spa-solid-app.js',
   };
 }
 
@@ -343,6 +345,7 @@ function getGitHubAppUrls(githubUser, usePages = true) {
       'single-spa-typescript-app': `https://${githubUser}.github.io/single-spa-typescript-app/single-spa-typescript-app.js`,
       'single-spa-jquery-app': `https://${githubUser}.github.io/single-spa-jquery-app/single-spa-jquery-app.js`,
       'single-spa-svelte-app': `https://${githubUser}.github.io/single-spa-svelte-app/single-spa-svelte-app.js`,
+      'single-spa-solid-app': `https://${githubUser}.github.io/single-spa-solid-app/single-spa-solid-app.js`,
     };
   } else {
     // Raw GitHub repository URLs (for dev mode)
@@ -358,6 +361,7 @@ function getGitHubAppUrls(githubUser, usePages = true) {
       'single-spa-typescript-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-typescript-app/main/dist/single-spa-typescript-app.js`,
       'single-spa-jquery-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-jquery-app/main/dist/single-spa-jquery-app.js`,
       'single-spa-svelte-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-svelte-app/main/dist/single-spa-svelte-app.js`,
+      'single-spa-solid-app': `https://raw.githubusercontent.com/${githubUser}/single-spa-solid-app/main/dist/single-spa-solid-app.js`,
     };
   }
 }
@@ -375,6 +379,7 @@ function getAWSAppUrls() {
     'single-spa-typescript-app': `@${AWS_CONFIG.orgName}/typescript-app`,
     'single-spa-jquery-app': `@${AWS_CONFIG.orgName}/jquery-app`,
     'single-spa-svelte-app': `@${AWS_CONFIG.orgName}/svelte-app`,
+    'single-spa-solid-app': `@${AWS_CONFIG.orgName}/solid-app`,
   };
 }
 
@@ -411,6 +416,7 @@ switch (mode) {
         'single-spa-typescript-app': 'single-spa-typescript-app.js',
         'single-spa-jquery-app': 'single-spa-jquery-app.js',
         'single-spa-svelte-app': 'single-spa-svelte-app.js',
+        'single-spa-solid-app': 'single-spa-solid-app.js',
       };
       const fileName = fileMap[name];
       const cdnUrl = `https://cdn.jsdelivr.net/npm/${scopedName}@latest/dist/${fileName}`;
@@ -441,6 +447,7 @@ switch (mode) {
         'single-spa-typescript-app': 'single-spa-typescript-app.js',
         'single-spa-jquery-app': 'single-spa-jquery-app.js',
         'single-spa-svelte-app': 'single-spa-svelte-app.js',
+        'single-spa-solid-app': 'single-spa-solid-app.js',
       };
       const fileName = fileMap[name];
       // Use CORS proxy URL from environment variables
@@ -464,6 +471,7 @@ switch (mode) {
         'single-spa-typescript-app': '/single-spa-typescript-app.js',
         'single-spa-jquery-app': '/single-spa-jquery-app.js',
         'single-spa-svelte-app': '/single-spa-svelte-app.js',
+    'single-spa-solid-app': '/single-spa-solid-app.js',
       }[name] : {
         // Development: Load from individual ports
         'single-spa-auth-app': 'http://localhost:4201/single-spa-auth-app.umd.js',
@@ -477,6 +485,7 @@ switch (mode) {
         'single-spa-typescript-app': 'http://localhost:4209/single-spa-typescript-app.js',
         'single-spa-jquery-app': 'http://localhost:4210/single-spa-jquery-app.js',
         'single-spa-svelte-app': 'http://localhost:4211/single-spa-svelte-app.js',
+    'single-spa-solid-app': 'http://localhost:4212/single-spa-solid-app.js',
       }[name];
       console.log(`Loading ${name} from Nexus CDN: ${nexusUrl}`);
       try {
@@ -761,6 +770,12 @@ singleSpa.registerApplication(
   'svelte',
   () => loadApp('single-spa-svelte-app'),
   showWhenAuthenticatedAndPrefix(['/svelte']),
+);
+
+singleSpa.registerApplication(
+  'solid',
+  () => loadApp('single-spa-solid-app'),
+  showWhenAuthenticatedAndPrefix(['/solid']),
 );
 
 // Add event listeners to debug Single-SPA lifecycle

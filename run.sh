@@ -607,7 +607,7 @@ start_github() {
         exec_npm npm run build:root:github:prod
         
         # Deploy each microfrontend using existing scripts
-        APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte")
+        APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte" "solid")
         
         for app in "${APPS[@]}"; do
             echo "📤 Deploying $app app to GitHub Pages..."

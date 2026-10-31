@@ -1,0 +1,57 @@
+{
+  "name": "@cesarchamal/single-spa-solid-app",
+  "version": "1.0.18",
+  "description": "SolidJS microfrontend for Single-SPA demonstrating fine-grained reactivity without a framework adapter",
+  "main": "dist/single-spa-solid-app.js",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "build:dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --mode development",
+    "build:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
+    "start": "webpack serve --mode development --port 4212",
+    "serve": "npm run build && npx http-server dist -p 4212 --cors",
+    "lint": "eslint src --ext .js,.jsx --fix"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.12",
+    "cross-env": "^7.0.3",
+    "webpack-dev-server": "^3.11.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "babel-eslint": "^10.0.3",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "babel-loader": "^8.0.6",
+    "babel-preset-solid": "^1.8.0"
+  },
+  "dependencies": {
+    "solid-js": "^1.8.0",
+    "single-spa": "^5.9.0",
+    "rxjs": "^6.4.0"
+  },
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarchamal/single-spa-solid-app.git"
+  },
+  "keywords": [
+    "single-spa",
+    "solid",
+    "solidjs",
+    "microfrontend",
+    "signals",
+    "webpack"
+  ],
+  "author": "Cesar Francisco Chavez Maldonado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cesarchamal/single-spa-solid-app/issues"
+  },
+  "homepage": "https://github.com/cesarchamal/single-spa-solid-app#readme"
+}

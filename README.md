@@ -4,7 +4,7 @@ A comprehensive demonstration of microfrontend architecture using Single-SPA fra
 
 ## ✍🏻 Motivation
 
-This application demonstrates a comprehensive microfrontend architecture using Single-SPA with multiple deployment strategies including local development, NPM packages, Nexus private registry, GitHub Pages, and AWS S3. It showcases 12 different microfrontends built with various frameworks and technologies.
+This application demonstrates a comprehensive microfrontend architecture using Single-SPA with multiple deployment strategies including local development, NPM packages, Nexus private registry, GitHub Pages, and AWS S3. It showcases 13 different microfrontends built with various frameworks and technologies.
 
 ## ▶️ Live Demo
 
@@ -30,7 +30,7 @@ This project demonstrates a microfrontend architecture with:
 
 ## 🏗️ Microfrontend Architecture
 
-This project consists of **12 microfrontends** working together:
+This project consists of **13 microfrontends** working together:
 
 | Microfrontend | Framework | Port | Route | Repository |
 |---------------|-----------|------|-------|------------|
@@ -46,6 +46,7 @@ This project consists of **12 microfrontends** working together:
 | 📘 TypeScript App | TypeScript | 4209 | /typescript/* | [single-spa-typescript-app](https://github.com/cesarchamal/single-spa-typescript-app) |
 | 💎 jQuery App | jQuery 3.6 | 4210 | /jquery/* | [single-spa-jquery-app](https://github.com/cesarchamal/single-spa-jquery-app) |
 | 🔥 Svelte App | Svelte 3 | 4211 | /svelte/* | [single-spa-svelte-app](https://github.com/cesarchamal/single-spa-svelte-app) |
+| 🔶 Solid App | SolidJS 1.x | 4212 | /solid/* | [single-spa-solid-app](https://github.com/cesarchamal/single-spa-solid-app) |
 
 ## Project Structure
 
@@ -63,12 +64,13 @@ demo-microfrontends/
 ├── single-spa-typescript-app/                   # TypeScript application
 ├── single-spa-jquery-app/                       # jQuery legacy integration
 ├── single-spa-svelte-app/                       # Svelte application
+├── single-spa-solid-app/                        # SolidJS application
 └── scripts/                                     # Utility scripts for deployment
 ```
 
 ## 🔄 RxJS State Management
 
-All 12 applications are integrated with a centralized RxJS-based state management system:
+All 13 applications are integrated with a centralized RxJS-based state management system:
 
 ### **Global State Manager**
 ```javascript
@@ -142,10 +144,11 @@ Each microfrontend includes a comprehensive **visual showcase** of the shared st
 | 📘 TypeScript App | ✅ **Full Showcase** | ✅ User state | ✅ Employee display | ✅ Event feed | ✅ Load/Broadcast/Clear |
 | 💎 jQuery App | ✅ **Full Showcase** | ✅ User state | ✅ Employee display | ✅ Event feed | ✅ Load/Broadcast/Clear |
 | 🔥 Svelte App | ✅ **Full Showcase** | ✅ User state | ✅ Employee display | ✅ Event feed | ✅ Load/Broadcast/Clear |
+| 🔶 Solid App | ✅ **Full Showcase** | ✅ User state | ✅ Employee display | ✅ Event feed | ✅ Load/Broadcast/Clear |
 
 ### **Live Demo Features**
 1. **Login Synchronization**: Login in auth app → All apps receive user state
-2. **Visual State Showcase**: 9 apps display comprehensive shared state UI
+2. **Visual State Showcase**: 10 apps display comprehensive shared state UI
 3. **Employee Data Loading**: Click "Load Employees" → Data appears in all showcases
 4. **Cross-App Broadcasting**: Click "Broadcast" → Messages appear in other apps
 5. **Real-time Updates**: All state changes propagate instantly across frameworks
@@ -337,6 +340,7 @@ localStorage.setItem('spa-mode', 'local');   // Switch to local
    - `/typescript/*` - TypeScript features
    - `/jquery/*` - jQuery features
    - `/svelte/*` - Svelte features
+   - `/solid/*` - SolidJS features
 
 ### Hot Reload Development
 
@@ -528,6 +532,7 @@ For detailed publishing information, see [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.
 - **TypeScript**: Strict typing and compile-time validation
 - **jQuery 3.6**: Legacy library integration
 - **Svelte 3**: Compile-time optimized reactive framework
+- **SolidJS 1.x**: Fine-grained reactive framework (signals, no virtual DOM)
 - **Bootstrap 4**: CSS framework
 - **FontAwesome**: Icon library across all apps
 - **SystemJS**: Module loader
@@ -558,6 +563,7 @@ For detailed publishing information, see [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.
 | TypeScript | 4209 | http://localhost:4209 |
 | jQuery | 4210 | http://localhost:4210 |
 | Svelte | 4211 | http://localhost:4211 |
+| Solid | 4212 | http://localhost:4212 |
 
 ### GitHub Pages Configuration
 
