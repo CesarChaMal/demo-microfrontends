@@ -244,3 +244,6 @@ single-spa-vue-app/dist/
 
 # Local notes (not committed)
 WSL-SPEED-NOTES.md
+
+# install-if-changed.js marks a folder whose dependency install has not finished
+.install-pending

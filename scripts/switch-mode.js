@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { ensureInstalledSync } = require('./install-if-changed');
 
 // Detect if running in CI/production environment
 function isProductionEnvironment() {
@@ -14,6 +15,16 @@ function isProductionEnvironment() {
 // Get appropriate npm command based on environment
 function getNpmInstallCommand() {
   return isProductionEnvironment() ? 'npm ci' : 'npm install';
+}
+
+// Installs single-spa-root and shared where their dependencies changed since their last
+// successful install (scripts/install-if-changed.js). Unchanged folders are skipped.
+function installDependencies() {
+  const options = { ci: isProductionEnvironment() };
+  ensureInstalledSync(rootDir, options);
+  if (fs.existsSync(sharedDir)) {
+    ensureInstalledSync(sharedDir, options);
+  }
 }
 
 const mode = process.argv[2];
@@ -84,12 +95,9 @@ function switchToNpmMode() {
   // Install NPM dependencies (skip in GitHub Actions)
   if (!process.env.GITHUB_ACTIONS) {
     const installCmd = getNpmInstallCommand();
-    console.log(`📥 Installing NPM dependencies with ${installCmd}...`);
+    console.log(`📥 Installing NPM dependencies with ${installCmd} where they changed...`);
     try {
-      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-      if (fs.existsSync(sharedDir)) {
-        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
-      }
+      installDependencies();
     } catch (error) {
       console.error('❌ Failed to install NPM dependencies');
       console.error('💡 Make sure packages are published first: npm run publish:patch');
@@ -145,12 +153,9 @@ function switchToLocalMode() {
   // Install local dependencies (skip in GitHub Actions or when SKIP_INSTALL is set)
   if (!process.env.GITHUB_ACTIONS && !process.env.SKIP_INSTALL) {
     const installCmd = getNpmInstallCommand();
-    console.log(`📥 Installing local dependencies with ${installCmd}...`);
+    console.log(`📥 Installing local dependencies with ${installCmd} where they changed...`);
     try {
-      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-      if (fs.existsSync(sharedDir)) {
-        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
-      }
+      installDependencies();
     } catch (error) {
       console.error('❌ Failed to install local dependencies');
       process.exit(1);
@@ -208,12 +213,9 @@ function switchToGitHubMode() {
   // Install GitHub dependencies (skip in GitHub Actions)
   if (!process.env.GITHUB_ACTIONS) {
     const installCmd = getNpmInstallCommand();
-    console.log(`📥 Installing GitHub dependencies with ${installCmd}...`);
+    console.log(`📥 Installing GitHub dependencies with ${installCmd} where they changed...`);
     try {
-      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-      if (fs.existsSync(sharedDir)) {
-        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
-      }
+      installDependencies();
     } catch (error) {
       console.error('❌ Failed to install GitHub dependencies');
       process.exit(1);
@@ -273,12 +275,9 @@ function switchToNexusMode() {
   // Install Nexus dependencies (skip in GitHub Actions)
   if (!process.env.GITHUB_ACTIONS) {
     const installCmd = getNpmInstallCommand();
-    console.log(`📥 Installing Nexus dependencies with ${installCmd}...`);
+    console.log(`📥 Installing Nexus dependencies with ${installCmd} where they changed...`);
     try {
-      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-      if (fs.existsSync(sharedDir)) {
-        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
-      }
+      installDependencies();
     } catch (error) {
       console.error('❌ Failed to install Nexus dependencies');
       console.error('💡 Make sure packages are published first: npm run publish:nexus:patch');
@@ -344,12 +343,9 @@ function switchToAwsMode() {
     console.log('⏭️ Skipping npm install (SKIP_INSTALL=true, dependencies already installed)');
   } else {
     const installCmd = getNpmInstallCommand();
-    console.log(`📥 Installing AWS dependencies with ${installCmd}...`);
+    console.log(`📥 Installing AWS dependencies with ${installCmd} where they changed...`);
     try {
-      execSync(installCmd, { cwd: rootDir, stdio: 'inherit' });
-      if (fs.existsSync(sharedDir)) {
-        execSync(installCmd, { cwd: sharedDir, stdio: 'inherit' });
-      }
+      installDependencies();
     } catch (error) {
       console.error('❌ Failed to install AWS dependencies');
       process.exit(1);
