@@ -330,8 +330,19 @@ function switchToAwsMode() {
     console.log('📦 Copied shared/package-aws.json to package.json');
   }
   
-  // Install AWS dependencies (skip in GitHub Actions)
-  if (!process.env.GITHUB_ACTIONS) {
+  // Install AWS dependencies. Skipped in GitHub Actions, and when SKIP_INSTALL=true
+  // while the dependencies are already installed: run.sh passes it for its early mode
+  // switch (deploy:aws:* switches again and installs right before the root build) and
+  // serve:aws passes it too. The aws dependencies are a subset of every other mode's
+  // set, so any existing install covers them; an empty tree still installs.
+  const depsInstalled = fs.existsSync(path.join(rootDir, 'node_modules')) &&
+    (!fs.existsSync(sharedDir) || fs.existsSync(path.join(sharedDir, 'node_modules')));
+  const skipInstall = String(process.env.SKIP_INSTALL || '').trim() === 'true' && depsInstalled;
+  if (process.env.GITHUB_ACTIONS) {
+    console.log('⏭️ Skipping npm install in GitHub Actions');
+  } else if (skipInstall) {
+    console.log('⏭️ Skipping npm install (SKIP_INSTALL=true, dependencies already installed)');
+  } else {
     const installCmd = getNpmInstallCommand();
     console.log(`📥 Installing AWS dependencies with ${installCmd}...`);
     try {
@@ -343,8 +354,6 @@ function switchToAwsMode() {
       console.error('❌ Failed to install AWS dependencies');
       process.exit(1);
     }
-  } else {
-    console.log('⏭️ Skipping npm install in GitHub Actions');
   }
   console.log('✅ AWS mode activated');
   console.log('📋 AWS mode configuration:');
