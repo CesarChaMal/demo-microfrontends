@@ -1,0 +1,6 @@
+# cmd.exe misses some batch labels in LF-only files (run.bat nexus prod could not find
+# :start_nexus), so Windows scripts are always checked out with CRLF. Shell scripts stay LF,
+# also in checkouts made with core.autocrlf=true.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /*
  * Installs npm dependencies only in the folders whose dependencies changed since that
- * folder's last successful install. run.sh and switch-mode.js call it instead of running
- * npm ci / npm install unconditionally.
+ * folder's last successful install. run.sh, run.bat and switch-mode.js call it instead of
+ * running npm ci / npm install unconditionally.
  *
  * After a successful install it writes node_modules/.install-stamp.json. The stamp holds a
  * fingerprint of what decides the contents of node_modules:
@@ -35,6 +35,9 @@
  *   --ci             use npm ci, falling back to npm install if it fails (default: npm install)
  *   --force          install even when the stamp matches
  *   --concurrency N  folders to install at the same time (default: $INSTALL_CONCURRENCY or 3)
+ *   --allow-stale    when an install fails and the folder has a finished earlier install, warn
+ *                    and keep it instead of failing (run.sh/run.bat --offline). Uses npm install
+ *                    --prefer-offline, because npm ci deletes node_modules before it installs.
  *   --with DIR       every DIR's install also installs this folder (the root's postinstall
  *                    installs shared): add its dependencies to the fingerprint and require
  *                    its node_modules
@@ -320,12 +323,13 @@ function finish(dir, options, before, how) {
   return null;
 }
 
-function npmArgs(dir, ci) {
+function npmArgs(dir, ci, allowStale) {
+  if (allowStale) return ['install', '--prefer-offline'];
   return ci && fs.existsSync(path.join(dir, 'package-lock.json')) ? ['ci'] : ['install'];
 }
 
 function withDefaults(options) {
-  return { ci: false, force: false, with: [], ...options };
+  return { ci: false, force: false, allowStale: false, with: [], ...options };
 }
 
 // Starts npm in DIR. With a prefix, its output is piped and every line is prefixed so that
@@ -379,9 +383,14 @@ function handle(dir, options, say, run) {
     return 'adopted';
   }
   const before = begin(dir, opts);
-  const args = npmArgs(dir, opts.ci);
+  const args = npmArgs(dir, opts.ci, opts.allowStale);
   say(`📦 ${display(dir)}: ${decision.reason}, running npm ${args.join(' ')}`);
   const done = (code, how) => {
+    if (code !== 0 && opts.allowStale && fs.existsSync(path.join(dir, 'node_modules', '.package-lock.json'))) {
+      say(`⚠️  ${display(dir)}: ${how} failed (exit code ${code}), continuing with the existing node_modules`
+        + ' because of --allow-stale; the next run installs it again');
+      return 'stale';
+    }
     if (code !== 0) throw new Error(`${display(dir)}: ${how} failed with exit code ${code}`);
     const problem = finish(dir, opts, before, how);
     if (problem) say(`⚠️  ${display(dir)}: ${problem}, so the next run installs it again`);
@@ -415,6 +424,7 @@ function usage() {
     '  --ci             use npm ci, falling back to npm install if it fails (default: npm install)',
     '  --force          install even when the stamp matches',
     '  --concurrency N  folders to install at the same time (default: $INSTALL_CONCURRENCY or 3)',
+    '  --allow-stale    if an install fails, keep a finished earlier install instead of failing',
     '  --with DIR       every DIR\'s install also installs this folder: add its dependencies',
     '                   to the fingerprint and require its node_modules',
   ].join('\n');
@@ -428,6 +438,7 @@ function parseArgs(argv) {
   const options = {
     ci: false,
     force: false,
+    allowStale: false,
     concurrency: Number(process.env.INSTALL_CONCURRENCY || 3),
     with: [],
     dirs: [],
@@ -436,6 +447,7 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--ci') options.ci = true;
     else if (arg === '--force') options.force = true;
+    else if (arg === '--allow-stale') options.allowStale = true;
     else if (arg === '--concurrency' || arg === '--with') {
       const value = argv[i + 1];
       if (value === undefined) fail(`${arg} needs a value`);
@@ -463,7 +475,7 @@ async function main(argv) {
   const queue = [...options.dirs];
   const parallel = options.concurrency > 1 && queue.length > 1;
   const label = (dir) => path.basename(path.resolve(dir)).replace(/^single-spa-/, '').replace(/-app$/, '');
-  const counts = { installed: 0, adopted: 0, skipped: 0 };
+  const counts = { installed: 0, adopted: 0, skipped: 0, stale: 0 };
   const failed = [];
   const worker = async () => {
     while (queue.length > 0) {
@@ -478,7 +490,7 @@ async function main(argv) {
   };
   await Promise.all(Array.from({ length: Math.min(options.concurrency, queue.length) }, worker));
   console.log(`📊 Dependencies: ${counts.installed} installed, ${counts.adopted} adopted, `
-    + `${counts.skipped} unchanged${failed.length ? `, ${failed.length} failed (${failed.join(', ')})` : ''}`);
+    + `${counts.skipped} unchanged${counts.stale ? `, ${counts.stale} kept stale (install failed)` : ''}${failed.length ? `, ${failed.length} failed (${failed.join(', ')})` : ''}`);
   return failed.length ? 1 : 0;
 }
 

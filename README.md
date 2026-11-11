@@ -212,18 +212,17 @@ npm run trigger:aws:s3
 **Basic Usage:**
 ```bash
 # Linux/Mac
-./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
+./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-build] [--offline]
 # Windows
-run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
+run.bat [mode] [environment] [--clean] [--fix-network] [--skip-build] [--offline]
 ```
 
 **Parameters:**
 - **Mode** (first parameter): `local` (default), `npm`, `nexus`, `github`, `aws`
 - **Environment** (second parameter): `dev` (default), `prod`
 - **Options:**
-  - `--clean`: Cleanup node_modules and package-lock.json (default: off)
+  - `--clean`: Cleanup node_modules and package-lock.json, forcing a full reinstall (default: off). Without it, dependencies are installed only where they changed
   - `--fix-network`: Configure npm for problematic networks (default: off)
-  - `--skip-install`: Skip npm install/ci for faster restarts (default: off)
   - `--skip-build`: Skip build process for faster restarts (default: off)
   - `--offline`: Use local dependencies instead of CDN (local/nexus only, default: off)
 
@@ -244,9 +243,9 @@ run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-
 ./run.sh local dev
 ./run.sh local        # dev is default
 
-# Fast restarts (skip install/build)
-./run.sh local prod --skip-install --skip-build
-./run.sh npm dev --skip-install
+# Fast restarts (installs skip themselves when nothing changed)
+./run.sh local prod --skip-build
+./run.sh npm dev
 
 # Offline mode (no internet required)
 ./run.sh local prod --offline
@@ -271,7 +270,7 @@ run.bat local prod --clean
 run.bat npm dev --fix-network
 run.bat aws prod --clean --fix-network
 run.bat local prod --offline
-run.bat nexus dev --skip-install --skip-build
+run.bat nexus dev --skip-build
 ```
 
 #### Quick Development Launcher (`dev-all.sh` / `dev-all.bat`)

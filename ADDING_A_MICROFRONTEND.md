@@ -252,8 +252,8 @@ APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "
 This drives the `./run.sh github prod` deploy loop (`npm run deploy:github:x` for each app).
 `run.sh`'s dependency install needs no change: it installs every `single-spa-*-app` folder
 through `scripts/install-if-changed.js`, so name the folder `single-spa-x-app`. The Windows twin
-`run.bat` has no `APPS` array (its loops run off the root package.json scripts), but
-it does have a hand-written `deploy:github:*` menu — add your `call npm run
+`run.bat` has no `APPS` array: its dependency install also covers every `single-spa-*-app`
+folder, and its build loops run off the root package.json scripts. It does have a hand-written `deploy:github:*` menu — add your `call npm run
 deploy:github:x` line there too.
 
 ### Step 7 — CI workflows
@@ -425,7 +425,7 @@ workflow, its internal sources) and `backup/`.
 2. **Restart the full stack** (never `pkill` — it kills unrelated node/MCP processes; kill
    the launcher's process group instead, e.g. `kill -TERM -<PGID>`):
    ```bash
-   setsid nohup ./run.sh local dev --skip-install > /tmp/demo-microfrontends-run.log 2>&1 < /dev/null &
+   setsid nohup ./run.sh local dev > /tmp/demo-microfrontends-run.log 2>&1 < /dev/null &
    ```
    Expect **all** app builds to exit 0 (a failure in your app's webpack config stops here).
 3. **Ports**: `curl -s -o /dev/null -w '%{http_code}' http://localhost:8080` → 200, and the

@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # Demo Microfrontends Launcher Script
-# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
+# Usage: ./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-build] [--offline]
 # Mode: local (default), npm, nexus, github, aws
 # Environment: dev (default), prod
 # Options: 
 #   --clean (cleanup node_modules and package-lock.json, default: off)
 #   --fix-network (configure npm for problematic networks, default: off)
-#   --skip-install (skip npm install/ci for main package and microfrontends, default: off)
 #   --skip-build (skip build for main package and microfrontends, default: off)
 #   --offline (use local dependencies instead of CDN, works with local/nexus modes only, default: off)
+# Dependencies are installed only where they changed since the last install
+# (scripts/install-if-changed.js); --clean forces a full reinstall.
 # Examples:
 #   ./run.sh local dev    # Full development environment
 #   ./run.sh local prod   # Production build locally
@@ -17,14 +18,14 @@
 #   ./run.sh github dev   # GitHub Pages with development build
 #   ./run.sh aws prod --clean     # AWS S3 with production build and cleanup
 #   ./run.sh local dev --fix-network  # Local dev with network fixes
-#   ./run.sh local prod --skip-install --skip-build  # Skip install and build steps
+#   ./run.sh local prod --skip-build  # Skip the build step
 #   ./run.sh local prod --offline  # Local production with offline dependencies
 #   ./run.sh nexus dev --offline   # Nexus development with offline dependencies
 #
 # Sequential Workflow Examples:
 #   ./run.sh local prod                              # Run 1: Full setup
-#   ./run.sh local prod --skip-install --skip-build # Run 2: Fast restart (same mode)
-#   ./run.sh aws prod --skip-install                # Run 3: Mode change - auto-detects and rebuilds
+#   ./run.sh local prod --skip-build                # Run 2: Fast restart (same mode)
+#   ./run.sh aws prod                               # Run 3: Mode change - auto-detects and rebuilds
 #   ./run.sh local prod --offline                   # Run 4: Offline mode for no internet
 set -e
 
@@ -33,7 +34,9 @@ MODE=${1:-local}
 ENV=${2:-dev}
 CLEANUP=false
 FIX_NETWORK=false
-SKIP_INSTALL=false
+# SKIP_INSTALL is only set inline, for the mode switches below. An inherited value must not
+# reach the other npm scripts this launcher runs.
+unset SKIP_INSTALL
 SKIP_BUILD=false
 OFFLINE=false
 # true once this run has built every microfrontend; start_aws then lets the S3
@@ -47,7 +50,7 @@ for arg in "$@"; do
     elif [ "$arg" = "--fix-network" ]; then
         FIX_NETWORK=true
     elif [ "$arg" = "--skip-install" ]; then
-        SKIP_INSTALL=true
+        echo "ℹ️  --skip-install is no longer needed: installs run only where dependencies changed"
     elif [ "$arg" = "--skip-build" ]; then
         SKIP_BUILD=true
     elif [ "$arg" = "--offline" ]; then
@@ -423,20 +426,23 @@ else
     echo "🔍 Cleanup disabled - skipping cache and package cleanup"
 fi
 
+# With --offline, an install that is due but fails (no registry) keeps a finished earlier
+# install instead of stopping the run; the next run installs it again.
+ALLOW_STALE=()
+if [ "$OFFLINE" = true ]; then
+    ALLOW_STALE=(--allow-stale)
+fi
+
 # Install main package dependencies first (needed for rimraf). install-if-changed.js runs
 # the install only when the root's package-lock.json, or the dependencies in package.json
 # or shared/package.json (the root's postinstall installs shared), changed since the last
 # successful install. prod uses npm ci and falls back to npm install if it fails.
-if [ "$SKIP_INSTALL" = true ]; then
-    echo "⏭️  Skipping main package installation (--skip-install flag)"
+if [ "$ENV" = "prod" ]; then
+    echo "📦 Installing main package dependencies for production (CI) if they changed..."
+    exec_npm node scripts/install-if-changed.js --ci "${ALLOW_STALE[@]}" --with shared .
 else
-    if [ "$ENV" = "prod" ]; then
-        echo "📦 Installing main package dependencies for production (CI) if they changed..."
-        exec_npm node scripts/install-if-changed.js --ci --with shared .
-    else
-        echo "📦 Installing main package dependencies for development if they changed..."
-        exec_npm node scripts/install-if-changed.js --with shared .
-    fi
+    echo "📦 Installing main package dependencies for development if they changed..."
+    exec_npm node scripts/install-if-changed.js "${ALLOW_STALE[@]}" --with shared .
 fi
 
 # Clean other applications if cleanup enabled
@@ -478,30 +484,28 @@ if [ "$PREV_MODE" != "$MODE" ] && [ "$PREV_MODE" != "unknown" ]; then
 fi
 
 # Install all dependencies - root app needs them regardless of mode. install-if-changed.js
-# installs only the microfrontends whose dependencies changed since their last successful
-# install, INSTALL_CONCURRENCY (default 3) at a time. prod uses npm ci and falls back to
-# npm install if it fails. Every single-spa-*-app folder is a microfrontend, so a new app
-# is picked up without changes here (folders without a package.json are left out).
+# installs single-spa-root and the microfrontends only where their dependencies changed since
+# their last successful install, INSTALL_CONCURRENCY (default 3) at a time. prod uses npm ci
+# and falls back to npm install if it fails. single-spa-root is included because the mode
+# switch above runs with SKIP_INSTALL=true and --clean deletes its node_modules. Every
+# single-spa-*-app folder with a package.json is a microfrontend, so a new app is picked up
+# without changes here.
 APP_DIRS=()
 for app_dir in single-spa-*-app; do
     if [ -f "$app_dir/package.json" ]; then
         APP_DIRS+=("$app_dir")
     fi
 done
-if [ "$SKIP_INSTALL" = true ]; then
-    echo "⏭️  Skipping all dependencies installation (--skip-install flag)"
-elif [ ${#APP_DIRS[@]} -eq 0 ]; then
-    echo "⚠️  No single-spa-*-app folder with a package.json found, nothing to install"
-else
-    if [ "$ENV" = "prod" ]; then
-        echo "📦 Installing microfrontend dependencies for production (CI) where they changed..."
-        exec_npm node scripts/install-if-changed.js --ci "${APP_DIRS[@]}"
-    else
-        echo "📦 Installing microfrontend dependencies for development where they changed..."
-        exec_npm node scripts/install-if-changed.js "${APP_DIRS[@]}"
-    fi
+if [ ${#APP_DIRS[@]} -eq 0 ]; then
+    echo "⚠️  No single-spa-*-app folder with a package.json found"
 fi
-
+if [ "$ENV" = "prod" ]; then
+    echo "📦 Installing single-spa-root and microfrontend dependencies for production (CI) where they changed..."
+    exec_npm node scripts/install-if-changed.js --ci "${ALLOW_STALE[@]}" single-spa-root "${APP_DIRS[@]}"
+else
+    echo "📦 Installing single-spa-root and microfrontend dependencies for development where they changed..."
+    exec_npm node scripts/install-if-changed.js "${ALLOW_STALE[@]}" single-spa-root "${APP_DIRS[@]}"
+fi
 # Build all applications - root app needs them regardless of mode
 if [ "$SKIP_BUILD" = true ]; then
     echo "⏭️  Skipping build for all applications (--skip-build flag)"
