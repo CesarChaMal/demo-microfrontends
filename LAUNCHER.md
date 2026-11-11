@@ -11,10 +11,10 @@ This guide covers the launcher scripts for running the microfrontend application
 #### Basic Usage
 ```bash
 # Linux/Mac
-./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
+./run.sh [mode] [environment] [--clean] [--fix-network] [--skip-build] [--offline]
 
 # Windows
-run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
+run.bat [mode] [environment] [--clean] [--fix-network] [--skip-build] [--offline]
 ```
 
 #### Parameters
@@ -31,9 +31,8 @@ run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-
 - `prod` - Production build with optimizations
 
 **Options**:
-- `--clean` - Cleanup node_modules and package-lock.json, which forces a full reinstall (default: off)
+- `--clean` - Cleanup node_modules and package-lock.json, which forces a full reinstall (default: off). Without it, dependencies are installed only where they changed: see [Automatic install skip](#automatic-install-skip)
 - `--fix-network` - Configure npm for problematic networks (default: off)
-- `--skip-install` - Skip every npm install/ci, even where dependencies changed (default: off). Without it, installs already run only where dependencies changed: see [Automatic install skip](#automatic-install-skip)
 - `--skip-build` - Skip build process for faster restarts (default: off)
 - `--offline` - Use local dependencies instead of CDN (local/nexus only, default: off)
 
@@ -48,9 +47,9 @@ run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-
 ./run.sh npm prod --clean
 ./run.sh aws dev --fix-network
 
-# Fast restarts (skip install/build)
-./run.sh local prod --skip-install --skip-build
-./run.sh npm dev --skip-install
+# Fast restarts (installs skip themselves when nothing changed)
+./run.sh local prod --skip-build
+./run.sh npm dev
 
 # Offline mode (no internet required)
 ./run.sh local prod --offline
@@ -70,7 +69,7 @@ run.bat local prod --clean
 run.bat npm dev --fix-network
 run.bat aws prod --clean --fix-network
 run.bat local prod --offline
-run.bat nexus dev --skip-install --skip-build
+run.bat nexus dev --skip-build
 ```
 
 
@@ -107,20 +106,6 @@ Reinstalls and adoption:
   a dependency with a native build. The stamp does not track those.
 - `INSTALL_CONCURRENCY` (default 3) sets how many microfrontends install at the same time.
 
-#### Skip Install (`--skip-install`)
-```bash
-./run.sh local prod --skip-install
-```
-**What it does:**
-- Skips npm install/ci for main package and microfrontends
-- Uses existing node_modules directories
-- Significantly faster startup times
-
-**When to use:**
-- Dependencies haven't changed since last run
-- Quick restarts during development
-- Same mode as previous run
-
 #### Skip Build (`--skip-build`)
 ```bash
 ./run.sh local prod --skip-build
@@ -135,15 +120,11 @@ Reinstalls and adoption:
 - Testing configuration changes only
 - Same mode and environment as previous run
 
-#### Combined Skip Options
+#### Sequential Workflow Example
 ```bash
-./run.sh local prod --skip-install --skip-build
-```
-**Sequential Workflow Example:**
-```bash
-./run.sh local prod                              # Run 1: Full setup
-./run.sh local prod --skip-install --skip-build  # Run 2: Fast restart
-./run.sh aws prod --skip-install                 # Run 3: Mode change (auto-rebuilds)
+./run.sh local prod               # Run 1: Full setup
+./run.sh local prod --skip-build  # Run 2: Fast restart; unchanged installs are skipped
+./run.sh aws prod                 # Run 3: Mode change (auto-rebuilds)
 ```
 
 ### Offline Mode (`--offline`)
@@ -202,7 +183,7 @@ npm run offline:setup
 ### Combined Options
 ```bash
 ./run.sh aws prod --clean --fix-network
-./run.sh local prod --skip-install --skip-build --offline
+./run.sh local prod --skip-build --offline
 ```
 
 ## Offline Mode Setup
@@ -301,7 +282,7 @@ single-spa-root/dist/lib/
 2. **Mode Change Detection**: Checks if rebuild needed when switching modes
 3. **Environment Setup**: Configures Node.js compatibility (OpenSSL)
 4. **Offline Setup**: Downloads local dependencies if --offline enabled
-5. **Dependency Check**: Installs missing dependencies (unless --skip-install)
+5. **Dependency Check**: Installs dependencies where they changed since the last install
 6. **Registry Configuration**: Switches to appropriate NPM registry
 7. **Version Fixes**: Resolves version mismatches automatically
 8. **Build Process**: Builds applications for target environment (unless --skip-build)
@@ -319,7 +300,7 @@ single-spa-root/dist/lib/
 ### Faster Startup
 ```bash
 # Skip unnecessary steps
-./run.sh local dev --skip-install --skip-build
+./run.sh local dev --skip-build
 
 # Offline mode for no internet
 ./run.sh local prod --offline
@@ -339,7 +320,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 ### Development
 - Use `./run.sh local dev` for daily development
-- Use `--skip-install --skip-build` for fast restarts
+- Use `--skip-build` for fast restarts; unchanged installs are skipped automatically
 - Use `--offline` when working without internet
 - Apply `--clean` after major changes or when switching Node versions
 
@@ -355,7 +336,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 ### Troubleshooting
 - Start with `--clean --fix-network` for persistent issues
-- Try `--skip-install --skip-build` if only testing configuration
+- Try `--skip-build` if only testing configuration
 - Use `--offline` if experiencing network issues
 - Check logs in terminal for specific error messages
 - Use debug mode for detailed troubleshooting

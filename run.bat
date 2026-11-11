@@ -1,12 +1,13 @@
 @echo off
 REM Demo Microfrontends Launcher Script for Windows
-REM Usage: run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-build] [--offline]
+REM Usage: run.bat [mode] [environment] [--clean] [--fix-network] [--skip-build] [--offline]
 REM Mode: local (default), npm, nexus, github, aws
 REM Environment: dev (default), prod
 REM Options: 
 REM   --clean (cleanup node_modules and package-lock.json, default: off)
 REM   --fix-network (configure npm for problematic networks, default: off)
-REM   --skip-install (skip npm install/ci for main package and microfrontends, default: off)
+REM   Dependencies are installed only where they changed since the last install
+REM   (scripts\install-if-changed.js); --clean forces a full reinstall.
 REM   --skip-build (skip build for main package and microfrontends, default: off)
 REM   --offline (use local dependencies instead of CDN, works with local/nexus modes only, default: off)
 REM Examples:
@@ -29,8 +30,8 @@ REM   run.bat aws prod            AWS prod (root only)
 REM
 REM Sequential Workflow Examples:
 REM   run.bat local prod                              REM Run 1: Full setup
-REM   run.bat local prod --skip-install --skip-build REM Run 2: Fast restart (same mode)
-REM   run.bat aws prod --skip-install                REM Run 3: Mode change - auto-detects and rebuilds
+REM   run.bat local prod --skip-build                REM Run 2: Fast restart (same mode)
+REM   run.bat aws prod                               REM Run 3: Mode change - auto-detects and rebuilds
 
 setlocal enabledelayedexpansion
 
@@ -58,12 +59,14 @@ if "%3"=="--fix-network" set FIX_NETWORK=true
 if "%4"=="--fix-network" set FIX_NETWORK=true
 if "%5"=="--fix-network" set FIX_NETWORK=true
 if "%6"=="--fix-network" set FIX_NETWORK=true
-if "%1"=="--skip-install" set SKIP_INSTALL=true
-if "%2"=="--skip-install" set SKIP_INSTALL=true
-if "%3"=="--skip-install" set SKIP_INSTALL=true
-if "%4"=="--skip-install" set SKIP_INSTALL=true
-if "%5"=="--skip-install" set SKIP_INSTALL=true
-if "%6"=="--skip-install" set SKIP_INSTALL=true
+set SKIP_INSTALL_GIVEN=false
+if "%1"=="--skip-install" set SKIP_INSTALL_GIVEN=true
+if "%2"=="--skip-install" set SKIP_INSTALL_GIVEN=true
+if "%3"=="--skip-install" set SKIP_INSTALL_GIVEN=true
+if "%4"=="--skip-install" set SKIP_INSTALL_GIVEN=true
+if "%5"=="--skip-install" set SKIP_INSTALL_GIVEN=true
+if "%6"=="--skip-install" set SKIP_INSTALL_GIVEN=true
+if "%SKIP_INSTALL_GIVEN%"=="true" echo ℹ️ --skip-install is no longer needed: installs run only where dependencies changed
 if "%1"=="--skip-build" set SKIP_BUILD=true
 if "%2"=="--skip-build" set SKIP_BUILD=true
 if "%3"=="--skip-build" set SKIP_BUILD=true
@@ -132,30 +135,17 @@ if "%CLEANUP%"=="true" (
     echo 🔍 Cleanup disabled - skipping cache and package cleanup
 )
 
-REM Install main package dependencies first (needed for rimraf)
-if "%SKIP_INSTALL%"=="true" (
-    echo ⏭️ Skipping main package installation (--skip-install flag)
+REM Install main package dependencies first (needed for rimraf). install-if-changed.js runs
+REM the install only when the dependencies of the root, or of shared, which its postinstall
+REM installs, changed since the last successful install.
+if "%ENV%"=="prod" (
+    echo 📦 Installing main package dependencies for production where they changed...
+    call node scripts\install-if-changed.js --ci --with shared .
 ) else (
-    if "%ENV%"=="prod" (
-        echo 📦 Installing main package dependencies for production (CI)...
-        if exist "package-lock.json" (
-            call npm ci
-            if errorlevel 1 (
-                echo ⚠️ npm ci failed, falling back to npm install...
-                call npm install
-                if errorlevel 1 exit /b 1
-            )
-        ) else (
-            echo 📝 No package-lock.json found, using npm install...
-            call npm install
-            if errorlevel 1 exit /b 1
-        )
-    ) else (
-        echo 📦 Installing main package dependencies for development...
-        call npm install
-        if errorlevel 1 exit /b 1
-    )
+    echo 📦 Installing main package dependencies for development where they changed...
+    call node scripts\install-if-changed.js --with shared .
 )
+if errorlevel 1 exit /b 1
 
 REM Clean other applications if cleanup enabled
 if "%CLEANUP%"=="true" (
@@ -198,24 +188,19 @@ if not "%PREV_MODE%"=="%MODE%" if not "%PREV_MODE%"=="unknown" (
     )
 )
 
-REM Install all dependencies - root app needs them regardless of mode
-if "%SKIP_INSTALL%"=="true" (
-    echo ⏭️ Skipping all dependencies installation (--skip-install flag)
+REM Install all dependencies - root app needs them regardless of mode. install-if-changed.js
+REM installs shared, single-spa-root and every single-spa-*-app folder only where their
+REM dependencies changed since the last successful install.
+set "APP_DIRS="
+for /d %%D in (single-spa-*-app) do if exist "%%D\package.json" set "APP_DIRS=!APP_DIRS! %%D"
+if "%ENV%"=="prod" (
+    echo 📦 Installing app dependencies for production where they changed...
+    call node scripts\install-if-changed.js --ci shared single-spa-root !APP_DIRS!
 ) else (
-    if "%ENV%"=="prod" (
-        echo 📦 Installing all dependencies for production (CI)...
-        call npm run install:all:ci
-        if errorlevel 1 (
-            echo ⚠️ CI install failed, falling back to regular install...
-            call npm run install:all
-            if errorlevel 1 exit /b 1
-        )
-    ) else (
-        echo 📦 Installing all dependencies for development...
-        call npm run install:all
-        if errorlevel 1 exit /b 1
-    )
+    echo 📦 Installing app dependencies for development where they changed...
+    call node scripts\install-if-changed.js shared single-spa-root !APP_DIRS!
 )
+if errorlevel 1 exit /b 1
 
 REM Build all applications - root app needs them regardless of mode
 if "%SKIP_BUILD%"=="true" (

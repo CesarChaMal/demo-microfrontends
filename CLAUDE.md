@@ -223,14 +223,13 @@ run.bat [mode] [env] [options]
 # Examples
 ./run.sh local dev                    # Local development
 ./run.sh local dev --clean            # Clean install first
-./run.sh npm prod --skip-install      # Skip install for speed
+./run.sh local prod --skip-build      # Reuse the last build
 ./run.sh aws dev --fix-network        # Fix network issues
 ./run.sh local prod --offline         # Offline mode
 ```
 
 **Options:**
-- `--clean`: Remove node_modules before install
-- `--skip-install`: Skip npm install
+- `--clean`: Remove node_modules before install, forcing a full reinstall (otherwise installs run only where dependencies changed)
 - `--skip-build`: Skip build step
 - `--fix-network`: Configure npm for unstable networks
 - `--offline`: Use local deps (local/nexus only)
@@ -262,8 +261,8 @@ npm run build:apps
 
 ### Fast Development Restart
 ```bash
-# Skip install and build for faster restarts
-./run.sh local dev --skip-install --skip-build
+# Skip the build; installs skip themselves when nothing changed
+./run.sh local dev --skip-build
 ```
 
 ### Adding a New Microfrontend

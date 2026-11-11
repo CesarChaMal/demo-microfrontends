@@ -425,7 +425,7 @@ workflow, its internal sources) and `backup/`.
 2. **Restart the full stack** (never `pkill` — it kills unrelated node/MCP processes; kill
    the launcher's process group instead, e.g. `kill -TERM -<PGID>`):
    ```bash
-   setsid nohup ./run.sh local dev --skip-install > /tmp/demo-microfrontends-run.log 2>&1 < /dev/null &
+   setsid nohup ./run.sh local dev > /tmp/demo-microfrontends-run.log 2>&1 < /dev/null &
    ```
    Expect **all** app builds to exit 0 (a failure in your app's webpack config stops here).
 3. **Ports**: `curl -s -o /dev/null -w '%{http_code}' http://localhost:8080` → 200, and the
