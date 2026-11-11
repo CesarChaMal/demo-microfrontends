@@ -1,6 +1,6 @@
 {
   "name": "@cesarchamal/single-spa-solid-app",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "SolidJS microfrontend for Single-SPA demonstrating fine-grained reactivity without a framework adapter",
   "main": "dist/single-spa-solid-app.js",
   "scripts": {
