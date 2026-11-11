@@ -135,22 +135,27 @@ if "%CLEANUP%"=="true" (
     echo 🔍 Cleanup disabled - skipping cache and package cleanup
 )
 
+REM With --offline, an install that is due but fails (no registry) keeps a finished earlier
+REM install instead of stopping the run; the next run installs it again.
+set "IIC_OFFLINE="
+if "%OFFLINE%"=="true" set "IIC_OFFLINE=--allow-stale"
+
 REM Install main package dependencies first (needed for rimraf). install-if-changed.js runs
 REM the install only when the dependencies of the root, or of shared, which its postinstall
 REM installs, changed since the last successful install.
 if "%ENV%"=="prod" (
     echo 📦 Installing main package dependencies for production where they changed...
-    call node scripts\install-if-changed.js --ci --with shared .
+    call node scripts\install-if-changed.js --ci %IIC_OFFLINE% --with shared .
 ) else (
     echo 📦 Installing main package dependencies for development where they changed...
-    call node scripts\install-if-changed.js --with shared .
+    call node scripts\install-if-changed.js %IIC_OFFLINE% --with shared .
 )
 if errorlevel 1 exit /b 1
 
 REM Clean other applications if cleanup enabled
 if "%CLEANUP%"=="true" (
     echo 🧹 Cleaning root and microfrontend applications...
-    call npm run clean:root && npm run clean:apps
+    call npm run clean:root && call npm run clean:apps
     if errorlevel 1 exit /b 1
 ) else (
     echo 🔍 Cleanup disabled - skipping application cleanup
@@ -189,16 +194,16 @@ if not "%PREV_MODE%"=="%MODE%" if not "%PREV_MODE%"=="unknown" (
 )
 
 REM Install all dependencies - root app needs them regardless of mode. install-if-changed.js
-REM installs shared, single-spa-root and every single-spa-*-app folder only where their
-REM dependencies changed since the last successful install.
+REM installs single-spa-root and every single-spa-*-app folder only where their dependencies
+REM changed since the last successful install. shared is installed by the root's postinstall above.
 set "APP_DIRS="
 for /d %%D in (single-spa-*-app) do if exist "%%D\package.json" set "APP_DIRS=!APP_DIRS! %%D"
 if "%ENV%"=="prod" (
     echo 📦 Installing app dependencies for production where they changed...
-    call node scripts\install-if-changed.js --ci shared single-spa-root !APP_DIRS!
+    call node scripts\install-if-changed.js --ci %IIC_OFFLINE% single-spa-root !APP_DIRS!
 ) else (
     echo 📦 Installing app dependencies for development where they changed...
-    call node scripts\install-if-changed.js shared single-spa-root !APP_DIRS!
+    call node scripts\install-if-changed.js %IIC_OFFLINE% single-spa-root !APP_DIRS!
 )
 if errorlevel 1 exit /b 1
 

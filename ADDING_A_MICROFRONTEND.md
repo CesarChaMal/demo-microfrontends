@@ -252,8 +252,8 @@ APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "
 This drives the `./run.sh github prod` deploy loop (`npm run deploy:github:x` for each app).
 `run.sh`'s dependency install needs no change: it installs every `single-spa-*-app` folder
 through `scripts/install-if-changed.js`, so name the folder `single-spa-x-app`. The Windows twin
-`run.bat` has no `APPS` array (its loops run off the root package.json scripts), but
-it does have a hand-written `deploy:github:*` menu — add your `call npm run
+`run.bat` has no `APPS` array: its dependency install also covers every `single-spa-*-app`
+folder, and its build loops run off the root package.json scripts. It does have a hand-written `deploy:github:*` menu — add your `call npm run
 deploy:github:x` line there too.
 
 ### Step 7 — CI workflows

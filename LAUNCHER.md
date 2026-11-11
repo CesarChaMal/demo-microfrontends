@@ -80,7 +80,7 @@ run.bat nexus dev --skip-build
 
 #### Automatic install skip
 
-`run.sh` installs dependencies only where they changed. After each successful install,
+`run.sh` and `run.bat` install dependencies only where they changed. After each successful install,
 `scripts/install-if-changed.js` writes `node_modules/.install-stamp.json`. The stamp holds a
 fingerprint of:
 - that folder's `package-lock.json`, minus the package's own version;
@@ -91,7 +91,7 @@ It also records npm's own record of the installed tree. On later runs a folder w
 fingerprint and tree still match is skipped. So a repeat run installs nothing, a dependency
 change reinstalls only that folder, and a version bump alone reinstalls nothing. This covers:
 - the repo root, together with `shared`, which the root's `postinstall` installs;
-- every `single-spa-*-app` folder;
+- `single-spa-root` and every `single-spa-*-app` folder;
 - `single-spa-root` and `shared` when `scripts/switch-mode.js` switches modes.
 
 Reinstalls and adoption:
@@ -104,6 +104,9 @@ Reinstalls and adoption:
 - To force a reinstall, use `--clean` or delete a folder's `node_modules`. Do the same after
   changing `omit` or `production` in an `.npmrc` file, or after switching Node.js versions for
   a dependency with a native build. The stamp does not track those.
+- With `--offline`, an install that is due but fails, for example without a network, keeps the
+  folder's finished earlier install instead of stopping the run. It prints a warning, and the
+  next run installs it again.
 - `INSTALL_CONCURRENCY` (default 3) sets how many microfrontends install at the same time.
 
 #### Skip Build (`--skip-build`)
