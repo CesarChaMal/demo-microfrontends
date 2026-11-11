@@ -25,10 +25,13 @@ jobs:
         cache: 'npm'
         cache-dependency-path: single-spa-root/package-lock.json
         
-    - name: Switch to local mode
+    - name: Switch to aws mode
       run: |
         cd ..
-        node scripts/switch-mode.js local
+        # The bucket serves the aws-mode root, which loads the 12 microfrontends
+        # from the S3 import map. A local-mode root bakes in localhost:42xx app
+        # URLs and breaks the site on the CloudFront domain.
+        node scripts/switch-mode.js aws
 
     - name: Configure NPM registry
       run: |
@@ -50,10 +53,18 @@ jobs:
         rm -f package-lock.json
         npm install --legacy-peer-deps
       
-    - name: Build
+    - name: Build (aws mode)
+      env:
+        # Baked into the bundle: the aws loader maps each app to @<ORG_NAME>/<app>-app
+        SPA_MODE: aws
+        SPA_ENV: prod
+        S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        AWS_REGION: ${{ secrets.AWS_REGION || 'eu-central-1' }}
+        ORG_NAME: ${{ secrets.ORG_NAME || 'cesarchamal' }}
+        S3_WEBSITE_URL: http://${{ secrets.S3_BUCKET }}.s3-website.${{ secrets.AWS_REGION || 'eu-central-1' }}.amazonaws.com
       run: |
         export NODE_OPTIONS="--openssl-legacy-provider"
-        npm run build
+        npm run build:prod -- --env.mode=aws
       
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -65,9 +76,12 @@ jobs:
     - name: Deploy root application to S3
       run: |
         echo "Deploying root application to S3..."
-        aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }}/ --delete --cache-control 'public, must-revalidate, max-age=0'
+        # No --delete: the bucket root also holds the 12 microfrontends
+        # (@<org>/<app>-app/) and the import map, which this root-only build
+        # does not contain. --delete removed them on every run.
+        aws s3 sync dist/ s3://${{ secrets.S3_BUCKET }}/ --cache-control 'public, must-revalidate, max-age=0'
         echo "Root application deployed successfully"
-        echo "Website URL: http://${{ secrets.S3_BUCKET }}.s3-website,${{ secrets.AWS_REGION || 'eu-central-1' }}.amazonaws.com"
+        echo "Website URL: http://${{ secrets.S3_BUCKET }}.s3-website.${{ secrets.AWS_REGION || 'eu-central-1' }}.amazonaws.com"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
