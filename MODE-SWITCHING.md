@@ -63,7 +63,7 @@ SPA_MODE=local
 SPA_ENV=dev|prod
 
 # What it does
-- Starts all 12 development servers (ports 4201-4211)
+- Starts all 12 development servers (ports 4201-4212)
 - Uses SystemJS for module loading
 - Serves from local webpack-dev-server
 - Hot reload enabled

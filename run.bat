@@ -260,7 +260,7 @@ if "%MODE%"=="local" (
         )
     ) else (
         echo 🌐 Starting all microfrontends...
-        echo 🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211
+        echo 🔍 DEBUG: Development mode - starting individual servers on ports 4201-4212
         echo Main application: http://localhost:8080
         echo.
         echo Microfrontend ports:
@@ -275,6 +275,7 @@ if "%MODE%"=="local" (
         echo   - TypeScript App: http://localhost:4209
         echo   - jQuery App: http://localhost:4210
         echo   - Svelte App: http://localhost:4211
+        echo   - Solid App: http://localhost:4212
         echo.
         echo Press Ctrl+C to stop all services
         call npm run dev:all

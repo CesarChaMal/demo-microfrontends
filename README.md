@@ -403,7 +403,7 @@ SPA_MODE=local
 SPA_ENV=dev|prod
 
 # URLs
-Dev:  http://localhost:4201-4211/app-name.js
+Dev:  http://localhost:4201-4212/app-name.js
 Prod: /app-name.js (served from root server)
 
 # Use Case: Full development environment

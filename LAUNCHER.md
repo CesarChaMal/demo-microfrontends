@@ -223,7 +223,7 @@ single-spa-root/dist/lib/
 ```bash
 ./run.sh local dev
 ```
-- Starts all 12 development servers (ports 4201-4211)
+- Starts all 12 development servers (ports 4201-4212)
 - Uses SystemJS for module loading
 - Hot reload enabled
 - No external dependencies

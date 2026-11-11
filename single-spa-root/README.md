@@ -275,7 +275,7 @@ window.stateManager
 
 ### Loading Strategies
 * **Local Mode:** SystemJS imports from localhost ports (dev) or static files (prod)
-  - **Development**: Hot reload from individual dev servers (ports 4201-4211)
+  - **Development**: Hot reload from individual dev servers (ports 4201-4212)
   - **Production**: Static file serving from built dist directories
   - **Offline Support**: Local CDN dependencies for internet-free development
 * **NPM Mode:** CDN imports from jsdelivr for published NPM packages
@@ -303,7 +303,7 @@ window.stateManager
 
 1. **ESLint Configuration Errors**: Fixed to use `airbnb-base` instead of missing `@vue/eslint-config-airbnb`
 2. **Dependency Conflicts**: Use clean install approach (cache clean + lock file removal)
-3. **Port Conflicts**: Ensure ports 8080, 4201-4211 are available
+3. **Port Conflicts**: Ensure ports 8080, 4201-4212 are available
 4. **Node Version**: Use Node.js v18+ with legacy OpenSSL provider
 
 ### Clean Install

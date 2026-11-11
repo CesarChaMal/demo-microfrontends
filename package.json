@@ -13,7 +13,7 @@
     "install:all:concurrent": "npm run install:shared && npm run install:root && npm run install:apps:concurrent",
     "install:all:concurrent:ci": "npm run install:shared:ci && npm run install:root:ci && npm run install:apps:concurrent:ci",
     "postinstall": "npm run install:shared",
-    "install:shared": "cd shared && npm config delete registry || true && npm config set registry https://registry.npmjs.org/ && npm cache clean --force && rm -f package-lock.json && npm install",
+    "install:shared": "cd shared && npm config delete registry || true && npm config set registry https://registry.npmjs.org/ && rm -f package-lock.json && npm install",
     "install:shared:ci": "cd shared && npm config delete registry || true && npm config set registry https://registry.npmjs.org/ && npm ci",
     "install:root": "cd single-spa-root && npm install",
     "install:root:ci": "cd single-spa-root && npm ci",
