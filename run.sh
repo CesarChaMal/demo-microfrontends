@@ -36,6 +36,9 @@ FIX_NETWORK=false
 SKIP_INSTALL=false
 SKIP_BUILD=false
 OFFLINE=false
+# true once this run has built every microfrontend; start_aws then lets the S3
+# deploy reuse those builds instead of rebuilding all of them a second time
+APPS_BUILT=false
 
 # Check for flags in any position
 for arg in "$@"; do
@@ -491,7 +494,7 @@ else
 #        }
         exec_npm npm run install:apps:concurrent:ci || {
             echo "⚠️  CI install failed, falling back to regular install..."
-            exec_npm npm install:apps:concurrent
+            exec_npm npm run install:apps:concurrent
         }
     else
         echo "📦 Installing all dependencies for development..."
@@ -513,6 +516,8 @@ else
 #        exec_build npm run build:dev
         exec_build npm run build:concurrent:dev
     fi
+    # Reached only on success: set -e (line 29) aborts the run on a failed build
+    APPS_BUILT=true
 fi
 
 # Define startup behavior based on mode and environment
@@ -532,7 +537,7 @@ start_local() {
     fi
     
     echo "🔍 DEBUG: Available ports check:"
-    for port in 8080 4201 4202 4203 4204 4205 4206 4207 4208 4209 4210 4211; do
+    for port in 8080 4201 4202 4203 4204 4205 4206 4207 4208 4209 4210 4211 4212; do
         # Cross-platform port checking
         if command -v lsof >/dev/null 2>&1; then
             # Linux/macOS/WSL with lsof
@@ -575,12 +580,12 @@ start_local() {
         fi
      else
         echo "🌐 Local development: Starting all 12 microfrontends"
-        echo "🔍 DEBUG: Development mode - starting individual servers on ports 4201-4211"
+        echo "🔍 DEBUG: Development mode - starting individual servers on ports 4201-4212"
         if [ "$OFFLINE" = true ]; then
             echo "📱 Offline mode: Using local dependencies"
         fi
         echo "Main application: http://localhost:8080"
-        echo "Microfrontend ports: 4201-4211"
+        echo "Microfrontend ports: 4201-4212"
         if [ "$OFFLINE" = true ]; then
             OFFLINE=true exec_npm npm run serve:local:dev
         else
@@ -683,20 +688,28 @@ start_aws() {
 #        exec_npm npm run build:prod -- --env.mode=aws
 #        exec_npm npm run build:aws:prod
 #    fi
-    if [ "$ENV" = "dev" ]; then
-        echo "🔨 Building root application for AWS dev mode..."
-        exec_npm npm run build:root:aws:dev
-    else
-        echo "🔨 Building root application for AWS prod mode..."
-#        exec_npm npm run build:root:aws:prod
-#        exec_npm npm run build:root:aws:s3:prod
-        exec_npm npm run deploy:aws:prod
+    # deploy:aws:$ENV = mode:aws (installs single-spa-root + shared deps)
+    #   -> build:root:aws:$ENV -> scripts/deploy-s3.sh $ENV (uploads the root,
+    #   import map, employees.json and all 12 microfrontends). It builds the root
+    #   itself, so it runs exactly once. When this run has just built every
+    #   microfrontend, deploy-s3.sh reuses those builds instead of rebuilding all
+    #   12 one by one:
+    #   - prod: SKIP_BUILD=true also skips deploy-s3.sh's own root rebuild; the
+    #           build:root:aws:prod output is the same production aws-mode root
+    #   - dev:  SKIP_APPS_BUILD=true skips only the app rebuild; deploy-s3.sh
+    #           still builds the root bundle it has always uploaded in dev
+    DEPLOY_ENV=()
+    if [ "$APPS_BUILT" = true ]; then
+        if [ "$ENV" = "prod" ]; then
+            DEPLOY_ENV=(SKIP_BUILD=true)
+        else
+            DEPLOY_ENV=(SKIP_APPS_BUILD=true)
+        fi
     fi
-
-    # Deploy all microfrontends to S3 in both dev and prod
-    echo "🚀 AWS mode: Deploying all microfrontends to S3"
-    echo "🔍 DEBUG: Running npm run deploy:aws:$ENV"
-    if npm run deploy:aws:$ENV; then
+    echo "🚀 AWS mode: Building root application and deploying all microfrontends to S3"
+    echo "🔍 DEBUG: Running ${DEPLOY_ENV[*]} npm run deploy:aws:$ENV"
+    # -u SKIP_INSTALL: an inherited value must not skip the install inside deploy:aws:*
+    if exec_npm env -u SKIP_INSTALL "${DEPLOY_ENV[@]}" npm run deploy:aws:$ENV; then
         echo "✅ S3 deployment successful"
     else
         echo "❌ S3 deployment failed"
