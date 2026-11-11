@@ -241,3 +241,6 @@ single-spa-home-app/dist/
 single-spa-angular-app/dist/
 single-spa-react-app/dist/
 single-spa-vue-app/dist/
+
+# Local notes (not committed)
+WSL-SPEED-NOTES.md
