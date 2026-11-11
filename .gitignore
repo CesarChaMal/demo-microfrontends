@@ -247,6 +247,3 @@ WSL-SPEED-NOTES.md
 
 # install-if-changed.js marks a folder whose dependency install has not finished
 .install-pending
-
-# scripts/switch-mode.js records the mode it last switched to
-.current-mode
