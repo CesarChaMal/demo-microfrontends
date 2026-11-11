@@ -104,22 +104,28 @@ else
     echo "✅ S3 bucket $BUCKET_NAME already exists"
 fi
 
-# Check if called from run.sh (which sets SKIP_BUILD) or standalone
+# Check if called from run.sh / run.bat (which pass SKIP_BUILD or SKIP_APPS_BUILD) or standalone
+#   SKIP_BUILD=true      - the launcher already built the microfrontends and the root
+#   SKIP_APPS_BUILD=true - the launcher already built the microfrontends; build only the root
 if [ "${SKIP_BUILD:-}" = "true" ]; then
     echo "📋 Using pre-built applications from run.sh..."
     echo "🔍 DEBUG: Skipping build - applications already built by launcher script"
 else
-    echo "🔨 Building all applications for $ENV..."
-    echo "🔍 DEBUG: Standalone mode - building applications"
-    if [ "$ENV" = "prod" ]; then
-        echo "🔍 DEBUG: Running npm run build:prod"
-        npm run build:prod
+    if [ "${SKIP_APPS_BUILD:-}" = "true" ]; then
+        echo "📋 Using pre-built microfrontends from run.sh (SKIP_APPS_BUILD=true)..."
     else
-        echo "🔍 DEBUG: Running npm run build:dev"
-        npm run build:dev
+        echo "🔨 Building all applications for $ENV..."
+        echo "🔍 DEBUG: Standalone mode - building applications"
+        if [ "$ENV" = "prod" ]; then
+            echo "🔍 DEBUG: Running npm run build:prod"
+            npm run build:prod
+        else
+            echo "🔍 DEBUG: Running npm run build:dev"
+            npm run build:dev
+        fi
+        echo "🔍 DEBUG: Build command completed"
     fi
-    echo "🔍 DEBUG: Build command completed"
-    
+
     echo "🔨 Building root application..."
     echo "🔍 DEBUG: Changing to single-spa-root directory"
     cd single-spa-root
