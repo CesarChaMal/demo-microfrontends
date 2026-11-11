@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { isDeepStrictEqual } = require('util');
 const { ensureInstalledSync } = require('./install-if-changed');
 
 // Detect if running in CI/production environment
@@ -44,6 +45,53 @@ const npmrcNpmPath = path.join(projectRoot, '.npmrc.npm');
 const npmrcNexusPath = path.join(projectRoot, '.npmrc.nexus');
 const npmrcLocalPath = path.join(projectRoot, '.npmrc.local');
 
+// The mode this script last switched to, recorded in .current-mode (gitignored). The local-mode
+// backups (package-local.json, shared/package-local.json, .npmrc.local) are only taken when
+// local mode is the one being left. Before, every switch away from local overwrote them, so a
+// second aws run (run.sh switches to aws, then deploy:aws:* switches again) replaced the
+// local-mode backup with aws content.
+const modeStatePath = path.join(projectRoot, '.current-mode');
+const MODES = ['local', 'npm', 'nexus', 'github', 'aws'];
+
+function readJsonOrNull(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (error) {
+    return null;
+  }
+}
+
+// The mode package.json is in: the recorded one or, before anything was recorded, the variant
+// package.json matches. 'unknown' when it matches none, for example local mode with edits.
+function currentMode() {
+  try {
+    const recorded = fs.readFileSync(modeStatePath, 'utf8').trim();
+    if (MODES.includes(recorded)) return recorded;
+  } catch (error) {
+    // nothing recorded yet
+  }
+  const current = readJsonOrNull(packageJsonPath);
+  if (current === null) return 'unknown';
+  // package-local.json first: it is identical to package-npm.json in the committed tree.
+  const variants = [['local', packageLocalPath], ['npm', packageNpmPath], ['nexus', packageNexusPath],
+    ['github', packageGithubPath], ['aws', packageAwsPath]];
+  const match = variants.find(([, file]) => isDeepStrictEqual(current, readJsonOrNull(file)));
+  return match ? match[0] : 'unknown';
+}
+
+function recordMode(mode) {
+  fs.writeFileSync(modeStatePath, `${mode}\n`);
+}
+
+// Called first by every switch away from local mode: true when the local-mode backups should
+// be taken. An unknown state counts as local so that edits made in local mode are kept.
+function leavingLocalMode() {
+  const previous = currentMode();
+  if (previous === 'local' || previous === 'unknown') return true;
+  console.log(`⏭️  Switching from ${previous} mode: the local-mode backups stay as they are`);
+  return false;
+}
+
 // Shared folder paths
 const sharedPackageJsonPath = path.join(sharedDir, 'package.json');
 const sharedPackageNpmPath = path.join(sharedDir, 'package-npm.json');
@@ -54,9 +102,10 @@ const sharedPackageLocalPath = path.join(sharedDir, 'package-local.json');
 
 function switchToNpmMode() {
   console.log('🔄 Switching to NPM mode...');
+  const backUpLocal = leavingLocalMode();
   
   // Backup current .npmrc as .npmrc.local
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -68,7 +117,7 @@ function switchToNpmMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -77,13 +126,14 @@ function switchToNpmMode() {
   if (fs.existsSync(packageNpmPath)) {
     fs.copyFileSync(packageNpmPath, packageJsonPath);
     console.log('📦 Copied package-npm.json to package.json');
+    recordMode('npm');
   } else {
     console.error('❌ package-npm.json not found');
     process.exit(1);
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
@@ -143,6 +193,7 @@ function switchToLocalMode() {
       console.log('⚠️  Git checkout failed, keeping current package.json');
     }
   }
+  recordMode('local');
   
   // Handle shared folder
   if (fs.existsSync(sharedPackageLocalPath)) {
@@ -173,9 +224,10 @@ function switchToLocalMode() {
 
 function switchToGitHubMode() {
   console.log('🔄 Switching to GitHub mode...');
+  const backUpLocal = leavingLocalMode();
   
   // GitHub mode uses NPM registry, so ensure .npmrc is set correctly
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -186,7 +238,7 @@ function switchToGitHubMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -195,13 +247,14 @@ function switchToGitHubMode() {
   if (fs.existsSync(packageGithubPath)) {
     fs.copyFileSync(packageGithubPath, packageJsonPath);
     console.log('📦 Copied package-github.json to package.json');
+    recordMode('github');
   } else {
     console.error('❌ package-github.json not found');
     process.exit(1);
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
@@ -234,9 +287,10 @@ function switchToGitHubMode() {
 
 function switchToNexusMode() {
   console.log('🔄 Switching to Nexus mode...');
+  const backUpLocal = leavingLocalMode();
   
   // Backup current .npmrc as .npmrc.local
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -248,7 +302,7 @@ function switchToNexusMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -257,13 +311,14 @@ function switchToNexusMode() {
   if (fs.existsSync(packageNexusPath)) {
     fs.copyFileSync(packageNexusPath, packageJsonPath);
     console.log('📦 Copied package-nexus.json to package.json');
+    recordMode('nexus');
   } else {
     console.error('❌ package-nexus.json not found');
     process.exit(1);
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
@@ -292,9 +347,10 @@ function switchToNexusMode() {
 
 function switchToAwsMode() {
   console.log('🔄 Switching to AWS mode...');
+  const backUpLocal = leavingLocalMode();
   
   // AWS mode uses NPM registry, so ensure .npmrc is set correctly
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -305,7 +361,7 @@ function switchToAwsMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -314,13 +370,14 @@ function switchToAwsMode() {
   if (fs.existsSync(packageAwsPath)) {
     fs.copyFileSync(packageAwsPath, packageJsonPath);
     console.log('📦 Copied package-aws.json to package.json');
+    recordMode('aws');
   } else {
     console.error('❌ package-aws.json not found');
     process.exit(1);
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
