@@ -44,6 +44,29 @@ const npmrcNpmPath = path.join(projectRoot, '.npmrc.npm');
 const npmrcNexusPath = path.join(projectRoot, '.npmrc.nexus');
 const npmrcLocalPath = path.join(projectRoot, '.npmrc.local');
 
+// The local-mode backups (package-local.json, shared/package-local.json, .npmrc.local) are
+// taken only while single-spa-root/package.json is the local or npm variant. Those are the only
+// variants with the @cesarchamal/single-spa-* dependencies, and they are identical by design, so
+// a version bump made in npm mode still reaches package-local.json. Before, every switch away
+// from local overwrote the backups: a second aws run (run.sh switches to aws, then deploy:aws:*
+// switches again) replaced the local backup with aws content. Only the dependencies are checked,
+// so tools that rewrite "version" in place (fix-npm-deps.sh, version-manager.js) don't matter.
+function readJsonOrNull(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (error) {
+    return null;
+  }
+}
+
+function holdsLocalDependencies() {
+  const pkg = readJsonOrNull(packageJsonPath);
+  const dependencies = (pkg && pkg.dependencies) || {};
+  if (Object.keys(dependencies).some((name) => name.startsWith('@cesarchamal/single-spa-'))) return true;
+  console.log('⏭️  package.json is not the local or npm variant (no @cesarchamal/single-spa-* dependencies): the local-mode backups stay as they are');
+  return false;
+}
+
 // Shared folder paths
 const sharedPackageJsonPath = path.join(sharedDir, 'package.json');
 const sharedPackageNpmPath = path.join(sharedDir, 'package-npm.json');
@@ -54,9 +77,10 @@ const sharedPackageLocalPath = path.join(sharedDir, 'package-local.json');
 
 function switchToNpmMode() {
   console.log('🔄 Switching to NPM mode...');
+  const backUpLocal = holdsLocalDependencies();
   
   // Backup current .npmrc as .npmrc.local
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -68,7 +92,7 @@ function switchToNpmMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -83,7 +107,7 @@ function switchToNpmMode() {
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
@@ -173,9 +197,10 @@ function switchToLocalMode() {
 
 function switchToGitHubMode() {
   console.log('🔄 Switching to GitHub mode...');
+  const backUpLocal = holdsLocalDependencies();
   
   // GitHub mode uses NPM registry, so ensure .npmrc is set correctly
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -186,7 +211,7 @@ function switchToGitHubMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -201,7 +226,7 @@ function switchToGitHubMode() {
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
@@ -234,9 +259,10 @@ function switchToGitHubMode() {
 
 function switchToNexusMode() {
   console.log('🔄 Switching to Nexus mode...');
+  const backUpLocal = holdsLocalDependencies();
   
   // Backup current .npmrc as .npmrc.local
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -248,7 +274,7 @@ function switchToNexusMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -263,7 +289,7 @@ function switchToNexusMode() {
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
@@ -292,9 +318,10 @@ function switchToNexusMode() {
 
 function switchToAwsMode() {
   console.log('🔄 Switching to AWS mode...');
+  const backUpLocal = holdsLocalDependencies();
   
   // AWS mode uses NPM registry, so ensure .npmrc is set correctly
-  if (fs.existsSync(npmrcPath)) {
+  if (backUpLocal && fs.existsSync(npmrcPath)) {
     fs.copyFileSync(npmrcPath, npmrcLocalPath);
     console.log('💾 Backed up current .npmrc as .npmrc.local');
   }
@@ -305,7 +332,7 @@ function switchToAwsMode() {
   }
   
   // Backup current package.json as package-local.json
-  if (fs.existsSync(packageJsonPath)) {
+  if (backUpLocal && fs.existsSync(packageJsonPath)) {
     fs.copyFileSync(packageJsonPath, packageLocalPath);
     console.log('💾 Backed up current package.json as package-local.json');
   }
@@ -320,7 +347,7 @@ function switchToAwsMode() {
   }
   
   // Handle shared folder
-  if (fs.existsSync(sharedPackageJsonPath)) {
+  if (backUpLocal && fs.existsSync(sharedPackageJsonPath)) {
     fs.copyFileSync(sharedPackageJsonPath, sharedPackageLocalPath);
     console.log('💾 Backed up shared/package.json as package-local.json');
   }
