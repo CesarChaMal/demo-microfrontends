@@ -249,7 +249,9 @@ in `package.json` but missing from a variant breaks that whole mode.
 APPS=("auth" "layout" "home" "angular" "vue" "react" "vanilla" "webcomponents" "typescript" "jquery" "svelte" "solid" "x")
 ```
 
-This drives `./run.sh local dev` install/build/serve loops. The Windows twin
+This drives the `./run.sh github prod` deploy loop (`npm run deploy:github:x` for each app).
+`run.sh`'s dependency install needs no change: it installs every `single-spa-*-app` folder
+through `scripts/install-if-changed.js`, so name the folder `single-spa-x-app`. The Windows twin
 `run.bat` has no `APPS` array (its loops run off the root package.json scripts), but
 it does have a hand-written `deploy:github:*` menu — add your `call npm run
 deploy:github:x` line there too.

@@ -423,24 +423,19 @@ else
     echo "🔍 Cleanup disabled - skipping cache and package cleanup"
 fi
 
-# Install main package dependencies first (needed for rimraf)
+# Install main package dependencies first (needed for rimraf). install-if-changed.js runs
+# the install only when the root's package-lock.json, or the dependencies in package.json
+# or shared/package.json (the root's postinstall installs shared), changed since the last
+# successful install. prod uses npm ci and falls back to npm install if it fails.
 if [ "$SKIP_INSTALL" = true ]; then
     echo "⏭️  Skipping main package installation (--skip-install flag)"
 else
     if [ "$ENV" = "prod" ]; then
-        echo "📦 Installing main package dependencies for production (CI)..."
-        if [ -f "package-lock.json" ]; then
-            exec_npm npm ci || {
-                echo "⚠️  npm ci failed, falling back to npm install..."
-                exec_npm npm install
-            }
-        else
-            echo "📝 No package-lock.json found, using npm install..."
-            exec_npm npm install
-        fi
+        echo "📦 Installing main package dependencies for production (CI) if they changed..."
+        exec_npm node scripts/install-if-changed.js --ci --with shared .
     else
-        echo "📦 Installing main package dependencies for development..."
-        exec_npm npm install
+        echo "📦 Installing main package dependencies for development if they changed..."
+        exec_npm node scripts/install-if-changed.js --with shared .
     fi
 fi
 
@@ -482,24 +477,28 @@ if [ "$PREV_MODE" != "$MODE" ] && [ "$PREV_MODE" != "unknown" ]; then
     fi
 fi
 
-# Install all dependencies - root app needs them regardless of mode
+# Install all dependencies - root app needs them regardless of mode. install-if-changed.js
+# installs only the microfrontends whose dependencies changed since their last successful
+# install, INSTALL_CONCURRENCY (default 3) at a time. prod uses npm ci and falls back to
+# npm install if it fails. Every single-spa-*-app folder is a microfrontend, so a new app
+# is picked up without changes here (folders without a package.json are left out).
+APP_DIRS=()
+for app_dir in single-spa-*-app; do
+    if [ -f "$app_dir/package.json" ]; then
+        APP_DIRS+=("$app_dir")
+    fi
+done
 if [ "$SKIP_INSTALL" = true ]; then
     echo "⏭️  Skipping all dependencies installation (--skip-install flag)"
+elif [ ${#APP_DIRS[@]} -eq 0 ]; then
+    echo "⚠️  No single-spa-*-app folder with a package.json found, nothing to install"
 else
     if [ "$ENV" = "prod" ]; then
-        echo "📦 Installing all dependencies for production (CI)..."
-#        exec_npm npm run install:all:ci || {
-#            echo "⚠️  CI install failed, falling back to regular install..."
-#            exec_npm npm run install:all
-#        }
-        exec_npm npm run install:apps:concurrent:ci || {
-            echo "⚠️  CI install failed, falling back to regular install..."
-            exec_npm npm run install:apps:concurrent
-        }
+        echo "📦 Installing microfrontend dependencies for production (CI) where they changed..."
+        exec_npm node scripts/install-if-changed.js --ci "${APP_DIRS[@]}"
     else
-        echo "📦 Installing all dependencies for development..."
-#        exec_npm npm run install:all
-        exec_npm npm run install:apps:concurrent
+        echo "📦 Installing microfrontend dependencies for development where they changed..."
+        exec_npm node scripts/install-if-changed.js "${APP_DIRS[@]}"
     fi
 fi
 

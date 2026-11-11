@@ -31,9 +31,9 @@ run.bat [mode] [environment] [--clean] [--fix-network] [--skip-install] [--skip-
 - `prod` - Production build with optimizations
 
 **Options**:
-- `--clean` - Cleanup node_modules and package-lock.json (default: off)
+- `--clean` - Cleanup node_modules and package-lock.json, which forces a full reinstall (default: off)
 - `--fix-network` - Configure npm for problematic networks (default: off)
-- `--skip-install` - Skip npm install/ci for faster restarts (default: off)
+- `--skip-install` - Skip every npm install/ci, even where dependencies changed (default: off). Without it, installs already run only where dependencies changed: see [Automatic install skip](#automatic-install-skip)
 - `--skip-build` - Skip build process for faster restarts (default: off)
 - `--offline` - Use local dependencies instead of CDN (local/nexus only, default: off)
 
@@ -78,6 +78,34 @@ run.bat nexus dev --skip-install --skip-build
 ## Advanced Options
 
 ### Skip Options for Faster Development
+
+#### Automatic install skip
+
+`run.sh` installs dependencies only where they changed. After each successful install,
+`scripts/install-if-changed.js` writes `node_modules/.install-stamp.json`. The stamp holds a
+fingerprint of:
+- that folder's `package-lock.json`, minus the package's own version;
+- the dependency fields of its `package.json`;
+- the platform and the dependency types npm leaves out (`NODE_ENV=production`, `npm_config_omit`).
+
+It also records npm's own record of the installed tree. On later runs a folder whose
+fingerprint and tree still match is skipped. So a repeat run installs nothing, a dependency
+change reinstalls only that folder, and a version bump alone reinstalls nothing. This covers:
+- the repo root, together with `shared`, which the root's `postinstall` installs;
+- every `single-spa-*-app` folder;
+- `single-spa-root` and `shared` when `scripts/switch-mode.js` switches modes.
+
+Reinstalls and adoption:
+- A failed or interrupted install leaves the folder marked with `.install-pending`, so the next
+  run installs it again.
+- An `npm install` or `npm ci` you run by hand is noticed, and that folder is reinstalled once.
+- Folders installed before this feature are recorded without a reinstall. That needs a finished
+  npm install whose packages are all at the versions in `package-lock.json`, and that
+  `package-lock.json` must match `package.json`.
+- To force a reinstall, use `--clean` or delete a folder's `node_modules`. Do the same after
+  changing `omit` or `production` in an `.npmrc` file, or after switching Node.js versions for
+  a dependency with a native build. The stamp does not track those.
+- `INSTALL_CONCURRENCY` (default 3) sets how many microfrontends install at the same time.
 
 #### Skip Install (`--skip-install`)
 ```bash
