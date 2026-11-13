@@ -3,6 +3,16 @@ name: Deploy to GitHub Pages (Manual)
 on:
   workflow_dispatch:
 
+# One Pages deploy at a time. Every run force-pushes the same per-app
+# repositories, so two overlapping runs (two merges seconds apart, or a manual
+# run during an automatic one) race on the same ref and the loser fails with
+# "cannot lock ref". A newer run waits for the one in flight rather than
+# cancelling it mid-deploy. The group is shared by the Auto and Manual
+# workflows.
+concurrency:
+  group: github-pages-deploy
+  cancel-in-progress: false
+
 env:
   GITHUB_USERNAME: ${{ github.repository_owner }}
   ORG_NAME: ${{ secrets.ORG_NAME || github.repository_owner }}
