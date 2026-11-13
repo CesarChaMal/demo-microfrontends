@@ -17,17 +17,19 @@
             <span class="tech-badge">Vue.js</span>
             <span class="tech-badge">React</span>
             <span class="tech-badge">Angular</span>
+            <span class="tech-badge">AngularJS</span>
             <span class="tech-badge">TypeScript</span>
             <span class="tech-badge">Vanilla JS</span>
             <span class="tech-badge">Web Components</span>
             <span class="tech-badge">jQuery</span>
             <span class="tech-badge">Svelte</span>
+            <span class="tech-badge">Solid</span>
           </div>
         </div>
         <div class="footer-section">
           <div class="copyright-section">
             <p class="copyright-text">
-              Copyright © 2025
+              Copyright © {{ currentYear }}
               <a href="https://github.com/CesarChaMal" target="_blank" id="personal-page-link">
                 Cesar Francisco Chavez Maldonado
               </a>
@@ -49,6 +51,11 @@
 export default {
   name: 'Footer',
   props: {},
+  data() {
+    return {
+      currentYear: new Date().getFullYear(),
+    };
+  },
 };
 </script>
 
