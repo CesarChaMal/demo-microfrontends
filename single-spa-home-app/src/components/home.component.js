@@ -11,7 +11,7 @@ angular
       vm.$scope = $scope;
 
       vm.title = 'AngularJS Home Microfrontend';
-      vm.logoUrl = 'https://angularjs.org/img/ng-logo.png';
+      vm.logoUrl = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg';
       vm.text = 'Welcome to the microfrontend architecture demo! This is the home page built with AngularJS 1.x, demonstrating legacy framework integration in a modern Single-SPA setup.';
       vm.mountedAt = new Date().toLocaleString();
       vm.userState = null;
