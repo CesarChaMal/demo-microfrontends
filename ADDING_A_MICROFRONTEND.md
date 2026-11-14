@@ -261,7 +261,12 @@ deploy:github:x` line there too.
 - **`.github/workflows/deploy-x.yml`** — copy `deploy-svelte.yml` (or `deploy-solid.yml`)
   and change exactly five things: workflow `name:`, `paths:` trigger filter,
   `working-directory:`, `cache-dependency-path:`, and the final
-  `../scripts/deploy.sh x-app single-spa-x-app.js '{}'` call. The workflows use Node
+  `../scripts/deploy.sh x-app single-spa-x-app.js` call (the app name and the bundle
+  file the build writes into `dist/`; both must match the app's line in the import map
+  that `scripts/deploy-s3.sh` writes, or the deploy stops before uploading). That check reads
+  the import map that is live in the bucket, so a new app's workflow stays red until one
+  full deploy (`./run.sh aws prod`) has published its entry. Each workflow deploys from
+  `main` only and runs one deploy of its app at a time. The workflows use Node
   18.20.8 and `rm -f package-lock.json` before install (lockfiles are not relied on in CI).
 - **`.github/workflows/deploy-github-pages.yml`** — add a matrix entry (keep
   `single-spa-root` last):
@@ -403,7 +408,8 @@ the flag is lowercase `/l`, which a case-sensitive `grep "for /L"` misses.
 `scripts/setup-s3.sh`, `scripts/setup-cloudfront.sh`, `scripts/check-cdn-status.*`,
 `scripts/download-offline-deps.*`, `scripts/auto-fix-mode.*`, `scripts/stop-github-server.*`,
 `scripts/test-{npm,nexus}-auth.*`, `scripts/update-importmap-github.mjs` (env-driven
-from the workflow matrix), `scripts/update-importmap.mjs`, `backup/*` (dead snapshots,
+from the workflow matrix), `scripts/update-importmap.mjs` (no longer called by anything),
+`backup/*` (dead snapshots,
 referenced by nothing), and `single-spa-root/root-application.js` (**stale prebuilt —
 never hand-edit; rebuilt by the root build**).
 
