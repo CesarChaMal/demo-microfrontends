@@ -4,6 +4,14 @@ on:
   push:
     branches: [main, master]
     paths: ['single-spa-home-app/**']
+  # Manual run: redeploys this app from the Actions tab without a new commit.
+  workflow_dispatch:
+
+# One deploy of this app at a time, in the order the runs were started: two runs
+# side by side could finish out of order and leave the older build live.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -17,6 +25,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Deploy from main only
+      # A manual run can be started from any branch, and this job publishes to
+      # the live site.
+      if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
+      run: |
+        echo "::error::Per-app deploys publish to the live site, so they run from main only (this run is on $GITHUB_REF_NAME)."
+        exit 1
       
     - name: Setup Node.js
       uses: actions/setup-node@v3
@@ -62,11 +78,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION || 'eu-central-1' }}
         
-    - name: Deploy to S3 and update import map
+    - name: Deploy to S3
       run: |
-        export GITHUB_SHA=${{ github.sha }}
         chmod +x ../scripts/deploy.sh
-        ../scripts/deploy.sh home-app single-spa-home-app.js '{"angular":"https://cdn.jsdelivr.net/npm/angular@1.8.0/angular.min.js"}'
+        ../scripts/deploy.sh home-app single-spa-home-app.js
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
